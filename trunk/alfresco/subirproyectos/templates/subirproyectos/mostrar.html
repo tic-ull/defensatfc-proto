@@ -1,0 +1,19 @@
+<a href={{ url }}>{{p.title}}</a> 
+
+
+<form action="/subirproyectos/validar/" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+Tutor: <input type="text" name= "tutor" value="{{p.tutor}}"><br />
+
+<input type="hidden" name="id" value="{{p.id}}">
+<input type="submit" value="Validar" />
+</form>
+
+<form action="/subirproyectos/rechazar/" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<input type="hidden" name="id" value="{{p.id}}">
+<input type="submit" value="Rechazar" />
+</form>
+
+

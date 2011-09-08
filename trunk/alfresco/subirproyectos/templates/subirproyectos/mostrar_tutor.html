@@ -1,0 +1,20 @@
+<form action="/subirproyectos/validar_tutor/" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<!--Creador: <input type="text" name="creador" value="{{p.creator}}" /><br />
+Titulo: <input type="text" name="titulo" value="{{p.title}}" /><br />
+Descripcion: <input type="text" name="descripcion" value="{{p.description}}" /><br />
+Tipo: <input type="text" name="tipo" value="{{p.type}}" /><br />
+Formato: <input type="text" name="formato" value="{{p.format}}" /><br />
+Lenguaje: <input type="text" name="lenguaje" value="{{p.language}}" /><br />
+Relation: <input type="text" name="relation" value="{{p.relation}}" /><br />
+Subject: <input type="text" name="subject" /><br />
+Coverage: <input type="text" name="coverage" /><br />-->
+
+Nota: <input type="text" name="calificacion"/><br />
+Fecha_acta: <input type="text" name="fecha"/><br />
+Tribunal vocal <input type="text" name="vocal"/><br />
+Tribunal secretario <input type="text" name="secretario"/><br />
+Tribunal presidente <input type="text" name="presidente"/><br />
+<input type="hidden" name="id" value="{{p.id}}">
+<input type="submit" value="Aceptar" />
+</form>

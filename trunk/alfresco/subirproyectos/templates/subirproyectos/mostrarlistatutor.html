@@ -1,0 +1,24 @@
+<p> Proyectos por validar </p>
+
+{% if proyectos %}
+    <ul>
+    {% for proyecto in proyectos %}
+        <li><a href="/subirproyectos/{{ proyecto.id }}/mostrar">{{ proyecto.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay proyectos disponibles.</p>
+{% endif %}
+
+<p> Proyectos por leer </p>
+
+{% if proyectos_por_leer %}
+
+    <ul>
+    {% for proyecto in proyectos_por_leer %}
+        <li><a href="/subirproyectos/{{ proyecto.id }}/mostrar">{{ proyecto.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay proyectos disponibles.</p>
+{% endif %}

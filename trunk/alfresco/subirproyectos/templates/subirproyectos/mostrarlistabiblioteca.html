@@ -1,0 +1,11 @@
+{% if proyectos %}
+    <ul>
+    {% for proyecto in proyectos %}
+        <li><a href="/subirproyectos/{{ proyecto.id }}/mostrar">{{ proyecto.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay proyectos disponibles.</p>
+{% endif %}
+
+

@@ -1,0 +1,17 @@
+<form action="/subirproyectos/validar_biblioteca/" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+Creador: <input type="text" name="creator" value="{{p.creator}}" /><br />
+Titulo: <input type="text" name="title" value="{{p.title}}" /><br />
+Descripcion: <input type="text" name="description" value="{{p.description}}" /><br />
+Lenguaje: <input type="text" name="language" value="{{p.language}}" /><br />
+<!--Formato: <input type="text" name="formato" value="{{p.format}}" /><br />
+Relation: <input type="text" name="relation" value="{{p.relation}}" /><br />
+Tipo: <input type="text" name="tipo" value="{{p.type}}" /><br />-->
+
+Subject: <input type="text" name="subject"/><br />
+Rights <input type="text" name="rigths"/><br />
+Coverage <input type="text" name="coverage"/><br />
+<input type="hidden" name="id" value="{{p.id}}">
+<input type="submit" value="Aceptar" />
+</form>

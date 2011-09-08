@@ -1,0 +1,8 @@
+
+
+<form action="/subirproyectos/subir/" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+{{ f.as_p }}
+ {{ a }}
+<input type="submit" value="Submit" />
+</form>
