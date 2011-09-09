@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.formsets import BaseFormSet 
 from subirproyectos.settings import *
 
 
@@ -22,6 +23,12 @@ class FormularioProyecto(forms.Form):
 class FormularioAnexo(forms.Form):
     title = forms.CharField(max_length=50) 
     file  = forms.FileField()
+    
+class FormularioAnexoFormset (BaseFormSet):
+    def add_fields(self, form, index):
+	super(FormularioAnexoFormset, self).add_fields(form, index)
+	form.fields["file"] = forms.FileField()
+
     
 
 class FormularioLogin(forms.Form):

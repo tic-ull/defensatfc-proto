@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from subirproyectos.forms import FormularioProyecto, FormularioLogin
+from subirproyectos.forms import *
 from django.template import RequestContext, Context, loader
 from subirproyectos.handle_uploaded_file import handle_uploaded_file
 from subirproyectos.url_download_file import url_download_file 
@@ -15,7 +15,7 @@ from subirproyectos.ull import *
 from subirproyectos.models import Proyecto, Anexo
 from django.core.mail import send_mail
 from subirproyectos.alfresco import Alfresco
-from django.forms.models import inlineformset_factory
+from django.forms.models import inlineformset_factory, formset_factory
 
 
 
@@ -73,34 +73,35 @@ def result(request):
         
 def subir(request):
     proyecto = Proyecto() 
-    AnexoFormSet = inlineformset_factory(Proyecto, Anexo)  
+    #AnexoFormSet = formset_factory(AnexoForm, formset=FormularioAnexoFormSet)
+    AnexoFormSet = inlineformset_factory(Proyecto, Anexo, formset = FormularioAnexoFormset, fields=('title', 'file', 'proyecto'))  
     if request.method == 'POST':
 
         #proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        proyecto_form = FormularioProyecto(request.POST,request.FILES, instance=proyecto)
-        anexo_formset = AnexoFormSet(request.POST, request.FILES, instance=proyecto)
+        proyecto_form = FormularioProyecto(request.POST,request.FILES)
+        anexo_formset = AnexoFormSet(request.POST, request.FILES)
 
         if proyecto_form.is_valid() and anexo_formset.is_valid():
-	    proyecto_form.save()
-            anexo_formset.save()
-	    #p = Proyecto()
-	    #p.title = request.POST['title']
-	    #p.creator = request.POST['creator']
-	    #p.description = request.POST['description']
-	    #p.language = request.POST['language']
-	    #p.niu = request.POST['niu']
-	    #p.tutor = request.POST['tutor']
-	    #p.centro = request.POST['centro']
-	    #p.titulacion = request.POST['titulacion']
+	    #proyecto_form.save()
+            #anexo_formset.save()
+	    p = Proyecto()
+	    p.title = request.POST['title']
+	    p.creator = request.POST['creator']
+	    p.description = request.POST['description']
+	    p.language = request.POST['language']
+	    p.niu = request.POST['niu']
+	    p.tutor = request.POST['tutor']
+	    p.centro = request.POST['centro']
+	    p.titulacion = request.POST['titulacion']
 	    #p.universidad = request.POST['universidad']
-	    #p.estado = '1'
-	    #p.uuid = handle_uploaded_file(request.FILES['file'], p) 
-	    #p.save()
+	    p.estado = '1'
+	    p.uuid = handle_uploaded_file(request.FILES['file'], p) 
+	    p.save()
             return HttpResponseRedirect('/subirproyectos/results/')
     else:
         #proyecto_form = FormularioProyecto(request.POST, request.FILES)
         proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        anexo_formset = AnexoFormSet(request.POST, instance=proyecto)
+        anexo_formset = AnexoFormSet(request.POST, request.FILES)
     return render_to_response('subirproyectos/subir.html', {'f': proyecto_form, 'a' : anexo_formset })
 
 
