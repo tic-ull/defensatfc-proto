@@ -1,4 +1,5 @@
 from django.db import models
+from subirproyectos.settings import *
 
 class Proyecto(models.Model):
     #dublin core
@@ -16,8 +17,8 @@ class Proyecto(models.Model):
     #pfc
     niu = models.CharField(max_length=15)
     tutor = models.CharField(max_length=200)
-    centro = models.CharField(max_length=200)
-    titulacion = models.CharField(max_length=200)
+    centro = models.CharField(max_length=200, choices=CENTRO)
+    titulacion = models.CharField(max_length=200, choices=TITULACION)
     universidad = models.CharField(max_length=200)
     fecha = models.DateField(blank=True, null=True)
     calificacion = models.FloatField(blank=True, null=True)

@@ -59,50 +59,56 @@ def logout_view(request):
 
 
    
-#def formulario(request):
+def formulario(request):
     ##necesita estar logueado
-    #if not request.user.is_authenticated():
-        #return HttpResponseRedirect('/subirproyectos/')
-    #f = FormularioProyecto()
-    #return render_to_response('subirproyectos/subir.html', {'f': f},
-                               #context_instance=RequestContext(request))
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect('/subirproyectos/')
+    f = FormularioProyecto()
+    return render_to_response('subirproyectos/subir.html', {'f': f},
+                               context_instance=RequestContext(request))
     
 def result(request):
     return HttpResponse("Ha sido exitoso.")
     
         
 def subir(request):
-    proyecto = Proyecto() 
     #AnexoFormSet = formset_factory(AnexoForm, formset=FormularioAnexoFormSet)
-    AnexoFormSet = inlineformset_factory(Proyecto, Anexo, formset = FormularioAnexoFormset, fields=('title', 'file', 'proyecto'))  
+    #AnexoFormSet = inlineformset_factory(Proyecto, Anexo, formset = FormularioAnexoFormset, fields=('title', 'file', 'proyecto'))  
     if request.method == 'POST':
 
         #proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        proyecto_form = FormularioProyecto(request.POST,request.FILES)
-        anexo_formset = AnexoFormSet(request.POST, request.FILES)
+        proyecto_form = FormularioProyecto(request.POST, request.FILES)
+        #anexo_formset = AnexoFormSet(request.POST, request.FILES)
 
-        if proyecto_form.is_valid() and anexo_formset.is_valid():
-	    #proyecto_form.save()
+        if proyecto_form.is_valid(): 
+	    proyecto = proyecto_form.save(commit=False)
+	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
+	    if anexo_formset.is_valid():
+		proyecto.save()
+		anexo_formset.save()
+		proyecto.uuid = handle_uploaded_file(request.FILES['file'], proyecto) 
+		proyecto.save()
             #anexo_formset.save()
-	    p = Proyecto()
-	    p.title = request.POST['title']
-	    p.creator = request.POST['creator']
-	    p.description = request.POST['description']
-	    p.language = request.POST['language']
-	    p.niu = request.POST['niu']
-	    p.tutor = request.POST['tutor']
-	    p.centro = request.POST['centro']
-	    p.titulacion = request.POST['titulacion']
-	    #p.universidad = request.POST['universidad']
-	    p.estado = '1'
-	    p.uuid = handle_uploaded_file(request.FILES['file'], p) 
-	    p.save()
+	    
+	    #p = Proyecto()
+	    #p.title = request.POST['title']
+	    #p.creator = request.POST['creator']
+	    #p.description = request.POST['description']
+	    #p.language = request.POST['language']
+	    #p.niu = request.POST['niu']
+	    #p.tutor = request.POST['tutor']
+	    #p.centro = request.POST['centro']
+	    #p.titulacion = request.POST['titulacion']
+	    ##p.universidad = request.POST['universidad']
+	    #p.estado = '1'
+	    #p.uuid = handle_uploaded_file(request.FILES['file'], p) 
+	    #p.save()
             return HttpResponseRedirect('/subirproyectos/results/')
     else:
         #proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        anexo_formset = AnexoFormSet(request.POST, request.FILES)
-    return render_to_response('subirproyectos/subir.html', {'f': proyecto_form, 'a' : anexo_formset })
+        proyecto_form = FormularioProyecto()
+        anexo_formset = AnexoFormSet(instance = Proyecto())
+    return render_to_response('subirproyectos/subir.html', {'f': proyecto_form, 'a' : anexo_formset }, context_instance=RequestContext(request))
 
 
 def mostrar(request, id):
