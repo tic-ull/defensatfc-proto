@@ -7,7 +7,7 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('subirproyectos.views',
     (r'^/$', 'index'),
     (r'^/results/$', 'result'),
-    (r'^/formulario/$', 'formulario'),
+    #(r'^/formulario/$', 'formulario'),
     (r'^/subir/$', 'subir'),
     (r'^/login/$', 'login'),
     #(r'^/logout_view/$', 'logout_view'),
