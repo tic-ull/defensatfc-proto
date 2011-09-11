@@ -86,8 +86,10 @@ def subir(request):
 	    if anexo_formset.is_valid():
 		proyecto.save()
 		anexo_formset.save()
-		proyecto.uuid = handle_uploaded_file(request.FILES['file'], proyecto) 
+		#proyecto.uuid = handle_uploaded_file(request.FILES['file'], proyecto) 
 		proyecto.save()
+		for form in anexo_formset.forms:
+		  print form.cleaned_data['file']
             #anexo_formset.save()
 	    
 	    #p = Proyecto()

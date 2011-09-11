@@ -344,7 +344,44 @@ class Alfresco:
 	
 	
 	results = client_repository.service.update(cml) 
-	
+
+    def subir_anexo (self, p, a):
+	d = dict(http='localhost:1080')
+	client_repository = Client(ALFRESCO_URL_RESPOSITORY_SERVICE, proxy= d)
+	client_repository.set_options(wsse=self.security)
+	print client_repository
+	cml = client_repository.factory.create('ns0:CML')
+	print cml	
+	create = client_repository.factory.create('ns0:create')
+	print create
+	create.id = '1'      
+	parent_reference = client_repository.factory.create('ns2:ParentReference')
+	parent_reference.associationType = '{http://www.alfresco.org/model/content/1.0}contains'
+	parent_reference.childName = '{http://www.alfresco.org/model/content/1.0}' + a.name
+	#path = u'/app:company_home/cm:TFC/cm:Escuela Técnica Superior de Ingeniería Informática/cm:P080 Ingeniero en Informática/cm:' + p.title
+	path = '/app:company_home/cm:TFC/' + unicode(CENTRO_RUTA[p.centro], 'utf8') + '/' + unicode(TITULACION_RUTA[p.titulacion], 'utf-8') + '/cm:' + p.title 
+	#enc_path = unicode(path, 'utf-8')
+	final_path = encode(path)			
+	parent_reference.path = final_path 
+	store = client_repository.factory.create('ns2:Store')
+	store.scheme = 'workspace'
+	store.address = 'SpacesStore'
+	parent_reference.store = store
+	create.parent = parent_reference
+	create.type = '{http://www.alfresco.org/model/content/1.0}content'
+	named_value = client_repository.factory.create('ns2:NamedValue')
+	print named_value
+	named_value.name = '{http://www.alfresco.org/model/content/1.0}name'
+	named_value.value = f.name
+	named_value.isMultiValue = False
+	create.property.append(named_value)			
+	cml.create.append  (create)      
+	results = client_repository.service.update(cml) 
+	url = ALFRESCO_URL_PUT + results[0].destination.uuid + '/' + f.name + '?ticket=' + self.ticket
+        #url = 'http://127.0.0.1:8080/alfresco/upload/workspace/SpacesStore/' + results[0].destination.uuid + self.ticket
+        #url = 'http://localhost:8080/alfresco/upload/test.pdf?ticket=' + login_res['ticket']
+        put.putfile(f, url)
+        return results[0].destination.uuid
         
     def url_bajar_pfc (self, uuid):
 	#return 'http://127.0.0.1:8080/alfresco/download/attach/workspace/SpacesStore/' + uuid + '/myfile.pdf?alf_ticket=' + self.ticket

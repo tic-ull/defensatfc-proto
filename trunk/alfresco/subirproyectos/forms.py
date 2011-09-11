@@ -46,7 +46,7 @@ class FormularioAnexoFormset (BaseInlineFormSet):
 	super(FormularioAnexoFormset, self).add_fields(form, index)
 	form.fields["file"] = forms.FileField()
 
-AnexoFormSet = inlineformset_factory(Proyecto, Anexo, exclude = ('format', 'description', 'type', 'relation'), formset = FormularioAnexoFormset)    
+AnexoFormSet = inlineformset_factory(Proyecto, Anexo, exclude = ('format', 'description', 'type', 'relation', 'uuid'), formset = FormularioAnexoFormset)    
 
 class FormularioLogin(forms.Form):
   username = forms.CharField(max_length=50)

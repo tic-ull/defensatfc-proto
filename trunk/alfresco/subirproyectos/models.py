@@ -42,4 +42,6 @@ class Anexo(models.Model):
     description = models.CharField(max_length=500)
     type = models.CharField(max_length=200, blank=True, null=True)
     relation = models.CharField(max_length=500, blank=True, null=True)
-    
+    uuid = models.CharField(max_length=200)
+    def __unicode__(self):
+        return self.title
