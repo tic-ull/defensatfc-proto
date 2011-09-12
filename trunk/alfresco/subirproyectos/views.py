@@ -16,6 +16,8 @@ from subirproyectos.models import Proyecto, Anexo
 from django.core.mail import send_mail
 from subirproyectos.alfresco import Alfresco
 from django.forms.models import inlineformset_factory, formset_factory
+import mimetypes
+
 
 
 
@@ -84,13 +86,27 @@ def subir(request):
 	    proyecto = proyecto_form.save(commit=False)
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
 	    if anexo_formset.is_valid():
+	        proyecto.estado = '1'
+	        proyecto.type = 'memoria'
+	        proyecto.format = mimetypes.guess_type (request.FILES['file'].name)
 		proyecto.save()
-		anexo_formset.save()
+		anexos = anexo_formset.save(commit=False)
 		#proyecto.uuid = handle_uploaded_file(request.FILES['file'], proyecto) 
-		proyecto.save()
+		formats = list()
+		uuids = list()
 		for form in anexo_formset.forms:
-		  print form.cleaned_data['file']
-            #anexo_formset.save()
+		   formats.append (mimetypes.guess_type (form.cleaned_data['file'].name))
+		   uuids.append ('kaka')
+		i = 0
+		print formats
+		for anexo in anexos:
+		  anexo.uuid = uuids[i]
+		  anexo.type = 'anexo'
+		  anexo.format = formats[i]
+		  print i
+		  i = i + 1
+		  anexo.save()
+                #anexos.save()
 	    
 	    #p = Proyecto()
 	    #p.title = request.POST['title']
