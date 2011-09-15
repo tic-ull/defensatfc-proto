@@ -1,0 +1,154 @@
+{% load i18n %}
+{% load incidencias %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ user.LANGUAGE }}">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="cache-control" content="no-cache" />
+  <meta http-equiv="expires" content="3600" />
+  <meta name="revisit-after" content="2 days" />
+  <meta name="robots" content="index,follow" />
+  <meta name="publisher" content="Publicidad" />
+  <meta name="copyright" content="Oficina de Software Libre" />
+  <meta name="author" content="Oficina de Software Libre - Universidad de La Laguna" />
+  <meta name="distribution" content="global" />
+  <meta name="description" content="Your page description here ..." />
+  <meta name="keywords" content="Your keywords, keywords, keywords, here ..." />
+
+	{% block layout %}
+      <link rel="stylesheet" type="text/css" media="screen,projection,print" href="/site_media/css/new_style.css" />
+	{% endblock %}
+
+  <link rel="icon" type="image/x-icon" href="/site_media/img/favicon.ico" />
+
+	{% block javascripts %}
+	{% endblock %}
+
+  <title>{% trans 'Cursos de Extensi&oacute;n Universitaria - Universidad de La Laguna' %}</title>
+</head>
+<body>
+<div id="wrap">
+
+<div id="header">
+  <div class="headerleft">
+     <a href="/"><img src="/site_media/img/logo_vicerectorado.png"></a>
+  </div>
+
+  <div class="headerright">
+            <a href="/help" title="{% trans 'Ayuda' %}">{% trans 'Ayuda' %}</a>
+            {% if user.is_authenticated %}
+            <a href="/accounts/logout/" title="{% trans 'Cerrar Sesi&oacute;n' %}">{% trans 'Cerrar Sesi&oacute;n' %} <b> [[ {{ user }} ]] </a></b>
+            {% else %}
+            <a href="/accounts/login/" title="{% trans 'Inicio de Sesi&oacute;n' %}">{% trans 'Inicio de Sesi&oacute;n' %}</a>
+            {% endif %}
+   </div>
+</div>
+
+<div id="menu">
+		<ul>
+      <li><a href="/gestion/">{% trans 'Inicio' %}</a></li>
+		<li><a href="/gestion/cursos/listado/">{% trans 'Cursos' %}</a></li>
+		<li><a href="/gestion/ciclos/listado/">{% trans 'Ciclos' %}</a></li>
+		{% if profile.isAdministrative %}
+		<li><a href="/gestion/usuarios/">{% trans 'Usuarios' %}</a></li>
+
+		{% endif %}
+		{% if profile.isManager %}
+		<li><a href="/gestion/mantenimiento/">{% trans 'Mantenimiento' %}</a></li>
+		{% endif %}	
+		</ul>
+	   <div class="langTab">
+        <form action="/i18n/setlang/" method="post">
+           <input name="next" type="hidden" value="{{ Referrer }}" />
+           <select name="language" style="width: 100px;">
+           {% for lang in LANGUAGES %}
+           <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+           {% endfor %}
+           </select>
+           <input type="submit" value="{% trans 'Ir' %}" />
+        </form>
+     </div>
+</div>
+{% block menuManager %}
+   {% if profile.isManager %}
+      <div id="menuManager">
+      <div class="langTab">{% trans 'Modo Gestor' %}</div>
+      </div>
+   {% else %}
+   {% if profile.isDirector %}
+      <div id="menuManager">
+      <div class="langTab">{% trans 'Modo Director' %}</div>
+      </div>
+   {% else %}
+   {% if profile.isExternalAdministrative %}
+      <div id="menuManager">
+      <div class="langTab">{% trans 'Modo Administrativo Externo' %}</div>
+      </div>
+   {% else %}
+   {% if profile.isInternalAdministrative %}
+      <div id="menuManager">
+      <div class="langTab">{% trans 'Modo Administrativo Interno' %}</div>
+      </div>
+   {% endif %}{% endif %}{% endif %}{% endif %}
+{% endblock %}
+
+<div id="content">
+
+<div class="right">
+	{% if profile.isManager %}
+	
+	{% get_incidencias_email %}
+	{% if incidencias_email %}
+	<div class="note">
+		<table>
+		<tr><td><img style="vertical-align: middle; padding-right:10px" src="/site_media/img/error_small.png"/></td>
+			<td><h3>{% trans '¡Error!' %}</h3><p>{% trans 'Existen incidencias en el envio de emails.' %} <a href="/gestion/mantenimiento/incidencias_email/">{% trans 'Pulse aqu&iacute;' %}</a> {% trans 'solucionar el problema.' %}</p></td></tr>
+		</table>
+    </div>
+	{% endif %}{% endif %}
+
+   {% block maincontent %}
+   {% endblock %}
+</div>
+
+<div class="left">
+   {% block leftMenu %}
+   {% endblock %}
+
+{% include 'menus/menu_mi_cuenta.inc' %}
+
+<h2>{% trans 'Mapa del sitio' %}: </h2>
+<ul>
+<li><a href="/gestion/">{% trans 'Inicio' %}</a></li>
+<li><a href="/gestion/">{% trans 'Informaci&oacute;n b&aacute;sica' %}</a></li>
+</ul>
+</div>
+                
+<div style="clear: both;"> </div>
+
+</div>
+
+<div id="footer">
+&copy; Copyright 2010 by <a href="http://www.osl.ull.es/">{% trans 'Oficina de Software Libre' %}</a> | <a href="http://www.ull.es/">Universidad de La Laguna</a> 
+<a href="http://validator.w3.org/check?uri=referer" title="Validate XHTML code">XHTML 1.0</a> | <a href="http://jigsaw.w3.org/css-validator/" title="Validate CSS code">CSS 2.0</a>
+</div>
+  </div>
+
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://webstats.osl.ull.es/" : "http://webstats.osl.ull.es/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 2);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script><noscript><p><img src="http://webstats.osl.ull.es/piwik.php?idsite=2" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tag -->
+ 
+</body>
+</html>
+
+
+
