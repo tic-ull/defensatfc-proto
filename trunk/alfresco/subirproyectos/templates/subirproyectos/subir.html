@@ -1,9 +1,59 @@
+{% extends "subirproyectos/base.html" %}
 
+{% block extra_head %}
+<script language="javascript" src="{{ MEDIA_URL}}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL}}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL}}js/jquery.formset.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/smoothness/jquery-ui-1.8.16.custom.css" />
+<script type="text/javascript">
+    $(function() {
+        $('#proyecto_anexos tbody tr').formset({
+             prefix: '{{ a.prefix }}',
+             addText: 'añadir',
+             deleteText: 'eliminar',
+             extraClasses: ['row1', 'row2', 'row3']
+        });
+        $('#accordion').accordion({
+             active: false,
+             collapsible: true,
+             autoHeight: false,
+             animated: false
+        });
+    })
+</script>
+{% endblock %}
 
-<form action="/subirproyectos/subir/" method="post" enctype="multipart/form-data">
-{% csrf_token %}
-{{ f.as_p }}
-{{ a.as_table }}
-{{ a.management_form }} 
-<input type="submit" value="Submit" />
-</form>
+{% block content_title %}Solicitud de defensa de Trabajo Fin de Carrera{% endblock %}
+{% block content %}
+<div class="item">
+  <form action="." method="POST">
+    {% csrf_token %}
+    <table id="proyecto">
+    {{ f.as_table }}
+    </table>
+    <div id="accordion">
+      <h3><a href="#">Adjuntar anexos</a></h3>
+      <div>
+        <table id="proyecto_anexos">
+          <thead>
+            <tr>
+              <th scope="col">Título</th>
+              <th scope="col">Archivo</th>
+            </tr>
+          <thead>
+          <tbody>
+            {% for form in a.forms %}
+            <tr id="{{ form.prefix }}-row">
+              <td>{{ form.title }}</td>
+              <td>{{ form.file }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {{ a.management_form }} 
+      </div>
+    </div>
+    <input type="submit" class="button" value="Enviar" />
+  </form>
+</div>
+{% endblock %}
