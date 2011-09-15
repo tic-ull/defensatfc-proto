@@ -1,0 +1,22 @@
+{% extends "subirproyectos/base.html" %}
+
+{% block content_title %}Inicio de Sesión{% endblock %}
+{% block content %}
+<div class="item">
+  <form action="{% url django.contrib.auth.views.login %}" method="post">
+    {% csrf_token %}
+    <table>
+      <tr>
+        <td>Nombre de Usuario</td>
+        <td>{{ form.username }}</td>
+      </tr>
+      <tr>
+        <td>Contraseña</td>
+        <td>{{ form.password }}</td>
+      </tr>
+    </table>
+    <input type="submit" class="button" value="Acceder" />
+    <input type="hidden" name="next" value="{{ next }}" />
+  </form>
+</div>
+{% endblock %}

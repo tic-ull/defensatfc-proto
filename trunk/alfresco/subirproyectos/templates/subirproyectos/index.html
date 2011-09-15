@@ -1,16 +1,1 @@
-<html>
-<body>
-
-<h1>Sube tu proyecto</h1>
-
-<a href="/subirproyectos/formulario/"> Subir</a> 
-
-<form action="/subirproyectos/login/" method="post" enctype="multipart/form-data">
-{% csrf_token %}
-{{ f.as_p }}
-<input type="submit" value="Submit" />
-</form>
-
-
-</body>
-</html> 
+{% extends "subirproyectos/base.html" %}

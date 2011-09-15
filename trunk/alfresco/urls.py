@@ -6,13 +6,11 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^$', 'django.views.generic.simple.redirect_to', {'url': '/subirproyectos/'}),
+    (r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'subirproyectos/login.html'}),
+    (r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
     (r'^subirproyectos', include('subirproyectos.urls')),
     (r'^admin/', include(admin.site.urls))
-    #(r'^subirproyectos/$', 'subirproyectos.views.index'),
-    #(r'^subirproyectos/results/$', 'subirproyectos.views.result'),
-    #(r'^subirproyectos/formulario/$', 'subirproyectos.views.formulario'),
-    #(r'^subirproyectos/subir/$', 'subirproyectos.views.subir'),
-
 )
 
 if settings.DEBUG:

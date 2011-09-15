@@ -72,8 +72,9 @@ def formulario(request):
 def result(request):
     return HttpResponse("Ha sido exitoso.")
     
-        
-def subir(request):
+
+@login_required        
+def solicitar_defensa(request):
     #AnexoFormSet = formset_factory(AnexoForm, formset=FormularioAnexoFormSet)
     #AnexoFormSet = inlineformset_factory(Proyecto, Anexo, formset = FormularioAnexoFormset, fields=('title', 'file', 'proyecto'))  
     if request.method == 'POST':
@@ -126,7 +127,7 @@ def subir(request):
         #proyecto_form = FormularioProyecto(request.POST, request.FILES)
         proyecto_form = FormularioProyecto()
         anexo_formset = AnexoFormSet(instance = Proyecto())
-    return render_to_response('subirproyectos/subir.html', {'f': proyecto_form, 'a' : anexo_formset }, context_instance=RequestContext(request))
+    return render_to_response('subirproyectos/solicitar_defensa.html', {'f': proyecto_form, 'a' : anexo_formset }, context_instance=RequestContext(request))
 
 
 def mostrar(request, id):
