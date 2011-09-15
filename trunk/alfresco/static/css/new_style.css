@@ -12,7 +12,7 @@
 
 body {
 /*background: #F2F1E9; */
-background: url('../img/bgdegradado.gif') repeat-x;
+background: url('/static/images/bgdegradado.gif') repeat-x;
 background-color: #ebf3fa;
 font-family: Verdana, Tahoma, Arial, sans-serif;
 font-size: 12px;
@@ -166,16 +166,16 @@ text-decoration: none;
 padding: 0 10px;
 }
 #menuManager li a:hover {
-background: #FA9C39 url(../img/menuover.gif) repeat-x;
+background: #FA9C39 url(/static/images/menuover.gif) repeat-x;
 }
 
 .captcha {
-background: url(../img/captcha-bg.png) no-repeat;
+background: url(/static/images/captcha-bg.png) no-repeat;
 }
 
 #content {
 margin-top: 10px;
-background-image: url('../img/fachada.gif');
+background-image: url('/static/images/fachada.gif');
 background-repeat: no-repeat;
 background-attachment: scroll;
 background-position: left 50px;

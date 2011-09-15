@@ -1,0 +1,32 @@
+/*
+ * Estilos adicionales
+ *
+ */
+
+/* Formset dinámicos */
+
+/*.dynamic-form { padding: 5px 15px; }*/
+.item table .dynamic-form.row1 td {
+    background-color: #faf9f4;
+}
+.item table .dynamic-form.row2 td {
+    background-color: #f0efea;
+}
+.item table .dynamic-form.row3 td {
+    background-color: #ebeae5;
+}
+
+.add-row {
+    padding-left:18px;
+    background:url(/static/images/add.png) no-repeat left center;
+}
+
+.delete-row {
+    float:right;
+    display:block;
+    margin:5px 0 0 5px;
+    text-indent:-6000px;
+    background:url(/static/images/delete.png) no-repeat left center;
+    width:16px;
+    height:16px;
+}
