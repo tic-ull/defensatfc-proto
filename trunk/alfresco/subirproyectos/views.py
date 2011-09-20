@@ -103,21 +103,10 @@ def solicitar_defensa(request):
 		  i = i + 1
 		  anexo.save()
                 #anexos.save()
-	    
-	    #p = Proyecto()
-	    #p.title = request.POST['title']
-	    #p.creator = request.POST['creator']
-	    #p.description = request.POST['description']
-	    #p.language = request.POST['language']
-	    #p.niu = request.POST['niu']
-	    #p.tutor = request.POST['tutor']
-	    #p.centro = request.POST['centro']
-	    #p.titulacion = request.POST['titulacion']
-	    ##p.universidad = request.POST['universidad']
-	    #p.estado = '1'
-	    #p.uuid = handle_uploaded_file(request.FILES['file'], p) 
-	    #p.save()
-            return HttpResponseRedirect('/subirproyectos/results/')
+                return HttpResponseRedirect('/subirproyectos/results/')
+        else:
+	    anexo_formset = AnexoFormSet (request.POST, request.FILES)
+
     else:
         #proyecto_form = FormularioProyecto(request.POST, request.FILES)
         proyecto_form = FormularioProyecto()
