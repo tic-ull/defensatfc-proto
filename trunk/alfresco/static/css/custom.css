@@ -3,6 +3,12 @@
  *
  */
 
+/* Error en formularios */
+
+ul.errorlist li {
+color: #ff0000;
+}
+
 /* Formset dinámicos */
 
 /*.dynamic-form { padding: 5px 15px; }*/

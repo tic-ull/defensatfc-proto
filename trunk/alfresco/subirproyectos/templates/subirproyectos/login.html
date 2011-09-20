@@ -5,14 +5,15 @@
 <div class="item">
   <form action="{% url django.contrib.auth.views.login %}" method="post">
     {% csrf_token %}
+    {{ form.non_field_errors }}
     <table>
       <tr>
         <td>Nombre de Usuario</td>
-        <td>{{ form.username }}</td>
+        <td>{{ form.username }}{{ form.username.errors }}</td>
       </tr>
       <tr>
         <td>Contraseña</td>
-        <td>{{ form.password }}</td>
+        <td>{{ form.password }}{{ form.username.errors }}</td>
       </tr>
     </table>
     <input type="submit" class="button" value="Acceder" />
