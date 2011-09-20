@@ -19,13 +19,8 @@ from django.forms.models import inlineformset_factory, formset_factory
 import mimetypes
 
 
-
-
-
-
 def index(request):
-    f = FormularioLogin()
-    return render_to_response('subirproyectos/index.html', {'f': f},
+    return render_to_response('subirproyectos/index.html',
                                context_instance=RequestContext(request))
                                
                                
