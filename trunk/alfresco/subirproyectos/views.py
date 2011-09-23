@@ -99,7 +99,6 @@ def solicitar_defensa(request):
 		  anexo.uuid = uuids[i]
 		  anexo.type = 'anexo'
 		  anexo.format = formats[i]
-		  print i
 		  i = i + 1
 		  anexo.save()
                 #anexos.save()

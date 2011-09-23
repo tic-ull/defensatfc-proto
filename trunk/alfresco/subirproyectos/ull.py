@@ -39,3 +39,12 @@ def find_key (dic, val):
    
 def is_professor(username):
    return not (is_student(username) or is_library_staff(username) or is_faculty_staff(username))
+   
+def get_professor_name(professor_id):
+  return TUTOR[professor_id]
+   
+def get_professor_from_faculty (faculty):
+   professors_name = list()
+   for professor in FACULTY_TUTOR[faculty]:
+     professors_name.append (get_professor_name(professor))
+   return professors_name

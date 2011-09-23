@@ -38,6 +38,23 @@ TITULACION = (
     #('6', 'Master en Ingenieria Informatica'),
 )
 
+
+TUTOR = {
+  'rufino': 'Rufino Perez Reyes',
+  'reinaldo': 'Reinaldo de la Cruz',
+  'jmluis': 'Jose Luis de la Torre'
+}
+
+FACULTY_TUTOR = {
+  '1' : (
+     'rufino',
+     'reinaldo'
+     ),
+  '2' : (
+     'jmluis',
+     ),
+  }
+
 CENTRO_RUTA = {
     '1' : 'cm:Escuela Técnica Superior de Ingeniería Informática',
     '2' : 'cm:Escuela Técnica Superior de Ingeniería Civil e Industrial',

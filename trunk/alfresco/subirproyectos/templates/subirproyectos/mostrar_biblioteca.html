@@ -1,3 +1,12 @@
+<html>
+
+<head>
+<tittle>Mostrando datos a validar</tittle>
+</head>
+
+<body>
+
+
 <form action="/subirproyectos/validar_biblioteca/" method="post" enctype="multipart/form-data">
 {% csrf_token %}
 
@@ -15,3 +24,7 @@ Coverage <input type="text" name="coverage"/><br />
 <input type="hidden" name="id" value="{{p.id}}">
 <input type="submit" value="Aceptar" />
 </form>
+
+</body>
+
+</html>
