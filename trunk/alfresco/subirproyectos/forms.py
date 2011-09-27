@@ -3,8 +3,14 @@ from django.forms.formsets import BaseFormSet
 from subirproyectos.settings import *
 from subirproyectos.models import *
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
+import os
 
 
+          
+def validate_files(value):
+    basename, extension = os.path.splitext(value)
+    if extension not in ALLOWED_TYPES:
+        raise ValidationError('Formato de fichero no permitido' % value)
 
 #class FormularioProyecto(forms.Form):
     #title = forms.CharField(max_length=50)    
@@ -24,7 +30,7 @@ from django.forms.models import inlineformset_factory, BaseInlineFormSet
     
     
 class FormularioProyecto(forms.ModelForm):
-  file = forms.FileField()
+  file = forms.FileField(validators=[validate_files])
   #def add_fields(self, form, index):
 	#super(FormularioAnexoFormset, self).add_fields(form, index)
 	#form.fields["file"] = forms.FileField()  
@@ -44,10 +50,15 @@ class FormularioProyecto(forms.ModelForm):
 class FormularioAnexoFormset (BaseInlineFormSet):
     def add_fields(self, form, index):
 	super(FormularioAnexoFormset, self).add_fields(form, index)
-	form.fields["file"] = forms.FileField()
+	form.fields["file"] = forms.FileField(validators=[validate_files])
 
 AnexoFormSet = inlineformset_factory(Proyecto, Anexo, exclude = ('format', 'type', 'relation', 'uuid'), formset = FormularioAnexoFormset)    
 
 class FormularioLogin(forms.Form):
   username = forms.CharField(max_length=50)
   password = forms.CharField(widget=forms.PasswordInput()) 
+  
+  
+  
+  
+

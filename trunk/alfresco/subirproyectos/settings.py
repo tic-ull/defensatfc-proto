@@ -1,6 +1,9 @@
 # -*- encoding: utf-8 -*-
 
 
+ALLOWED_TYPES = ['.pdf']
+
+
 LIBRARY_STAFF = {
   '1' : (
      'manolo',
