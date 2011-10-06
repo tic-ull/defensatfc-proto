@@ -38,7 +38,7 @@ class Titulacion(models.Model):
 
 class Contenido(models.Model):
     # dublin core
-    title = models.CharField(max_length=200, verbose_name="título", verbose_name="título")
+    title = models.CharField(max_length=200, verbose_name="título")
     format = models.CharField(max_length=30, choices=settings.SELECCION_FORMATO)
     description = models.TextField(verbose_name="descripción")
     type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.SELECCION_TIPO_DOCUMENTO[0][0])
