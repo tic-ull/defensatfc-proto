@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model name="pfc:proyectoFinCarrera" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>Modelo del repositorio de gestión documental para proyectos de fin de carrera y otros.</description>
+    <author>Universidad de La Laguna e Ignos Estudio de Ingeniería S.L</author>
+    <published>2011-09-28</published>
+    <version>1.2</version>
+
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+    </imports>
+
+    <namespaces>
+        <namespace uri="http://www.ull.es/2011/10/04/pfc.xsd" prefix="pfc"/>
+    </namespaces>
+
+    <types>
+
+        <type name="pfc:centro">
+            <title>Centro</title>
+            <parent>cm:folder</parent>
+            <mandatory-aspects>
+                <aspect>pfc:metadatosCentro</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="pfc:titulacion">
+            <title>Titulación</title>
+            <parent>cm:folder</parent>
+            <mandatory-aspects>
+                <aspect>pfc:metadatosTitulacion</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="pfc:contenido">
+            <title>Contenido de un trabajo</title>
+            <parent>cm:content</parent>
+            <mandatory-aspects>
+                <aspect>cm:dublincore</aspect>
+                <aspect>pfc:metadatosTFC</aspect>
+            </mandatory-aspects>
+        </type>
+    </types>
+
+    <aspects>
+        <aspect name="pfc:metadatosCentro">
+            <title>Metadatos de un centro universitario</title>
+            
+            <properties>
+                <property name="pfc:codigoCentro">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </aspect>
+
+        <aspect name="pfc:metadatosTitulacion">
+            <title>Metadatos de una titulación</title>
+            
+            <properties>
+                <property name="pfc:codigoPlan">
+                    <type>d:text</type>
+                </property>
+                <property name="pfc:anyoComienzoPlan">
+                    <type>d:text</type>
+                </property>
+                <property name="pfc:titulacionVigente">
+                    <type>d:boolean</type>
+                </property>
+            </properties>
+        </aspect>
+
+        <aspect name="pfc:metadatosTFC">
+            <title>Metadatos de un trabajo fin de carrera</title>
+            
+            <properties>
+                <property name="pfc:titulacion">
+                    <type>d:text</type>
+                </property>
+                
+                <property name="pfc:centro">
+                    <type>d:text</type>
+                </property>
+
+                <property name="pfc:niu">
+                    <type>d:text</type>
+                </property>
+
+                <property name="pfc:tutor">
+                    <type>d:text</type>
+                </property>
+                
+                <property name="pfc:director">
+                    <type>d:text</type>
+                </property>
+                
+                <property name="pfc:fechaDefensa">
+                    <type>d:date</type>
+                </property>
+                
+                <property name="pfc:calificacion">
+                    <type>d:text</type>
+                </property>
+                
+                <property name="pfc:calificacionNumerica">
+                    <type>d:float</type>
+                </property>
+
+                <property name="pfc:modalidad">
+                    <type>d:text</type>
+                </property>
+
+                <property name="pfc:presidenteTribunal">
+                    <type>d:text</type>
+                </property>
+                
+                <property name="pfc:secretarioTribunal">
+                    <type>d:text</type>
+                </property>
+                
+                <property name="pfc:vocalesTribunal">
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                </property>
+            </properties>
+        </aspect>
+    </aspects>    
+</model>

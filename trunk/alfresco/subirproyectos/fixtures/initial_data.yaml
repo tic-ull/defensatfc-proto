@@ -1,0 +1,38 @@
+- model: subirproyectos.Centro
+  pk: 1
+  fields:
+    nombre: Escuela Tecnica Superior de Ingenieria Informatica
+- model: subirproyectos.Centro
+  pk: 2
+  fields:
+    nombre: Escuela Tecnica Superior de Ingenieria Industrial
+- model: subirproyectos.Titulacion
+  pk: 1
+  fields:
+    nombre: Ingenieria Informatica
+    centro: 1
+    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+- model: subirproyectos.Titulacion
+  pk: 2
+  fields:
+    nombre: Ingenieria Tecnica Industrial Mecanica
+    centro: 2
+    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+- model: subirproyectos.Titulacion
+  pk: 3
+  fields:
+    nombre: Ingenieria Tecnica Industrial Electronica
+    centro: 2
+    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+- model: subirproyectos.Titulacion
+  pk: 4
+  fields:
+    nombre: Ingenieria en Automatica y Electronica Industrial
+    centro: 1
+    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+- model: subirproyectos.Titulacion
+  pk: 5
+  fields:
+    nombre: Ingenieria Tecnica de Obras Publicas especialidad Hidrologia
+    centro: 2
+    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f

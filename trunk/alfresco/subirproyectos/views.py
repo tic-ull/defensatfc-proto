@@ -1,22 +1,19 @@
-from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
-from subirproyectos.forms import *
-from django.template import RequestContext, Context, loader
-from subirproyectos.handle_uploaded_file import handle_uploaded_file
-from subirproyectos.url_download_file import url_download_file 
-from suds.client import Client
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout
-
-from django.contrib.auth.decorators import login_required
-from subirproyectos.ull import *
-from subirproyectos.models import Proyecto, Anexo
 from django.core.mail import send_mail
-from subirproyectos.alfresco import Alfresco
+from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory, formset_factory
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render_to_response
+from django.template import RequestContext, Context, loader
+from django.contrib.auth.decorators import login_required
+
 import mimetypes
+
+from subirproyectos.forms import *
+from subirproyectos.models import Proyecto, Anexo
+from subirproyectos.models import save_proyect_to_alfresco
+from subirproyectos.handle_uploaded_file import handle_uploaded_file
+from subirproyectos.alfresco import Alfresco
+from subirproyectos.url_download_file import url_download_file 
 
 
 def index(request):
@@ -24,49 +21,36 @@ def index(request):
                                context_instance=RequestContext(request))
                                
                                
-def login(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            auth_login(request, user)
-            print "You provided a correct username and password!"
-            if is_student(request.user.username):
-	       return HttpResponseRedirect('/subirproyectos/subir/')
-            if is_library_staff (request.user.username):
-	       return HttpResponseRedirect('/subirproyectos/mostrarlistabiblioteca/')
-            #if is_faculty_staff (request.user.username):
-	       #return HttpResponseRedirect('/subirproyectos/mostrarlista/')
-	    if is_professor (request.user.username):
-	       return HttpResponseRedirect('/subirproyectos/mostrarlistatutor/')
-            #si eres alumno goto formulario
-            
+# def login(request):
+#     username = request.POST['username']
+#     password = request.POST['password']
+#     user = authenticate(username=username, password=password)
+#     if user is not None:
+#         if user.is_active:
+#             auth_login(request, user)
+#             print "You provided a correct username and password!"
+#             if is_student(request.user.username):
+# 	       return HttpResponseRedirect('/subirproyectos/subir/')
+#             if is_library_staff (request.user.username):
+# 	       return HttpResponseRedirect('/subirproyectos/mostrarlistabiblioteca/')
+#             #if is_faculty_staff (request.user.username):
+# 	       #return HttpResponseRedirect('/subirproyectos/mostrarlista/')
+# 	    if is_professor (request.user.username):
+# 	       return HttpResponseRedirect('/subirproyectos/mostrarlistatutor/')
+#             #si eres alumno goto formulario
+#             
+# 
+#             #si eres otra cosa goto mostrarlista
+#         else:
+# 	    print "Your account has been disabled!"
+#             # Return a 'disabled account' error message
+#     else:
+#         print "Your username and password were incorrect."
+#         # Return an 'invalid login' error message.
+#         
+# def logout_view(request):
+#     logout(request)
 
-            #si eres otra cosa goto mostrarlista
-        else:
-	    print "Your account has been disabled!"
-            # Return a 'disabled account' error message
-    else:
-        print "Your username and password were incorrect."
-        # Return an 'invalid login' error message.
-        
-def logout_view(request):
-    logout(request)
-
-
-   
-def formulario(request):
-    ##necesita estar logueado
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect('/subirproyectos/')
-    f = FormularioProyecto()
-    return render_to_response('subirproyectos/subir.html', {'f': f},
-                               context_instance=RequestContext(request))
-    
-def result(request):
-    return HttpResponse("Ha sido exitoso.")
-    
 
 @login_required        
 def solicitar_defensa(request):
@@ -79,29 +63,15 @@ def solicitar_defensa(request):
         #anexo_formset = AnexoFormSet(request.POST, request.FILES)
 
         if proyecto_form.is_valid(): 
-	    proyecto = proyecto_form.save(commit=False)
-	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
-	    if anexo_formset.is_valid():
-	        proyecto.estado = '1'
-	        proyecto.type = 'memoria'
-	        proyecto.format = mimetypes.guess_type (request.FILES['file'].name)
-		proyecto.save()
-		anexos = anexo_formset.save(commit=False)
-		#proyecto.uuid = handle_uploaded_file(request.FILES['file'], proyecto) 
-		formats = list()
-		uuids = list()
-		for form in anexo_formset.forms:
-		   formats.append (mimetypes.guess_type (form.cleaned_data['file'].name))
-		   uuids.append ('kaka')
-		i = 0
-		print formats
-		for anexo in anexos:
-		  anexo.uuid = uuids[i]
-		  anexo.type = 'anexo'
-		  anexo.format = formats[i]
-		  i = i + 1
-		  anexo.save()
-                #anexos.save()
+	        proyecto = proyecto_form.save(commit=False)
+	        anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
+	        if anexo_formset.is_valid():
+	            proyecto.estado = 'SOL'
+	            proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
+                anexos = anexo_formset.save(commit=False)
+                for anexo, form in zip(anexos, anexo_formset.forms):
+                    anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
+                save_proyect_to_alfresco(proyecto, anexos, update_db=True)
                 return HttpResponseRedirect('/subirproyectos/results/')
         else:
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES)
@@ -112,6 +82,19 @@ def solicitar_defensa(request):
         anexo_formset = AnexoFormSet(instance = Proyecto())
     return render_to_response('subirproyectos/solicitar_defensa.html', {'f': proyecto_form, 'a' : anexo_formset }, context_instance=RequestContext(request))
 
+
+def formulario(request):
+    ##necesita estar logueado
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect('/subirproyectos/')
+    f = FormularioProyecto()
+    return render_to_response('subirproyectos/subir.html', {'f': f},
+                               context_instance=RequestContext(request))
+    
+
+def result(request):
+    return HttpResponse("Ha sido exitoso.")
+ 
 
 def mostrar(request, id):
     p = Proyecto.objects.get(id = id)
