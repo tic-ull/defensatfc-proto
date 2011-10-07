@@ -190,12 +190,18 @@ class Anexo(Contenido):
     proyecto = models.ForeignKey(Proyecto)
 
 
-def save_proyect_to_alfresco(proyecto, anexos, update_db=False):
+def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
+                             proyecto_contenido=None, anexos_contenidos=()):
     cml = Alfresco().cml()
     proyecto.save_to_alfresco(cml)
-    for anexos in args:
-        anexos.save_to_alfresco(cml)
+    for anexo in anexos:
+        anexo.save_to_alfresco(cml)
     cml.do()
+
+    if proyecto_contenido is not None:
+        Alfresco().upload_file(proyecto.uuid, proyecto_contenido)
+    for anexo, contenido in zip(anexos, anexos_contenidos):
+        Alfresco().upload_file(anexo.uuid, contenido)
 
     if update_db:
         proyecto.save()
