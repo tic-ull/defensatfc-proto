@@ -11,9 +11,10 @@ from subirproyectos import settings
 
 NIUValidator = RegexValidator(regex ='\d{10}', message='Ej: 0100353303')
 
+
+      
 def file_format(value):
-    format = mimetypes.guess_type(value.name)
-    print format
+    (format, encoding) = mimetypes.guess_type(value.name)
     formats = [mimetype for mimetype, name in SELECCION_FORMATO]
     if format not in formats:
         raise ValidationError('Formato de fichero no válido')
