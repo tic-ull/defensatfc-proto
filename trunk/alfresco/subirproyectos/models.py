@@ -24,7 +24,7 @@ class Centro(models.Model):
     nombre = models.CharField(max_length=200)
 
     def __unicode__(self):
-        return self.title
+        return self.nombre
 
 
 class Titulacion(models.Model):
@@ -33,7 +33,7 @@ class Titulacion(models.Model):
     alfresco_uuid = models.CharField(max_length=36) # TODO: Validar: 0123456789ABCDEFabcdef
 
     def __unicode__(self):
-        return self.title
+        return self.nombre
 
 
 class Contenido(models.Model):

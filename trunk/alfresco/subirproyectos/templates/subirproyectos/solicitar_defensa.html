@@ -26,7 +26,8 @@
 {% block content_title %}Solicitud de defensa de Trabajo Fin de Carrera{% endblock %}
 {% block content %}
 <div class="item">
-  <form action="." method="POST">
+<!--   <form action="." method="POST"> -->
+<form action="." enctype="multipart/form-data" method="POST"> 
     {% csrf_token %}
     <table id="proyecto">
     {{ f.as_table }}
