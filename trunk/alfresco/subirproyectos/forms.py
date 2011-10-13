@@ -32,7 +32,7 @@ class FormularioProyecto(forms.ModelForm):
   class Meta:
 	model = Proyecto   
 	exclude = ('estado', 'uuid', 'tribunal_vocal', 'tribunal_secretario', 'tribunal_presidente', 'modalidad', 'calificacion', 'fecha', 
-	'universidad', 'rights', 'coverage', 'subject', 'relation', 'format', 'type')
+	'universidad', 'rights', 'coverage', 'subject', 'relation', 'format', 'type', 'alfresco_uuid')
 
     
     

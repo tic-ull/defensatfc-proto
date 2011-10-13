@@ -18,3 +18,10 @@ def file_format(value):
     formats = [mimetype for mimetype, name in SELECCION_FORMATO]
     if format not in formats:
         raise ValidationError('Formato de fichero no válido')
+      
+UUIDValidator = RegexValidator(regex ='\w{8}-\w{4}-\w{4}-\w{4}-\w{12}', message='Ej: 550e8400-e29b-41d4-a716-446655440000 ')
+
+EmailAluValidator = RegexValidator(regex ='\w+' + DOMINIO_CORREO_ALU, message='Solo se admiten correos ULL')
+
+EmailTutorValidator = RegexValidator(regex ='\w+' + DOMINIO_CORREO_TUTOR, message='Solo se admiten correos ULL')
+ 

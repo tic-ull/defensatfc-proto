@@ -30,7 +30,7 @@ class Centro(models.Model):
 class Titulacion(models.Model):
     nombre = models.CharField(max_length=200)
     centro = models.ForeignKey(Centro)
-    alfresco_uuid = models.CharField(max_length=36) # TODO: Validar: 0123456789ABCDEFabcdef
+    alfresco_uuid = models.CharField(max_length=36, validators=[validators.NIUValidator])
 
     def __unicode__(self):
         return self.nombre
@@ -47,7 +47,7 @@ class Contenido(models.Model):
     # TODO: Consultar sobre publisher, identifier, URI
 
     # internos
-    alfresco_uuid = models.CharField(max_length=36)     # TODO: Validar: 0123456789ABCDEFabcdef
+    alfresco_uuid = models.CharField(max_length=36, validators=[validators.UUIDValidator])
 
     class Meta:
         abstract = True
@@ -85,19 +85,19 @@ class Contenido(models.Model):
 
 class Proyecto(Contenido):
     # dublin core
-    creator_nombre = models.CharField(max_length=50)
-    creator_apellidos = models.CharField(max_length=50)
-    creator_email = models.EmailField(max_length=50)    # TODO: Validar el dominio
+    creator_nombre = models.CharField(max_length=50, verbose_name= 'nombre del autor')
+    creator_apellidos = models.CharField(max_length=50, verbose_name= 'apellidos del autor')
+    creator_email = models.EmailField(max_length=50, verbose_name = 'email del autor', validators=[validators.EmailAluValidator])
 
     # pfc
     niu = models.CharField(max_length=10, verbose_name="NIU", validators=[validators.NIUValidator])
     centro = models.ForeignKey(Centro, verbose_name="centro")
     titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
-    tutor_nombre = models.CharField(max_length=50)
-    tutor_apellidos = models.CharField(max_length=50)
-    tutor_email = models.EmailField(max_length=50)      # TODO: Validar el dominio
-    director_nombre = models.CharField(max_length=50, blank=True, null=True)
-    director_apellidos = models.CharField(max_length=50, blank=True, null=True)
+    tutor_nombre = models.CharField(max_length=50, verbose_name='nombre del tutor')
+    tutor_apellidos = models.CharField(max_length=50, verbose_name='apellidos del tutor')
+    tutor_email = models.EmailField(max_length=50, verbose_name='email del tutor', validators=[validators.EmailTutorValidator]) 
+    director_nombre = models.CharField(max_length=50, blank=True, null=True, verbose_name='nombre del director')
+    director_apellidos = models.CharField(max_length=50, blank=True, null=True, verbose_name='apellidos del director')
 
     # internos
     estado = models.CharField(max_length=3, choices=SELECCION_ESTADO)

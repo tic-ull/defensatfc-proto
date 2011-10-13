@@ -4,6 +4,10 @@ from iso691 import ISO691_1
 
 PLANTILLA_NOMBRE_COMPLETO = '%(apellidos)s, %(nombre)s'
 
+DOMINIO_CORREO_ALU = '@ull.edu.es'
+
+DOMINIO_CORREO_TUTOR = '@ull.es'
+
 SELECCION_TIPO_DOCUMENTO = (
     ('MEMORIA', 'Memoria'),
     ('ANEXO',   'Anexo'),
