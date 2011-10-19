@@ -133,12 +133,23 @@ class Proyecto(Contenido):
 class ProyectoCalificado(Proyecto):
     fecha_defensa = models.DateField(default=date.today(), verbose_name="fecha defensa")
     calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica")
-    calificacion = models.CharField(max_length=30, choices=settings.SELECCION_CALIFICACION, verbose_name="calificación")     # TODO: Validar
+    calificacion = models.CharField(max_length=30, choices=settings.SELECCION_CALIFICACION, verbose_name="calificación")
     modalidad = models.CharField(max_length=30) # TODO: Añadir selector de modalidad
     tribunal_presidente_nombre = models.CharField(max_length=50)
     tribunal_presidente_apellidos = models.CharField(max_length=50)
     tribunal_secretario_nombre = models.CharField(max_length=50)
     tribunal_secretario_apellidos = models.CharField(max_length=50)
+    
+    def clean(self):
+	# TODO sacar las reglas de la lógica del programa
+	if ((self.calificacion_numerica >= 0.0) && (self.calificacion_numerica <= 4.9)):
+	    self.calificacion = 'Suspenso'
+	if ((self.calificacion_numerica >= 5) && (self.calificacion_numerica <= 6.9)):    
+	    self.calificacion = 'Aprobado'
+	if ((self.calificacion_numerica >= 7) && (self.calificacion_numerica <= 8.9)):    
+	    self.calificacion = 'Notable'
+	if ((self.calificacion_numerica >= 9) && (self.calificacion_numerica <= 10)):    
+	    self.calificacion = 'Sobresaliente'	    
 
     def tribunal_vocales(self):
         return [vocal.nombre_completo() for vocal in

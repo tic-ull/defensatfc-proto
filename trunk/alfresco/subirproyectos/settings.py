@@ -61,7 +61,6 @@ SELECCION_CALIFICACION = (
     ('MH', 'Matrícula de honor'),
 )
 
-
 # Configuración de alfresco
 ALFRESCO_PROXY_SERVER = {
     'http': 'localhost:1080'
