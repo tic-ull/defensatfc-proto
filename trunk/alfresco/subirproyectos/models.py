@@ -22,15 +22,24 @@ SELECCION_ESTADO = (
 
 class Centro(models.Model):
     nombre = models.CharField(max_length=200)
+    codigo_centro = models.CharField(max_length=200)
+    alfresco_uuid = models.CharField(max_length=36, blank = 'true', null = 'true', validators=[validators.UUIDValidator])
 
     def __unicode__(self):
         return self.nombre
+    def _get_alfresco_properties(self):
+        return {
+            'cm:name': self.nombre,
+        }    
 
 
 class Titulacion(models.Model):
     nombre = models.CharField(max_length=200)
     centro = models.ForeignKey(Centro)
-    alfresco_uuid = models.CharField(max_length=36, validators=[validators.NIUValidator])
+    codigo_plan = models.CharField(max_length=200)
+    anyo_comienzo_plan = models.IntegerField()
+    titulacion_vigente = models.CharField(max_length=200)
+    alfresco_uuid = models.CharField(max_length=36, blank = 'true', null = 'true', validators=[validators.UUIDValidator])
 
     def __unicode__(self):
         return self.nombre
@@ -142,13 +151,13 @@ class ProyectoCalificado(Proyecto):
     
     def clean(self):
 	# TODO sacar las reglas de la lógica del programa
-	if ((self.calificacion_numerica >= 0.0) && (self.calificacion_numerica <= 4.9)):
+	if ((self.calificacion_numerica >= 0.0) and (self.calificacion_numerica <= 4.9)):
 	    self.calificacion = 'Suspenso'
-	if ((self.calificacion_numerica >= 5) && (self.calificacion_numerica <= 6.9)):    
+	if ((self.calificacion_numerica >= 5) and (self.calificacion_numerica <= 6.9)):    
 	    self.calificacion = 'Aprobado'
-	if ((self.calificacion_numerica >= 7) && (self.calificacion_numerica <= 8.9)):    
+	if ((self.calificacion_numerica >= 7) and (self.calificacion_numerica <= 8.9)):    
 	    self.calificacion = 'Notable'
-	if ((self.calificacion_numerica >= 9) && (self.calificacion_numerica <= 10)):    
+	if ((self.calificacion_numerica >= 9) and (self.calificacion_numerica <= 10)):    
 	    self.calificacion = 'Sobresaliente'	    
 
     def tribunal_vocales(self):
@@ -220,32 +229,32 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
             anexos.save()
 
 
-class ULLUser(auth.models.User):
-    class Meta:
-        proxy = True
+#class ULLUser(auth.models.User):
+    #class Meta:
+        #proxy = True
 
-    def niu(self):
-        m = re.match("alu(?P<niu>\d{10})$", self.username)
-        if m is None:
-            return None
-        else:
-            return m.group('niu')
+    #def niu(self):
+        #m = re.match("alu(?P<niu>\d{10})$", self.username)
+        #if m is None:
+            #return None
+        #else:
+            #return m.group('niu')
 
-    def is_student(self):
-        if re.match("alu\d{10}$", self.username) is None:
-            return False
-        else: 
-            return True
+    #def is_student(self):
+        #if re.match("alu\d{10}$", self.username) is None:
+            #return False
+        #else: 
+            #return True
 
-    def has_perm_puede_archivar(self, proyecto):
-        if self.has_perm('puede_archivar'):
-	        return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
-                                        centro=proyecto.centro).exists()
-        else:
-            return False
+    #def has_perm_puede_archivar(self, proyecto):
+        #if self.has_perm('puede_archivar'):
+	        #return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
+                                        #centro=proyecto.centro).exists()
+        #else:
+            #return False
 
 
-class AdscripcionUsuarioCentro(models.Model):
-    user = models.ForeignKey(ULLUser, db_index=True)
-    centro = models.ForeignKey(Centro, db_index=True)
-    notificar_correo = models.BooleanField(default=False)
+#class AdscripcionUsuarioCentro(models.Model):
+    #user = models.ForeignKey(ULLUser, db_index=True)
+    #centro = models.ForeignKey(Centro, db_index=True)
+    #notificar_correo = models.BooleanField(default=False)

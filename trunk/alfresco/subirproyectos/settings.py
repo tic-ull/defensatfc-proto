@@ -70,6 +70,8 @@ ALFRESCO_PASSWORD = 'M4cvB73'
 
 ALFRESCO_PFC_MODEL_NAMESPACE = '{http://www.ull.es/2011/10/04/pfc.xsd}%s'
 
+TFC_UUID = '66fdb019-1500-4fdf-9e76-94d15ef04b55'
+
 ALFRESCO_URL_AUTH_SERVICE = 'http://localhost:1080/alfresco/wsdl/authentication-service.wsdl'
 #ALFRESCO_URL_AUTH_SERVICE = 'http://gestdoc.ccti.ull.es:8080/alfresco/wsdl/authentication-service.wsdl'
 ALFRESCO_URL_RESPOSITORY_SERVICE = 'http://localhost:1080/alfresco/wsdl/repository-service.wsdl'

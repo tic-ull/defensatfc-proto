@@ -127,7 +127,7 @@ class CML(object):
 
         # Añadir la operación
         self.cml.create.append(create)
-        self.callbacks.append(callback)
+        self._callbacks.append(callback)
         return self
 
     def add_aspect(self, uuid, aspect, properties={}, callback=None):
@@ -190,9 +190,9 @@ class CML(object):
 
     def do(self):
         results = self._repository.service.update(self.cml)
-        for result, callback in zip(results, callbacks):
+        for result, callback in zip(results, self._callbacks):
             if callback is not None:
-                callbacks(**result)
+                self._callbacks(**result)
         return results
 
     def _get_reference(self, uuid):

@@ -1,38 +1,265 @@
 - model: subirproyectos.Centro
-  pk: 1
+  pk: 2
   fields:
-    nombre: Escuela Tecnica Superior de Ingenieria Informatica
+    nombre: Escuela de Ingeniería de Edificación
+    codigo_centro: 15
+    alfresco_uuid: ""
 - model: subirproyectos.Centro
-  pk: 2
+  pk: 3
   fields:
-    nombre: Escuela Tecnica Superior de Ingenieria Industrial
+    nombre: Escuela Técnica Superior de Ingeniería Agraria
+    codigo_centro: 10
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 4
+  fields:
+    nombre: Escuela Técnica Superior de Ingeniería Civil e Industrial
+    codigo_centro: 33
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 5
+  fields:
+    nombre: Escuela Técnica Superior de Ingeniería Informática
+    codigo_centro: 13
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 6
+  fields:
+    nombre: Escuela Técnica Superior de Náutica, Máquinas y Radioelectrónica Naval
+    codigo_centro: 14
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 7
+  fields:
+    nombre: Escuela Universitaria de Ciencias Empresariales
+    codigo_centro: 16
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 8
+  fields:
+    nombre: Escuela Universitaria de Enfermería y Fisioterapia
+    codigo_centro: 18
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 9
+  fields:
+    nombre: Facultad de Bellas Artes
+    codigo_centro: 19
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 10
+  fields:
+    nombre: Facultad de Biología
+    codigo_centro: 20
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 11
+  fields:
+    nombre: Facultad de Ciencias de la Información
+    codigo_centro: 22
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 12
+  fields:
+    nombre: Facultad de Ciencias Políticas y Sociales
+    codigo_centro: 11
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 13
+  fields:
+    nombre: Facultad de Derecho
+    codigo_centro: 23
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 14
+  fields:
+    nombre: Facultad de Económicas y Empresariales
+    codigo_centro: 21
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 15
+  fields:
+    nombre: Facultad de Educación
+    codigo_centro: 12
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 16
+  fields:
+    nombre: Facultad de Farmacia
+    codigo_centro: 24
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 17
+  fields:
+    nombre: Facultad de Filología
+    codigo_centro: 25
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 18
+  fields:
+    nombre: Facultad de Filosofía
+    codigo_centro: 26
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 19
+  fields:
+    nombre: Facultad de Física
+    codigo_centro: 27
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 20
+  fields:
+    nombre: Facultad de Geografía e Historia
+    codigo_centro: 28
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 21
+  fields:
+    nombre: Facultad de Matemáticas
+    codigo_centro: 29
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 22
+  fields:
+    nombre: Facultad de Medicina
+    codigo_centro: 30
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 22
+  fields:
+    nombre: Facultad de Psicología
+    codigo_centro: 31
+    alfresco_uuid: ""
+- model: subirproyectos.Centro
+  pk: 22
+  fields:
+    nombre: Facultad de Química
+    codigo_centro: 31
+    alfresco_uuid: ""
+
 - model: subirproyectos.Titulacion
   pk: 1
   fields:
-    nombre: Ingenieria Informatica
-    centro: 1
-    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+    nombre: P082 Ingeniero Técnico Industrial, Especialidad en Mecánica
+    centro: 4
+    codigo_plan: P082
+    anyo_comienzo_plan: 2002
+    titulacion_vigente: true
+    alfresco_uuid: ""
 - model: subirproyectos.Titulacion
   pk: 2
   fields:
-    nombre: Ingenieria Tecnica Industrial Mecanica
-    centro: 2
-    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+    nombre: P108 Ingeniero en Automática y Electrónica Industrial
+    centro: 4
+    codigo_plan: P108
+    anyo_comienzo_plan: 2003
+    titulacion_vigente: true
+    alfresco_uuid: ""
 - model: subirproyectos.Titulacion
   pk: 3
   fields:
-    nombre: Ingenieria Tecnica Industrial Electronica
-    centro: 2
-    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+    nombre: P092 Ingeniero Técnico de Obras Públicas, Especialidad en Hidrología
+    centro: 4
+    codigo_plan: P092
+    anyo_comienzo_plan: 2001
+    titulacion_vigente: true
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 3
+  fields:
+    nombre: P083 Ingeniero Técnico Industrial, Especialidad en Electrónica Industrial
+    centro: 4
+    codigo_plan: P083
+    anyo_comienzo_plan: 2000
+    titulacion_vigente: true
+    alfresco_uuid: ""
 - model: subirproyectos.Titulacion
   pk: 4
   fields:
-    nombre: Ingenieria en Automatica y Electronica Industrial
-    centro: 1
-    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+    nombre: M521 Máster en Ingeniería Informática Aplicada a la Industrria, a la Ingeniería del Software y a los Sistemas y Tecnologías de la Información
+    centro: 5
+    codigo_plan: M521
+    anyo_comienzo_plan: 2008
+    titulacion_vigente: true
+    alfresco_uuid: ""
 - model: subirproyectos.Titulacion
   pk: 5
   fields:
-    nombre: Ingenieria Tecnica de Obras Publicas especialidad Hidrologia
-    centro: 2
-    alfresco_uuid: 7dc53df5f703ef49b3f8670fb1c468f47f1f
+    nombre: P106 Ingeniero Técnico en Informática de Gestión
+    centro: 5
+    codigo_plan: P106
+    anyo_comienzo_plan: 2003
+    titulacion_vigente: true
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 6
+  fields:
+    nombre: P105 Ingeniero Técnico en Informática de Sistemas
+    centro: 5
+    codigo_plan: P105
+    anyo_comienzo_plan: 2003
+    titulacion_vigente: true
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 7
+  fields:
+    nombre: P080 Ingeniero en Informática
+    centro: 5
+    codigo_plan: P80
+    anyo_comienzo_plan: 1999
+    titulacion_vigente: true
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 8
+  fields:
+    nombre: P064 Ingeniero Técnico en Informática de Gestión
+    centro: 5
+    codigo_plan: P064
+    anyo_comienzo_plan: 1996
+    titulacion_vigente: false
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 9
+  fields:
+    nombre: P065 Ingeniero Técnico en Informática de Sistemas
+    centro: 5
+    codigo_plan: P065
+    anyo_comienzo_plan: 1996
+    titulacion_vigente: false
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 10
+  fields:
+    nombre: P049 Ingeniero en Informática
+    centro: 5
+    codigo_plan: P049
+    anyo_comienzo_plan: 1993
+    titulacion_vigente: false
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 11
+  fields:
+    nombre: P034 Ingeniero Técnico en Informática de Gestión
+    centro: 5
+    codigo_plan: P034
+    anyo_comienzo_plan: 1990
+    titulacion_vigente: false
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 11
+  fields:
+    nombre: P035 Ingeniero Técnico en Informática de Sistemas
+    centro: 5
+    codigo_plan: P035
+    anyo_comienzo_plan: 1990
+    titulacion_vigente: false
+    alfresco_uuid: ""
+- model: subirproyectos.Titulacion
+  pk: 11
+  fields:
+    nombre: P017 Diplomado en Informática
+    centro: 5
+    codigo_plan: P017
+    anyo_comienzo_plan: 1987
+    titulacion_vigente: false
+    alfresco_uuid: ""
