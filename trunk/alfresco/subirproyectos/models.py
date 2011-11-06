@@ -48,6 +48,7 @@ class Titulacion(models.Model):
 class Contenido(models.Model):
     # dublin core
     title = models.CharField(max_length=200, verbose_name="título")
+    titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
     format = models.CharField(max_length=30, choices=settings.SELECCION_FORMATO)
     description = models.TextField(verbose_name="descripción")
     type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.SELECCION_TIPO_DOCUMENTO[0][0])
@@ -71,24 +72,26 @@ class Contenido(models.Model):
         if force_insert and force_update:
             raise ValueError("Cannot force both insert and updating in model saving.")
 
-        if force_update or not force_insert and self.alfresco_uuid is not None:
+        #if force_update or not force_insert and self.alfresco_uuid is not None:
+	if force_update or not force_insert and self.alfresco_uuid:
             return cml.update(self.alfresco_uuid,
                 self._get_alfresco_properties())
         else:
-            def create_callback(destination):
-                self.alfresco_uuid = destination.uuid
+            def create_callback(result):
+                self.alfresco_uuid = result.destination.uuid
             return cml.create(self.titulacion.alfresco_uuid,
-                ALFRESCO_PFC_MODEL_NAMESPACEi % contenido,
+                settings.ALFRESCO_PFC_MODEL_NAMESPACE % 'contenido',
                 self._get_alfresco_properties(), create_callback)
 
     def _get_alfresco_properties(self):
         return {
+	    '{http://www.alfresco.org/model/content/1.0}name' : self.title, #campo para que tenga nombre en alfresco
             'cm:name': self.title,
             'dc:title': self.title,
             'dc:format': self.format,
             'dc:description': self.description,
             'dc:type': self.type,
-            'dc:languaje': self.languaje,
+            'dc:languaje': self.language,
         }
 
 
@@ -101,7 +104,7 @@ class Proyecto(Contenido):
     # pfc
     niu = models.CharField(max_length=10, verbose_name="NIU", validators=[validators.NIUValidator])
     centro = models.ForeignKey(Centro, verbose_name="centro")
-    titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
+
     tutor_nombre = models.CharField(max_length=50, verbose_name='nombre del tutor')
     tutor_apellidos = models.CharField(max_length=50, verbose_name='apellidos del tutor')
     tutor_email = models.EmailField(max_length=50, verbose_name='email del tutor', validators=[validators.EmailTutorValidator]) 
@@ -129,7 +132,7 @@ class Proyecto(Contenido):
 
     def _get_alfresco_properties(self):
         properties = super(Proyecto, self)._get_alfresco_properties()
-        return properties + {
+        new_properties = {
             'dc:creator': self.creator_nombre_completo(),
             'pfc:niu': self.niu,
             'pfc:centro': self.centro.nombre,
@@ -137,6 +140,7 @@ class Proyecto(Contenido):
             'pfc:tutor': self.tutor_nombre_completo(),
             'pfc:director': self.director_nombre_completo(),
         }
+        return dict(properties.items() + new_properties.items())
 
 
 class ProyectoCalificado(Proyecto):
@@ -212,21 +216,23 @@ class Anexo(Contenido):
 
 def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
+    print proyecto_contenido
     cml = Alfresco().cml()
+   
     proyecto.save_to_alfresco(cml)
     for anexo in anexos:
         anexo.save_to_alfresco(cml)
     cml.do()
 
     if proyecto_contenido is not None:
-        Alfresco().upload_file(proyecto.uuid, proyecto_contenido)
+        Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
     for anexo, contenido in zip(anexos, anexos_contenidos):
-        Alfresco().upload_file(anexo.uuid, contenido)
+        Alfresco().upload_content(anexo.alfresco_uuid, contenido)
 
     if update_db:
         proyecto.save()
-        for anexos in args:
-            anexos.save()
+        for anexo in anexos:
+            anexo.save()
 
 
 #class ULLUser(auth.models.User):

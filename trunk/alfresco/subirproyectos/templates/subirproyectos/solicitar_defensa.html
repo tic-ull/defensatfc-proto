@@ -40,6 +40,8 @@
             <tr>
               <th scope="col">Título</th>
               <th scope="col">Archivo</th>
+	      <th scope="col">Descripcion</th>
+
             </tr>
           <thead>
           <tbody>
@@ -47,6 +49,7 @@
             <tr id="{{ form.prefix }}-row">
               <td>{{ form.title }}</td>
               <td>{{ form.file }}</td>
+              <td>{{ form.description }}</td>
             </tr>
             {% endfor %}
           </tbody>

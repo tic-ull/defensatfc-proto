@@ -62,7 +62,7 @@ class Alfresco(object):
         else:
             name = file_name
 
-        url = ALFRESCO_URL_PUT % {
+        url = settings.ALFRESCO_URL_PUT % {
             'uuid': uuid, 
             'filename': name,
             'ticket': self._ticket
@@ -151,7 +151,7 @@ class CML(object):
             add_aspect.property.append(named_value)
 
         self.cml.addAspect.append(add_aspect)
-        self.callbacks.append(callback)
+        self._callbacks.append(callback)
         return self
 
     def update(self, uuid, properties, callback=None):
@@ -174,7 +174,7 @@ class CML(object):
             update.property.append(named_value)
 
         self.cml.update.append(update)
-        self.callbacks.append(callback)
+        self._callbacks.append(callback)
         return self
 
     def delete(self, uuid, callback=None):
@@ -192,7 +192,7 @@ class CML(object):
         results = self._repository.service.update(self.cml)
         for result, callback in zip(results, self._callbacks):
             if callback is not None:
-                self._callbacks(**result)
+                callback(result)
         return results
 
     def _get_reference(self, uuid):
