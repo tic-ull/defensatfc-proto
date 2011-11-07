@@ -48,7 +48,6 @@ class Titulacion(models.Model):
 class Contenido(models.Model):
     # dublin core
     title = models.CharField(max_length=200, verbose_name="título")
-    titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
     format = models.CharField(max_length=30, choices=settings.SELECCION_FORMATO)
     description = models.TextField(verbose_name="descripción")
     type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.SELECCION_TIPO_DOCUMENTO[0][0])
@@ -100,7 +99,7 @@ class Proyecto(Contenido):
     creator_nombre = models.CharField(max_length=50, verbose_name= 'nombre del autor')
     creator_apellidos = models.CharField(max_length=50, verbose_name= 'apellidos del autor')
     creator_email = models.EmailField(max_length=50, verbose_name = 'email del autor', validators=[validators.EmailAluValidator])
-
+    titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
     # pfc
     niu = models.CharField(max_length=10, verbose_name="NIU", validators=[validators.NIUValidator])
     centro = models.ForeignKey(Centro, verbose_name="centro")
@@ -232,6 +231,7 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
     if update_db:
         proyecto.save()
         for anexo in anexos:
+	    anexo.proyecto_id = proyecto.pk
             anexo.save()
 
 

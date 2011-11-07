@@ -70,13 +70,14 @@ def solicitar_defensa(request):
 	            proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
 	        else:
 	            print anexo_formset.errors 
+	            anexo_formset = AnexoFormSet (request.POST, request.FILES)
                 anexos = anexo_formset.save(commit=False)
                 lista_anexos = []
                 for anexo, form in zip(anexos, anexo_formset.forms):
                     anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
                     anexo.titulacion = proyecto.titulacion
                     lista_anexos.append (form.cleaned_data['file'])
-                save_proyect_to_alfresco(proyecto, anexos, update_db=True, proyecto_contenido = request.FILES['file'])
+                save_proyect_to_alfresco(proyecto, anexos, update_db=True, proyecto_contenido = request.FILES['file'], anexos_contenidos = lista_anexos )
                 return HttpResponseRedirect('/subirproyectos/results/')
         else:
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES)

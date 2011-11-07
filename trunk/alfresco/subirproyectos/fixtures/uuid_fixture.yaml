@@ -1,140 +1,140 @@
 ['/home/pedro/Django/pdrcabrod/trunk/alfresco/packages', '/home/pedro/Django/pdrcabrod/trunk/alfresco', '/usr/lib/python2.6', '/usr/lib/python2.6/plat-linux2', '/usr/lib/python2.6/lib-tk', '/usr/lib/python2.6/lib-old', '/usr/lib/python2.6/lib-dynload', '/usr/lib/python2.6/dist-packages', '/usr/lib/python2.6/dist-packages/PIL', '/usr/lib/pymodules/python2.6', '/usr/lib/pymodules/python2.6/gtk-2.0', '/usr/local/lib/python2.6/dist-packages', '/home/pedro/Django/pdrcabrod/trunk/alfresco/..']
--   fields: {alfresco_uuid: 544eebb2-e209-476a-9d86-d75db2cc673b, codigo_centro: '15',
+-   fields: {alfresco_uuid: 0c7cb860-11d4-4789-9534-4b170d9e1442, codigo_centro: '15',
         nombre: "Escuela de Ingenier\xEDa de Edificaci\xF3n"}
     model: subirproyectos.centro
     pk: 2
--   fields: {alfresco_uuid: f9dcd853-d1ef-4f86-9c95-f994768485a6, codigo_centro: '10',
+-   fields: {alfresco_uuid: 7bbead7c-15f7-4436-bb6e-c787cf06d1b2, codigo_centro: '10',
         nombre: "Escuela T\xE9cnica Superior de Ingenier\xEDa Agraria"}
     model: subirproyectos.centro
     pk: 3
--   fields: {alfresco_uuid: 04c971d6-75fe-4705-84e6-e57a93cd3487, codigo_centro: '33',
+-   fields: {alfresco_uuid: 134f612a-51dc-4c96-92f3-d9f7ad6c1af0, codigo_centro: '33',
         nombre: "Escuela T\xE9cnica Superior de Ingenier\xEDa Civil e Industrial"}
     model: subirproyectos.centro
     pk: 4
--   fields: {alfresco_uuid: 522b5feb-f188-4f31-ba99-88079aefc14f, codigo_centro: '13',
+-   fields: {alfresco_uuid: 1cb44559-5ef3-4ee6-8ed9-7517465a6461, codigo_centro: '13',
         nombre: "Escuela T\xE9cnica Superior de Ingenier\xEDa Inform\xE1tica"}
     model: subirproyectos.centro
     pk: 5
--   fields: {alfresco_uuid: 6f80e2d1-3ed9-43c7-a550-08b4ccbc52b3, codigo_centro: '14',
+-   fields: {alfresco_uuid: 41aadfbc-8bff-4cfa-a68d-926d4547297e, codigo_centro: '14',
         nombre: "Escuela T\xE9cnica Superior de N\xE1utica, M\xE1quinas y Radioelectr\xF3\
             nica Naval"}
     model: subirproyectos.centro
     pk: 6
--   fields: {alfresco_uuid: 996dd4db-7d37-436e-b327-26efb3855289, codigo_centro: '16',
+-   fields: {alfresco_uuid: 9b306d26-8a91-4bf8-ac4e-7f6b85e8c401, codigo_centro: '16',
         nombre: Escuela Universitaria de Ciencias Empresariales}
     model: subirproyectos.centro
     pk: 7
--   fields: {alfresco_uuid: e49f513e-e1fb-4be5-b844-a84f77c23380, codigo_centro: '18',
+-   fields: {alfresco_uuid: 5e13dcd5-70fd-4db7-a7af-fa4a9a5cbcb7, codigo_centro: '18',
         nombre: "Escuela Universitaria de Enfermer\xEDa y Fisioterapia"}
     model: subirproyectos.centro
     pk: 8
--   fields: {alfresco_uuid: c9bebaa9-3ebe-4013-9abc-31191b04167d, codigo_centro: '19',
+-   fields: {alfresco_uuid: 71b7d7a7-6cb5-4a56-9bfe-2fc237c88573, codigo_centro: '19',
         nombre: Facultad de Bellas Artes}
     model: subirproyectos.centro
     pk: 9
--   fields: {alfresco_uuid: 65f778cd-3ded-4705-940b-eaa50a297bc6, codigo_centro: '20',
+-   fields: {alfresco_uuid: c258e0c8-ab0a-4a5b-b599-1872051f3e79, codigo_centro: '20',
         nombre: "Facultad de Biolog\xEDa"}
     model: subirproyectos.centro
     pk: 10
--   fields: {alfresco_uuid: 46fc72bb-51c1-4d41-80a8-148d27a3f259, codigo_centro: '22',
+-   fields: {alfresco_uuid: 5f42d083-649d-4e39-874b-06f3c01e64c7, codigo_centro: '22',
         nombre: "Facultad de Ciencias de la Informaci\xF3n"}
     model: subirproyectos.centro
     pk: 11
--   fields: {alfresco_uuid: 1f08647e-6a84-4d6b-ac98-36d7e86f4261, codigo_centro: '11',
+-   fields: {alfresco_uuid: 970d984c-d17e-4bec-9893-75dd7dd988bf, codigo_centro: '11',
         nombre: "Facultad de Ciencias Pol\xEDticas y Sociales"}
     model: subirproyectos.centro
     pk: 12
--   fields: {alfresco_uuid: f3d7a779-0fcf-4705-8a48-109294fc52f8, codigo_centro: '23',
+-   fields: {alfresco_uuid: 0457bd96-acec-4c50-b631-79d5ff4b047b, codigo_centro: '23',
         nombre: Facultad de Derecho}
     model: subirproyectos.centro
     pk: 13
--   fields: {alfresco_uuid: a8e7a035-9748-40be-88bc-d2f85e4f2034, codigo_centro: '21',
+-   fields: {alfresco_uuid: 46c2638e-fc84-4253-b7ad-b8fbeddb8c01, codigo_centro: '21',
         nombre: "Facultad de Econ\xF3micas y Empresariales"}
     model: subirproyectos.centro
     pk: 14
--   fields: {alfresco_uuid: e1b1e231-98f0-411f-9293-91f230ab13e3, codigo_centro: '12',
+-   fields: {alfresco_uuid: 83525820-1513-4b44-ad88-c2736a03a350, codigo_centro: '12',
         nombre: "Facultad de Educaci\xF3n"}
     model: subirproyectos.centro
     pk: 15
--   fields: {alfresco_uuid: 8f031d0a-56cd-4e4e-bf03-5e340942833b, codigo_centro: '24',
+-   fields: {alfresco_uuid: 584c53f2-500b-4d9a-b09b-1cad54b2b4ca, codigo_centro: '24',
         nombre: Facultad de Farmacia}
     model: subirproyectos.centro
     pk: 16
--   fields: {alfresco_uuid: d0bca35a-9d5f-4e1f-ad08-476a550dc0a7, codigo_centro: '25',
+-   fields: {alfresco_uuid: c40aa715-e24a-49a5-810b-55b819f9d95d, codigo_centro: '25',
         nombre: "Facultad de Filolog\xEDa"}
     model: subirproyectos.centro
     pk: 17
--   fields: {alfresco_uuid: d68abad5-b666-4f1b-b525-890585809a99, codigo_centro: '26',
+-   fields: {alfresco_uuid: aceffb1b-f60c-404c-8d22-e7de046dd6d0, codigo_centro: '26',
         nombre: "Facultad de Filosof\xEDa"}
     model: subirproyectos.centro
     pk: 18
--   fields: {alfresco_uuid: 6971224b-80c3-49cb-9927-e8b8d94bd93d, codigo_centro: '27',
+-   fields: {alfresco_uuid: 142ddacc-7bd7-45e4-b255-2293cfc215db, codigo_centro: '27',
         nombre: "Facultad de F\xEDsica"}
     model: subirproyectos.centro
     pk: 19
--   fields: {alfresco_uuid: 1163d83a-dc59-4f50-b8fd-79a3df7f7459, codigo_centro: '28',
+-   fields: {alfresco_uuid: fce9fc37-17df-4d3e-8ec6-4e9ea59cb8e7, codigo_centro: '28',
         nombre: "Facultad de Geograf\xEDa e Historia"}
     model: subirproyectos.centro
     pk: 20
--   fields: {alfresco_uuid: 136d22be-3b96-4cba-8f44-9cbfdaac1e62, codigo_centro: '29',
+-   fields: {alfresco_uuid: 31c2a53a-3a36-4cdc-ac80-550eaef81968, codigo_centro: '29',
         nombre: "Facultad de Matem\xE1ticas"}
     model: subirproyectos.centro
     pk: 21
--   fields: {alfresco_uuid: dc4284c0-5f46-435b-a4e8-5bddaaa449c4, codigo_centro: '31',
+-   fields: {alfresco_uuid: b98c83f2-6133-42ac-a6f2-8422ae3bf3ee, codigo_centro: '31',
         nombre: "Facultad de Qu\xEDmica"}
     model: subirproyectos.centro
     pk: 22
--   fields: {alfresco_uuid: 015ca9a4-8c68-46a9-be38-1ae3eb704fda, anyo_comienzo_plan: 2002,
+-   fields: {alfresco_uuid: 84521103-6f29-4aa2-b1d4-5ab7ace77a4c, anyo_comienzo_plan: 2002,
         centro: 4, codigo_plan: P082, nombre: "P082 Ingeniero T\xE9cnico Industrial,\
             \ Especialidad en Mec\xE1nica", titulacion_vigente: 'True'}
     model: subirproyectos.titulacion
     pk: 1
--   fields: {alfresco_uuid: ac169e81-c461-4695-90a6-bba9ae097545, anyo_comienzo_plan: 2003,
+-   fields: {alfresco_uuid: b097682e-f6b9-4fe9-87df-90033aa983eb, anyo_comienzo_plan: 2003,
         centro: 4, codigo_plan: P108, nombre: "P108 Ingeniero en Autom\xE1tica y Electr\xF3\
             nica Industrial", titulacion_vigente: 'True'}
     model: subirproyectos.titulacion
     pk: 2
--   fields: {alfresco_uuid: f4b27dce-329e-4165-848f-2e6a49926f81, anyo_comienzo_plan: 2000,
+-   fields: {alfresco_uuid: b980d35e-cba0-4e39-92fa-3f6e7f3e50e0, anyo_comienzo_plan: 2000,
         centro: 4, codigo_plan: P083, nombre: "P083 Ingeniero T\xE9cnico Industrial,\
             \ Especialidad en Electr\xF3nica Industrial", titulacion_vigente: 'True'}
     model: subirproyectos.titulacion
     pk: 3
--   fields: {alfresco_uuid: 13380754-7354-441f-b9b2-c2ffd7eaad86, anyo_comienzo_plan: 2008,
+-   fields: {alfresco_uuid: 1224f923-24bc-47a3-add2-847e2f5e4e38, anyo_comienzo_plan: 2008,
         centro: 5, codigo_plan: M521, nombre: "M521 M\xE1ster en Ingenier\xEDa Inform\xE1\
             tica Aplicada a la Industrria, a la Ingenier\xEDa del Software y a los\
             \ Sistemas y Tecnolog\xEDas de la Informaci\xF3n", titulacion_vigente: 'True'}
     model: subirproyectos.titulacion
     pk: 4
--   fields: {alfresco_uuid: af6c146d-51f7-4737-bebd-c71c2e6e950c, anyo_comienzo_plan: 2003,
+-   fields: {alfresco_uuid: 5e77b2a9-05b7-4816-a736-c6c06d105dfe, anyo_comienzo_plan: 2003,
         centro: 5, codigo_plan: P106, nombre: "P106 Ingeniero T\xE9cnico en Inform\xE1\
             tica de Gesti\xF3n", titulacion_vigente: 'True'}
     model: subirproyectos.titulacion
     pk: 5
--   fields: {alfresco_uuid: 1e0545bd-cd30-48a9-83ca-921ea820087e, anyo_comienzo_plan: 2003,
+-   fields: {alfresco_uuid: cfa51e22-bf87-4d60-b2c7-16b8a2789a55, anyo_comienzo_plan: 2003,
         centro: 5, codigo_plan: P105, nombre: "P105 Ingeniero T\xE9cnico en Inform\xE1\
             tica de Sistemas", titulacion_vigente: 'True'}
     model: subirproyectos.titulacion
     pk: 6
--   fields: {alfresco_uuid: ba04d7b5-ecee-4163-9e54-0a6f1f168967, anyo_comienzo_plan: 1999,
+-   fields: {alfresco_uuid: 8a9e1681-4338-4af2-b15d-879869d15344, anyo_comienzo_plan: 1999,
         centro: 5, codigo_plan: P80, nombre: "P080 Ingeniero en Inform\xE1tica", titulacion_vigente: 'True'}
     model: subirproyectos.titulacion
     pk: 7
--   fields: {alfresco_uuid: 573e1a4b-6056-438a-b428-a86b84f60c19, anyo_comienzo_plan: 1996,
+-   fields: {alfresco_uuid: 2b2c2fe3-7871-409c-821e-f76181a52fa8, anyo_comienzo_plan: 1996,
         centro: 5, codigo_plan: P064, nombre: "P064 Ingeniero T\xE9cnico en Inform\xE1\
             tica de Gesti\xF3n", titulacion_vigente: 'False'}
     model: subirproyectos.titulacion
     pk: 8
--   fields: {alfresco_uuid: 3af92bec-0b86-4b14-9b3a-eec39aaa5cbe, anyo_comienzo_plan: 1996,
+-   fields: {alfresco_uuid: 23a22037-4cfe-4a25-9403-fc6c7e35937a, anyo_comienzo_plan: 1996,
         centro: 5, codigo_plan: P065, nombre: "P065 Ingeniero T\xE9cnico en Inform\xE1\
             tica de Sistemas", titulacion_vigente: 'False'}
     model: subirproyectos.titulacion
     pk: 9
--   fields: {alfresco_uuid: 3fdccfd7-02a3-4f0d-b7d9-10ab886fdd18, anyo_comienzo_plan: 1993,
+-   fields: {alfresco_uuid: 659d94cd-bd50-4984-acc9-feebb1f7ba74, anyo_comienzo_plan: 1993,
         centro: 5, codigo_plan: P049, nombre: "P049 Ingeniero en Inform\xE1tica",
         titulacion_vigente: 'False'}
     model: subirproyectos.titulacion
     pk: 10
--   fields: {alfresco_uuid: fdc01574-6648-478c-aa5c-0a4946c72206, anyo_comienzo_plan: 1987,
+-   fields: {alfresco_uuid: 46b52ee9-25e4-4877-8ca5-4243c2189e46, anyo_comienzo_plan: 1987,
         centro: 5, codigo_plan: P017, nombre: "P017 Diplomado en Inform\xE1tica",
         titulacion_vigente: 'False'}
     model: subirproyectos.titulacion
