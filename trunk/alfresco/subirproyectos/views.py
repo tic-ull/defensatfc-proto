@@ -68,17 +68,18 @@ def solicitar_defensa(request):
 	        if anexo_formset.is_valid():
 	            proyecto.estado = 'SOL'
 	            proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
+		    anexos = anexo_formset.save(commit=False)
+		    lista_anexos = []
+		    for anexo, form in zip(anexos, anexo_formset.forms):
+		      anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
+		      anexo.titulacion = proyecto.titulacion
+		      lista_anexos.append (form.cleaned_data['file'])
+		    save_proyect_to_alfresco(proyecto, anexos, update_db=True, proyecto_contenido = request.FILES['file'], anexos_contenidos = lista_anexos )
+		    return HttpResponseRedirect('/subirproyectos/results/')	            
 	        else:
 	            print anexo_formset.errors 
 	            anexo_formset = AnexoFormSet (request.POST, request.FILES)
-                anexos = anexo_formset.save(commit=False)
-                lista_anexos = []
-                for anexo, form in zip(anexos, anexo_formset.forms):
-                    anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
-                    anexo.titulacion = proyecto.titulacion
-                    lista_anexos.append (form.cleaned_data['file'])
-                save_proyect_to_alfresco(proyecto, anexos, update_db=True, proyecto_contenido = request.FILES['file'], anexos_contenidos = lista_anexos )
-                return HttpResponseRedirect('/subirproyectos/results/')
+
         else:
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES)
 
@@ -101,23 +102,25 @@ def formulario(request):
 def result(request):
     return HttpResponse("Ha sido exitoso.")
  
-
+#mostrar un proyecto, diferente comportamiento segun el rol del que lo ve.
 def mostrar(request, id):
     p = Proyecto.objects.get(id = id)
-    if p.estado == '1':
-        url = url_download_file(p.uuid)
-	return render_to_response('subirproyectos/mostrar.html', {'p': p, 'url' : url})
-    if p.estado == '2':
-        return render_to_response('subirproyectos/mostrar_tutor.html', {'p': p})
+    if p.estado == 'SOL':  
+        url = Alfresco().get_download_url(p.alfresco_uuid)
+	return render_to_response('subirproyectos/revisar_tutor.html', {'p': p, 'url' : url})
+    if p.estado == 'REV':
+        return render_to_response('subirproyectos/poner_nota_tutor.html', {'p': p})
     if p.estado == '3':    
-        return render_to_response('subirproyectos/mostrar_biblioteca.html', {'p': p})
+        return render_to_response('subirproyectos/revisar_biblioteca.html', {'p': p})
 
 
 def mostrarlistatutor(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
-    proyectos = Proyecto.objects.filter(tutor=request.user.username, estado=1)
-    proyectos_por_leer = Proyecto.objects.filter(tutor=request.user.username, estado=2)
+    #proyectos por revisar la memoria y anexos   
+    proyectos = Proyecto.objects.filter(tutor_email=request.user.username, estado='SOL')
+    #proyectos por poner nota.
+    proyectos_por_leer = Proyecto.objects.filter(tutor_email=request.user.username, estado='REV')
     #if is_faculty_staff (request.user.username):
        #proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
        
@@ -145,8 +148,11 @@ def mostrarlistabiblioteca(request):
 def validar(request):
    print request.POST['id']
    proyecto = Proyecto.objects.get(id = request.POST['id'])
-   proyecto.estado = '2'
-   proyecto.tutor = request.POST['tutor']
+   proyecto.estado = 'REV'
+   proyecto.tutor_nombre = request.POST['tutor_nombre']
+   proyecto.tutor_apellidos = request.POST['tutor_apellidos']
+   proyecto.director_nombre = request.POST['director_nombre']
+   proyecto.director_apellidos = request.POST['director_apellidos']   
    proyecto.save()
    #dir = proyecto.alumno + '@ull.es'
    send_mail('ULL: PFC validado', 'El tutor ha validado tu proyecto.', 'from@example.com',

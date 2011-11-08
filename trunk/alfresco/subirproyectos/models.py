@@ -235,32 +235,32 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
             anexo.save()
 
 
-#class ULLUser(auth.models.User):
-    #class Meta:
-        #proxy = True
+class ULLUser(auth.models.User):
+    class Meta:
+        proxy = True
 
-    #def niu(self):
-        #m = re.match("alu(?P<niu>\d{10})$", self.username)
-        #if m is None:
-            #return None
-        #else:
-            #return m.group('niu')
+    def niu(self):
+        m = re.match("alu(?P<niu>\d{10})$", self.username)
+        if m is None:
+            return None
+        else:
+            return m.group('niu')
 
-    #def is_student(self):
-        #if re.match("alu\d{10}$", self.username) is None:
-            #return False
-        #else: 
-            #return True
+    def is_student(self):
+        if re.match("alu\d{10}$", self.username) is None:
+            return False
+        else: 
+            return True
 
-    #def has_perm_puede_archivar(self, proyecto):
-        #if self.has_perm('puede_archivar'):
-	        #return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
-                                        #centro=proyecto.centro).exists()
-        #else:
-            #return False
+    def has_perm_puede_archivar(self, proyecto):
+        if self.has_perm('puede_archivar'):
+	        return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
+                                        centro=proyecto.centro).exists()
+        else:
+            return False
 
 
-#class AdscripcionUsuarioCentro(models.Model):
-    #user = models.ForeignKey(ULLUser, db_index=True)
-    #centro = models.ForeignKey(Centro, db_index=True)
-    #notificar_correo = models.BooleanField(default=False)
+class AdscripcionUsuarioCentro(models.Model):
+    user = models.ForeignKey(ULLUser, db_index=True)
+    centro = models.ForeignKey(Centro, db_index=True)
+    notificar_correo = models.BooleanField(default=False)

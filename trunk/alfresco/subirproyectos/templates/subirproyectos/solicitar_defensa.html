@@ -47,9 +47,10 @@
           <tbody>
             {% for form in a.forms %}
             <tr id="{{ form.prefix }}-row">
-              <td>{{ form.title }}</td>
-              <td>{{ form.file }}</td>
-              <td>{{ form.description }}</td>
+              <td>{{ form.title.errors }}{{ form.title }}</td>
+
+              <td>{{ form.file.errors }}{{ form.file }}</td>
+              <td>{{ form.description.errors }}{{ form.description }}</td>
             </tr>
             {% endfor %}
           </tbody>

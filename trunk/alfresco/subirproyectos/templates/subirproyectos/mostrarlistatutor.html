@@ -1,24 +1,39 @@
-<p> Proyectos por validar </p>
+{% extends "subirproyectos/base.html" %}
 
+{% block content_title %}Listado de proyectos por revisar{% endblock %}
+
+
+{% block content %}
+
+<div class="item">
+<p> Proyectos por revisar. Revise la memoria y anexos de los siguientes proyectos: </p>
 {% if proyectos %}
-    <ul>
+    <table>
     {% for proyecto in proyectos %}
-        <li><a href="/subirproyectos/{{ proyecto.id }}/mostrar">{{ proyecto.title }}</a></li>
+      <tr>
+        <td>{{ proyecto.title }}</td>
+        <td><a href="/subirproyectos/{{ proyecto.id }}/mostrar">Revisar</a></td>
+      </tr>
     {% endfor %}
-    </ul>
+    </table>
 {% else %}
     <p>No hay proyectos disponibles.</p>
 {% endif %}
-
-<p> Proyectos por leer </p>
-
+<p> Proyectos por ser calificados: </p>
 {% if proyectos_por_leer %}
-
-    <ul>
+    <table>
     {% for proyecto in proyectos_por_leer %}
-        <li><a href="/subirproyectos/{{ proyecto.id }}/mostrar">{{ proyecto.title }}</a></li>
+      <tr>
+        <td>{{ proyecto.title }}</td>
+        <td><a href="/subirproyectos/{{ proyecto.id }}/mostrar">Calificar</a></td>
+      </tr>
     {% endfor %}
-    </ul>
+    </table>
 {% else %}
     <p>No hay proyectos disponibles.</p>
 {% endif %}
+
+</div>
+{% endblock %}
+
+
