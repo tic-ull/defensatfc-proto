@@ -12,6 +12,8 @@
     {% for proyecto in proyectos %}
       <tr>
         <td>{{ proyecto.title }}</td>
+	<td>{{ proyecto.creator_apellidos}}, {{proyecto.creator_nombre}}<td>
+	<td>{{ proyecto.fecha_subido }}<td>
         <td><a href="/subirproyectos/{{ proyecto.id }}/mostrar">Revisar</a></td>
       </tr>
     {% endfor %}
@@ -20,11 +22,13 @@
     <p>No hay proyectos disponibles.</p>
 {% endif %}
 <p> Proyectos por ser calificados: </p>
-{% if proyectos_por_leer %}
+{% if proyectos_por_calificar %}
     <table>
-    {% for proyecto in proyectos_por_leer %}
+    {% for proyecto in proyectos_por_calificar %}
       <tr>
         <td>{{ proyecto.title }}</td>
+	<td>{{ proyecto.creator_apellidos}}, {{proyecto.creator_nombre}}<td>
+	<td>{{ proyecto.fecha_subido }}<td>
         <td><a href="/subirproyectos/{{ proyecto.id }}/mostrar">Calificar</a></td>
       </tr>
     {% endfor %}

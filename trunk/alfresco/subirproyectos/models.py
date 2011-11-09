@@ -48,7 +48,7 @@ class Titulacion(models.Model):
 class Contenido(models.Model):
     # dublin core
     title = models.CharField(max_length=200, verbose_name="título")
-    format = models.CharField(max_length=30, choices=settings.SELECCION_FORMATO)
+    format = models.CharField(max_length=30)
     description = models.TextField(verbose_name="descripción")
     type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.SELECCION_TIPO_DOCUMENTO[0][0])
     language = models.CharField(max_length=2, choices=settings.SELECCION_LENGUAJE, verbose_name="idioma")
@@ -78,7 +78,11 @@ class Contenido(models.Model):
         else:
             def create_callback(result):
                 self.alfresco_uuid = result.destination.uuid
-            return cml.create(self.titulacion.alfresco_uuid,
+            if type(self).__name__ == 'Proyecto':
+		uuid = self.titulacion.alfresco_uuid
+	    else:#si no es un proyecto es un anexo
+		uuid = self.proyecto.titulacion.alfresco_uuid
+            return cml.create(uuid,
                 settings.ALFRESCO_PFC_MODEL_NAMESPACE % 'contenido',
                 self._get_alfresco_properties(), create_callback)
 
@@ -99,16 +103,17 @@ class Proyecto(Contenido):
     creator_nombre = models.CharField(max_length=50, verbose_name= 'nombre del autor')
     creator_apellidos = models.CharField(max_length=50, verbose_name= 'apellidos del autor')
     creator_email = models.EmailField(max_length=50, verbose_name = 'email del autor', validators=[validators.EmailAluValidator])
-    titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
     # pfc
     niu = models.CharField(max_length=10, verbose_name="NIU", validators=[validators.NIUValidator])
     centro = models.ForeignKey(Centro, verbose_name="centro")
-
+    titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
     tutor_nombre = models.CharField(max_length=50, verbose_name='nombre del tutor')
     tutor_apellidos = models.CharField(max_length=50, verbose_name='apellidos del tutor')
     tutor_email = models.EmailField(max_length=50, verbose_name='email del tutor', validators=[validators.EmailTutorValidator]) 
     director_nombre = models.CharField(max_length=50, blank=True, null=True, verbose_name='nombre del director')
     director_apellidos = models.CharField(max_length=50, blank=True, null=True, verbose_name='apellidos del director')
+    #auxiliares
+    fecha_subido = models.DateField (auto_now_add = True)
 
     # internos
     estado = models.CharField(max_length=3, choices=SELECCION_ESTADO)
@@ -223,10 +228,10 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
         anexo.save_to_alfresco(cml)
     cml.do()
 
-    if proyecto_contenido is not None:
-        Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
-    for anexo, contenido in zip(anexos, anexos_contenidos):
-        Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+    #if proyecto_contenido is not None:
+        #Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
+    #for anexo, contenido in zip(anexos, anexos_contenidos):
+        #Alfresco().upload_content(anexo.alfresco_uuid, contenido)
 
     if update_db:
         proyecto.save()
@@ -235,32 +240,32 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
             anexo.save()
 
 
-class ULLUser(auth.models.User):
-    class Meta:
-        proxy = True
+#class ULLUser(auth.models.User):
+    #class Meta:
+        #proxy = True
 
-    def niu(self):
-        m = re.match("alu(?P<niu>\d{10})$", self.username)
-        if m is None:
-            return None
-        else:
-            return m.group('niu')
+    #def niu(self):
+        #m = re.match("alu(?P<niu>\d{10})$", self.username)
+        #if m is None:
+            #return None
+        #else:
+            #return m.group('niu')
 
-    def is_student(self):
-        if re.match("alu\d{10}$", self.username) is None:
-            return False
-        else: 
-            return True
+    #def is_student(self):
+        #if re.match("alu\d{10}$", self.username) is None:
+            #return False
+        #else: 
+            #return True
 
-    def has_perm_puede_archivar(self, proyecto):
-        if self.has_perm('puede_archivar'):
-	        return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
-                                        centro=proyecto.centro).exists()
-        else:
-            return False
+    #def has_perm_puede_archivar(self, proyecto):
+        #if self.has_perm('puede_archivar'):
+	        #return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
+                                        #centro=proyecto.centro).exists()
+        #else:
+            #return False
 
 
-class AdscripcionUsuarioCentro(models.Model):
-    user = models.ForeignKey(ULLUser, db_index=True)
-    centro = models.ForeignKey(Centro, db_index=True)
-    notificar_correo = models.BooleanField(default=False)
+#class AdscripcionUsuarioCentro(models.Model):
+    #user = models.ForeignKey(ULLUser, db_index=True)
+    #centro = models.ForeignKey(Centro, db_index=True)
+    #notificar_correo = models.BooleanField(default=False)

@@ -1,14 +1,28 @@
 <html>
 
 <head>
-<tittle>Mostrando proyecto</tittle>
+<tittle>Revise la memoria y documentos anexos y compruebe que los datos son correctos. En caso de que sean incorrectos modifíquelos.</tittle>
 </head>
 
 <body>
-<a href={{ url }}>{{p.title}}</a> 
 
+    <table id = proyecto>
+      <tr>
+        <td>{{ p.title }}</td>
+	<td><a href={{ url_proyecto }}>Descargar</a> <td>
+      </tr>
+    </table>
 
-<form action="/subirproyectos/validar/" method="post" enctype="multipart/form-data">
+    <table id = anexos>
+    {% for url in urls_anexos %}
+      <tr>
+        <td>Anexo</td>
+	<td><a href={{ url }}>Descargar</a> <td>
+      </tr>
+    {% endfor %}
+    </table>
+
+<form action="/subirproyectos/revisar/" method="post" enctype="multipart/form-data">
 {% csrf_token %}
 
 Nombre del tutor: <input type="text" name= "tutor_nombre" value="{{p.tutor_nombre}}"><br />
@@ -18,7 +32,7 @@ Nombre del director: <input type="text" name= "director_nombre" value="{{p.direc
 Apellidos del director: <input type="text" name= "director_apellidos" value="{{p.director_apellidos}}"><br />
 
 <input type="hidden" name="id" value="{{p.id}}">
-<input type="submit" value="Validar" />
+<input type="submit" value="Aceptar" />
 </form>
 
 <form action="/subirproyectos/rechazar/" method="post" enctype="multipart/form-data">

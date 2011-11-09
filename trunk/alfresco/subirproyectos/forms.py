@@ -35,11 +35,13 @@ class FormularioProyecto(forms.ModelForm):
 	'universidad', 'rights', 'coverage', 'subject', 'relation', 'format', 'type', 'alfresco_uuid')
 
     
-    
-#class FormularioAnexo(forms.Form):
-    #title = forms.CharField(max_length=50) 
-    #file  = forms.FileField()
-    
+
+class FormularioProyectoCalificado(forms.ModelForm):
+  class Meta:
+	model = ProyectoCalificado
+	fields = ('fecha_defensa',  'calificacion_numerica', 'modalidad', 'tribunal_presidente_nombre', 'tribunal_presidente_apellidos', 
+	'tribunal_secretario_nombre', 'tribunal_secretario_apellidos')	
+	
 
 
 class FormularioAnexoFormset (BaseInlineFormSet):
@@ -47,7 +49,7 @@ class FormularioAnexoFormset (BaseInlineFormSet):
 	super(FormularioAnexoFormset, self).add_fields(form, index)
 	form.fields["file"] = forms.FileField(validators=[validators.file_format])
 
-AnexoFormSet = inlineformset_factory(Proyecto, Anexo, exclude = ('format', 'type', 'relation', 'language', 'titulacion', 'alfresco_uuid'), formset = FormularioAnexoFormset)    
+AnexoFormSet = inlineformset_factory(Proyecto, Anexo, exclude = ('format', 'relation', 'titulacion', 'alfresco_uuid'), formset = FormularioAnexoFormset)    
 
 class FormularioLogin(forms.Form):
   username = forms.CharField(max_length=50)

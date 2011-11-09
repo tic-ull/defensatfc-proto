@@ -9,8 +9,8 @@ DOMINIO_CORREO_ALU = '@ull.edu.es'
 DOMINIO_CORREO_TUTOR = '@ull.es'
 
 SELECCION_TIPO_DOCUMENTO = (
-    ('MEMORIA', 'Memoria'),
     ('ANEXO',   'Anexo'),
+    ('MEMORIA', 'Memoria'),    
     ('PLANO',   'Plano'),
 )
 

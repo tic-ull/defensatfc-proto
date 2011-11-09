@@ -39,18 +39,20 @@
           <thead>
             <tr>
               <th scope="col">Título</th>
-              <th scope="col">Archivo</th>
+              <th scope="col">Tipo documento</th>
+              <th scope="col">Idioma</th>
 	      <th scope="col">Descripcion</th>
-
+              <th scope="col">Archivo</th>
             </tr>
-          <thead>
+          </thead>
           <tbody>
             {% for form in a.forms %}
             <tr id="{{ form.prefix }}-row">
-              <td>{{ form.title.errors }}{{ form.title }}</td>
-
-              <td>{{ form.file.errors }}{{ form.file }}</td>
-              <td>{{ form.description.errors }}{{ form.description }}</td>
+	      <td>{{ form.title.errors }}{{ form.title }}</td> 
+              <td>{{ form.type.errors }}{{ form.type }}</td>
+	      <td>{{ form.language.errors }}{{ form.language }}</td>
+	      <td>{{ form.description.errors }}{{ form.description }}</td> 
+	      <td>{{ form.file.errors }}{{ form.file }}</td>
             </tr>
             {% endfor %}
           </tbody>

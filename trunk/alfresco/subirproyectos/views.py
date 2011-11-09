@@ -11,7 +11,6 @@ import mimetypes
 from subirproyectos.forms import *
 from subirproyectos.models import Proyecto, Anexo
 from subirproyectos.models import save_proyect_to_alfresco
-from subirproyectos.handle_uploaded_file import handle_uploaded_file
 from subirproyectos.alfresco import Alfresco
 from subirproyectos.url_download_file import url_download_file 
 
@@ -51,40 +50,31 @@ def index(request):
 # def logout_view(request):
 #     logout(request)
 
-
+#TODO la plantilla de los anexos se ve mal, no caben tantos fields en una row
 @login_required        
 def solicitar_defensa(request):
-    #AnexoFormSet = formset_factory(AnexoForm, formset=FormularioAnexoFormSet)
-    #AnexoFormSet = inlineformset_factory(Proyecto, Anexo, formset = FormularioAnexoFormset, fields=('title', 'file', 'proyecto'))  
     if request.method == 'POST':
-
-        #proyecto_form = FormularioProyecto(request.POST, request.FILES)
         proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        #anexo_formset = AnexoFormSet(request.POST, request.FILES)
-
         if proyecto_form.is_valid(): 
 	        proyecto = proyecto_form.save(commit=False)
 	        anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
 	        if anexo_formset.is_valid():
 	            proyecto.estado = 'SOL'
 	            proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
+	            proyecto.type = 'MEMORIA'
 		    anexos = anexo_formset.save(commit=False)
 		    lista_anexos = []
 		    for anexo, form in zip(anexos, anexo_formset.forms):
 		      anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
-		      anexo.titulacion = proyecto.titulacion
 		      lista_anexos.append (form.cleaned_data['file'])
 		    save_proyect_to_alfresco(proyecto, anexos, update_db=True, proyecto_contenido = request.FILES['file'], anexos_contenidos = lista_anexos )
 		    return HttpResponseRedirect('/subirproyectos/results/')	            
 	        else:
 	            print anexo_formset.errors 
 	            anexo_formset = AnexoFormSet (request.POST, request.FILES)
-
         else:
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES)
-
     else:
-        #proyecto_form = FormularioProyecto(request.POST, request.FILES)
         proyecto_form = FormularioProyecto()
         anexo_formset = AnexoFormSet(instance = Proyecto())
     return render_to_response('subirproyectos/solicitar_defensa.html', {'f': proyecto_form, 'a' : anexo_formset }, context_instance=RequestContext(request))
@@ -106,10 +96,16 @@ def result(request):
 def mostrar(request, id):
     p = Proyecto.objects.get(id = id)
     if p.estado == 'SOL':  
-        url = Alfresco().get_download_url(p.alfresco_uuid)
-	return render_to_response('subirproyectos/revisar_tutor.html', {'p': p, 'url' : url})
+        url_proyecto = Alfresco().get_download_url(p.alfresco_uuid)
+        anexos = Anexo.objects.filter(proyecto = p.pk) 
+        urls_anexos = []
+        for anexo in anexos:
+	  #TODO mostrar el nombre del anexo en la plantilla
+	  urls_anexos.append(Alfresco().get_download_url(anexo.alfresco_uuid))
+	return render_to_response('subirproyectos/revisar_tutor.html', {'p': p, 'url_proyecto' : url_proyecto, 'urls_anexos' : urls_anexos, 'anexos' : anexos})
     if p.estado == 'REV':
-        return render_to_response('subirproyectos/poner_nota_tutor.html', {'p': p})
+        #return render_to_response('subirproyectos/calificar_proyecto_tutor.html', {'p': p})
+        return HttpResponseRedirect('/subirproyectos/calificar_proyecto_tutor/') 
     if p.estado == '3':    
         return render_to_response('subirproyectos/revisar_biblioteca.html', {'p': p})
 
@@ -120,14 +116,12 @@ def mostrarlistatutor(request):
     #proyectos por revisar la memoria y anexos   
     proyectos = Proyecto.objects.filter(tutor_email=request.user.username, estado='SOL')
     #proyectos por poner nota.
-    proyectos_por_leer = Proyecto.objects.filter(tutor_email=request.user.username, estado='REV')
-    #if is_faculty_staff (request.user.username):
-       #proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
-       
+    proyectos_por_calificar = Proyecto.objects.filter(tutor_email=request.user.username, estado='REV')    
+    print proyectos_por_calificar
     t = loader.get_template('subirproyectos/mostrarlistatutor.html')
     c = Context({
         'proyectos': proyectos,
-        'proyectos_por_leer': proyectos_por_leer,
+        'proyectos_por_calificar': proyectos_por_calificar,
     })
     return HttpResponse(t.render(c))
     
@@ -145,7 +139,7 @@ def mostrarlistabiblioteca(request):
     return HttpResponse(t.render(c))
 
 
-def validar(request):
+def revisar(request):
    print request.POST['id']
    proyecto = Proyecto.objects.get(id = request.POST['id'])
    proyecto.estado = 'REV'
@@ -170,24 +164,39 @@ def rechazar(request):
     ['nombre@alfrescoull.org'], fail_silently=False)
    return HttpResponseRedirect('/subirproyectos/results/')
    
-def validar_tutor(request):
-  #despues de leer el proy
-   proyecto = Proyecto.objects.get(id = request.POST['id'])
-   proyecto.estado = '3'
-   proyecto.calificacion = request.POST['calificacion']
-   proyecto.fecha = request.POST['fecha']
-   proyecto.tribunal_presidente = request.POST['presidente']
-   proyecto.tribunal_secretario = request.POST['secretario']
-   proyecto.tribunal_vocal = request.POST['vocal']
-   proyecto.save()
-   #email alumno
-   send_mail('ULL: PFC validado', 'Tutor ha validado tu proyecto. Listo para lectura', 'from@example.com',
-    ['nombre@alfrescoull.org'], fail_silently=False)
-   #correo al tutor
-   #dir = proyecto.tutor + '@ull.es'
-   send_mail('ULL: PFC validado', 'Tutor ha validado el proyecto', 'from@example.com',
-    ['nombre@alfrescoull.org'], fail_silently=False)
-   return HttpResponseRedirect('/subirproyectos/results/')
+def calificar_proyecto_tutor(request):#TODO poner los vocales como form
+  ##despues de leer el proy
+   #proyecto = Proyecto.objects.get(id = request.POST['id'])
+   #proyecto.estado = '3'
+   #proyecto.calificacion = request.POST['calificacion']
+   #proyecto.fecha = request.POST['fecha']
+   #proyecto.tribunal_presidente = request.POST['presidente']
+   #proyecto.tribunal_secretario = request.POST['secretario']
+   #proyecto.tribunal_vocal = request.POST['vocal']
+   #proyecto.save()
+   ##email alumno
+   #send_mail('ULL: PFC validado', 'Tutor ha validado tu proyecto. Listo para lectura', 'from@example.com',
+    #['nombre@alfrescoull.org'], fail_silently=False)
+   ##correo al tutor
+   ##dir = proyecto.tutor + '@ull.es'
+   #send_mail('ULL: PFC validado', 'Tutor ha validado el proyecto', 'from@example.com',
+    #['nombre@alfrescoull.org'], fail_silently=False)
+   #return HttpResponseRedirect('/subirproyectos/results/')
+    if request.method == 'POST': 
+        form_proyecto_calificado = FormularioProyectoCalificado(request.POST) 
+        if form.is_valid(): 
+	    #TODO PROCESAR
+	    proyecto_calificado = form_proyecto_calificado.save(commit=False)
+	    proyecto_calificado.estado = 'CAL'
+	    
+            return HttpResponseRedirect('/subirproyectos/results/') 
+    else:
+        form = FormularioProyectoCalificado() 
+
+    return render_to_response('subirproyectos/calificar_proyecto_tutor.html', {
+        'f': form,
+    })
+   
   
   
 def validar_biblioteca(request):
