@@ -152,10 +152,10 @@ class ProyectoCalificado(Proyecto):
     calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica")
     calificacion = models.CharField(max_length=30, choices=settings.SELECCION_CALIFICACION, verbose_name="calificación")
     modalidad = models.CharField(max_length=30) # TODO: Añadir selector de modalidad
-    tribunal_presidente_nombre = models.CharField(max_length=50)
-    tribunal_presidente_apellidos = models.CharField(max_length=50)
-    tribunal_secretario_nombre = models.CharField(max_length=50)
-    tribunal_secretario_apellidos = models.CharField(max_length=50)
+    tribunal_presidente_nombre = models.CharField(max_length=50, verbose_name="nombre presidente tribunal")
+    tribunal_presidente_apellidos = models.CharField(max_length=50, verbose_name="apellidos presidente tribunal")
+    tribunal_secretario_nombre = models.CharField(max_length=50, verbose_name="nombre secretario tribunal")
+    tribunal_secretario_apellidos = models.CharField(max_length=50, verbose_name="apellidos secretario tribunal")
     
     def clean(self):
 	# TODO sacar las reglas de la lógica del programa

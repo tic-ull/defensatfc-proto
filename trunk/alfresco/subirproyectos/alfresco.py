@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+  # -*- encoding: utf-8 -*-
 import logging
 import put
 import urllib2
@@ -103,7 +103,7 @@ class CML(object):
         store.address = 'SpacesStore'
         parent_reference = self._repository.factory.create(self.NAMESPACES['content'] % 'ParentReference')
         parent_reference.associationType = self.NAMESPACES['cm'] % 'contains'
-        parent_reference.childName = self.NAMESPACES['cm'] % properties['cm:name']
+        parent_reference.childName = self.NAMESPACES['cm'] % properties['{http://www.alfresco.org/model/content/1.0}name']
         parent_reference.uuid = parent_uuid
         parent_reference.store = store
 

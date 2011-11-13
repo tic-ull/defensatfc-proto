@@ -1,46 +1,60 @@
 {% extends "subirproyectos/base.html" %}
 
+{% block extra_head %}
+<script language="javascript" src="{{ MEDIA_URL}}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL}}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL}}js/jquery.formset.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/smoothness/jquery-ui-1.8.16.custom.css" />
+<script type="text/javascript">
+    $(function() {
+        $('#proyecto_vocales tbody tr').formset({
+             prefix: '{{ v.prefix }}',
+             addText: 'añadir',
+             deleteText: 'eliminar',
+             extraClasses: ['row1', 'row2', 'row3']
+        });
+        $('#accordion').accordion({
+             active: false,
+             collapsible: true,
+             autoHeight: false,
+             animated: false
+        });
+    })
+</script>
+{% endblock %}
+
+
+
 {% block content_title %}Calificación trabajo de fin de carrera{% endblock %}
 {% block content %}
-
-<!--<html>
-
-<head>
-<tittle>Datos del proyecto a validar</tittle>
-</head>
-
-<body>-->
-
-<!--<form action="/subirproyectos/validar_tutor/" method="post" enctype="multipart/form-data">
-{% csrf_token %}-->
-<!--Creador: <input type="text" name="creador" value="{{p.creator}}" /><br />
-Titulo: <input type="text" name="titulo" value="{{p.title}}" /><br />
-Descripcion: <input type="text" name="descripcion" value="{{p.description}}" /><br />
-Tipo: <input type="text" name="tipo" value="{{p.type}}" /><br />
-Formato: <input type="text" name="formato" value="{{p.format}}" /><br />
-Lenguaje: <input type="text" name="lenguaje" value="{{p.language}}" /><br />
-Relation: <input type="text" name="relation" value="{{p.relation}}" /><br />
-Subject: <input type="text" name="subject" /><br />
-Coverage: <input type="text" name="coverage" /><br />-->
-
-<!--Nota: <input type="text" name="calificacion"/><br />
-Fecha_acta: <input type="text" name="fecha"/><br />
-Tribunal vocal <input type="text" name="vocal"/><br />
-Tribunal secretario <input type="text" name="secretario"/><br />
-Tribunal presidente <input type="text" name="presidente"/><br />
-<input type="hidden" name="id" value="{{p.id}}">
-<input type="submit" value="Aceptar" />
-</form>-->
 <div class="item">
-    
     <form action="." enctype="multipart/form-data" method="POST"> 
     {% csrf_token %}
     <table id="proyecto">
     {{ f.as_table }}
     </table>
+    <div id="accordion">
+      <h3><a href="#">Vocales del tribunal</a></h3>
+      <div>
+        <table id="proyecto_vocales">
+          <thead>
+            <tr>
+              <th scope="col">Nombre vocal</th>
+              <th scope="col">Apellidos vocal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for form in v.forms %}
+            <tr id="{{ form.prefix }}-row">
+	      <td>{{ form.nombre.errors }}{{ form.nombre }}</td> 
+              <td>{{ form.apellidos.errors }}{{ form.apellidos }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {{ v.management_form }} 
+      </div>
     <input type="submit" class="button" value="Enviar" />
     </form>
 </div>
-
-
 {% endblock %}

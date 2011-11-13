@@ -164,41 +164,31 @@ def rechazar(request):
     ['nombre@alfrescoull.org'], fail_silently=False)
    return HttpResponseRedirect('/subirproyectos/results/')
    
-def calificar_proyecto_tutor(request):#TODO poner los vocales como form
-  ##despues de leer el proy
-   #proyecto = Proyecto.objects.get(id = request.POST['id'])
-   #proyecto.estado = '3'
-   #proyecto.calificacion = request.POST['calificacion']
-   #proyecto.fecha = request.POST['fecha']
-   #proyecto.tribunal_presidente = request.POST['presidente']
-   #proyecto.tribunal_secretario = request.POST['secretario']
-   #proyecto.tribunal_vocal = request.POST['vocal']
-   #proyecto.save()
-   ##email alumno
-   #send_mail('ULL: PFC validado', 'Tutor ha validado tu proyecto. Listo para lectura', 'from@example.com',
-    #['nombre@alfrescoull.org'], fail_silently=False)
-   ##correo al tutor
-   ##dir = proyecto.tutor + '@ull.es'
-   #send_mail('ULL: PFC validado', 'Tutor ha validado el proyecto', 'from@example.com',
-    #['nombre@alfrescoull.org'], fail_silently=False)
-   #return HttpResponseRedirect('/subirproyectos/results/')
+def calificar_proyecto_tutor(request):#TODO El código en caso de hacerse un post nunca se ejecuta
     if request.method == 'POST': 
         form_proyecto_calificado = FormularioProyectoCalificado(request.POST) 
-        if form.is_valid(): 
-	    #TODO PROCESAR
+        if form_proyecto_calificado.is_valid(): 
 	    proyecto_calificado = form_proyecto_calificado.save(commit=False)
-	    proyecto_calificado.estado = 'CAL'
-	    
-            return HttpResponseRedirect('/subirproyectos/results/') 
+	    vocales_formset = VocalesFormSet (request.POST, instance = proyecto_calificado)
+	    if vocales_formset.is_valid():
+		proyecto_calificado.estado = 'CAL'
+		return HttpResponseRedirect('/subirproyectos/results/') 
+	    else:
+		print vocales_formset.errors
+		
+		vocales_formset = VocalesFormSet (request.POST)
+	else:
+	    print form_proyecto_calificado.errors
+	    vocales_formset = VocalesFormSet (request.POST)
     else:
-        form = FormularioProyectoCalificado() 
-
+        form_proyecto_calificado = FormularioProyectoCalificado() 
+        vocales_formset = VocalesFormSet(instance = ProyectoCalificado())
     return render_to_response('subirproyectos/calificar_proyecto_tutor.html', {
-        'f': form,
-    })
+        'f': form_proyecto_calificado,
+        'v': vocales_formset}, 
+        context_instance= RequestContext(request))
+    
    
-  
-  
 def validar_biblioteca(request):
    proyecto = Proyecto.objects.get(id = request.POST['id'])
    proyecto.estado = '4'
