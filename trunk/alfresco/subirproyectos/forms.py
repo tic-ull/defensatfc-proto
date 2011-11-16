@@ -50,6 +50,12 @@ class FormularioProyectoCalificado(forms.ModelForm):
 	
 VocalesFormSet = inlineformset_factory(ProyectoCalificado, TribunalVocal)    
 
+class FormularioProyectoArchivado(forms.ModelForm):
+  class Meta:
+	model = ProyectoArchivado
+	fields = ('title', 'creator_nombre', 'creator_apellidos' ,'description', 'language', 'subject',  'rights', 'coverage')	
+	
+	
 class FormularioLogin(forms.Form):
   username = forms.CharField(max_length=50)
   password = forms.CharField(widget=forms.PasswordInput()) 

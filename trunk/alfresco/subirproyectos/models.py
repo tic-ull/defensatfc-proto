@@ -174,15 +174,16 @@ class ProyectoCalificado(Proyecto):
 
     def _get_alfresco_properties(self):
         properties = super(ProyectoCalificado, self)._get_alfresco_properties()
-        return properties + {
+        new_properties = {
             'pfc:fechaDefensa': self.fecha_defensa.isoformat(),
             'pfc:calificacion': self.calificacion,
-            'pfc:calificacionNumerica': self.calificacionNumerica,
+            'pfc:calificacionNumerica': self.calificacion_numerica,
             'pfc:modalidad': self.modalidad,
             'pfc:presidenteTribunal': self.tutor_nombre_completo(),
             'pfc:secretarioTribunal': self.director_nombre_completo(),
             'pfc:vocalesTribunal': self.tribunal_vocales()
         }
+        return dict(properties.items() + new_properties.items())
 
 
 class TribunalVocal(models.Model):

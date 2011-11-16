@@ -105,9 +105,9 @@ def mostrar(request, id):
 	return render_to_response('subirproyectos/revisar_tutor.html', {'p': p, 'url_proyecto' : url_proyecto, 'urls_anexos' : urls_anexos, 'anexos' : anexos})
     if p.estado == 'REV':
         #return render_to_response('subirproyectos/calificar_proyecto_tutor.html', {'p': p})
-        return HttpResponseRedirect('/subirproyectos/calificar_proyecto_tutor/') 
-    if p.estado == '3':    
-        return render_to_response('subirproyectos/revisar_biblioteca.html', {'p': p})
+        return HttpResponseRedirect('/subirproyectos/'+id+'/calificar_proyecto_tutor/') 
+    if p.estado == 'CAL':    
+        return HttpResponseRedirect('/subirproyectos/'+id+'/archivar_proyecto_biblioteca/')
 
 
 def mostrarlistatutor(request):
@@ -128,7 +128,7 @@ def mostrarlistatutor(request):
 def mostrarlistabiblioteca(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
-    proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
+    proyectos = Proyecto.objects.filter(estado='CAL')#comprobar que es de la facultad
     #if is_faculty_staff (request.user.username):
        #proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
        
@@ -164,14 +164,17 @@ def rechazar(request):
     ['nombre@alfrescoull.org'], fail_silently=False)
    return HttpResponseRedirect('/subirproyectos/results/')
    
-def calificar_proyecto_tutor(request):#TODO El código en caso de hacerse un post nunca se ejecuta
+def calificar_proyecto_tutor(request, id):#TODO El codigo en caso de hacerse un post nunca se ejecuta
+    p = Proyecto.objects.get(id = id)
+    #pc = p.proyectocalificado
     if request.method == 'POST': 
         form_proyecto_calificado = FormularioProyectoCalificado(request.POST) 
         if form_proyecto_calificado.is_valid(): 
-	    proyecto_calificado = form_proyecto_calificado.save(commit=False)
-	    vocales_formset = VocalesFormSet (request.POST, instance = proyecto_calificado)
+	    p.proyectocalificado = form_proyecto_calificado.save(commit=False)
+	    vocales_formset = VocalesFormSet (request.POST, instance = pc)
 	    if vocales_formset.is_valid():
-		proyecto_calificado.estado = 'CAL'
+		p.estado = 'CAL'
+		#TODO save project. update
 		return HttpResponseRedirect('/subirproyectos/results/') 
 	    else:
 		print vocales_formset.errors
@@ -182,26 +185,40 @@ def calificar_proyecto_tutor(request):#TODO El código en caso de hacerse un pos
 	    vocales_formset = VocalesFormSet (request.POST)
     else:
         form_proyecto_calificado = FormularioProyectoCalificado() 
-        vocales_formset = VocalesFormSet(instance = ProyectoCalificado())
+        vocales_formset = VocalesFormSet(instance = pc)
     return render_to_response('subirproyectos/calificar_proyecto_tutor.html', {
         'f': form_proyecto_calificado,
         'v': vocales_formset}, 
         context_instance= RequestContext(request))
     
    
-def validar_biblioteca(request):
-   proyecto = Proyecto.objects.get(id = request.POST['id'])
-   proyecto.estado = '4'
-   proyecto.title = request.POST['title']
-   proyecto.creator = request.POST['creator']
-   proyecto.description = request.POST['description']
-   proyecto.language = request.POST['language']
-   #proyecto.rights = request.POST['rights']
-   proyecto.coverage = request.POST['coverage']
-   proyecto.subject = request.POST['subject']
-   proyecto.save()
-   alfresco = Alfresco ()
-   alfresco.addMetadata (proyecto)
-   return HttpResponseRedirect('/subirproyectos/results/')
+def archivar_proyecto_biblioteca(request, id):#TODO mostrar los values de los campos que hay que revisar en el template
+    pc = ProyectoCalificado.objects.get(id = id)
+    if request.method == 'POST': # If the form has been submitted...
+	form = FormularioProyectoArchivado(request.POST) # A form bound to the POST data
+	if form.is_valid(): # All validation rules pass
+	    pc.proyectoarchivado = form.save(commit=False)
+            # Process the data in form.cleaned_data
+            # ...
+            pc.estado = 'ARC'
+            pc.save()
+	    return HttpResponseRedirect('/subirproyectos/results/') # Redirect after POST
+    else:
+	form = FormularioProyectoArchivado() # An unbound form
+
+    return render_to_response('subirproyectos/archivar_proyecto_biblioteca.html', {
+        'f': form,
+    })
    
-   
+   #proyecto.estado = '4'
+   #proyecto.title = request.POST['title']
+   #proyecto.creator = request.POST['creator']
+   #proyecto.description = request.POST['description']
+   #proyecto.language = request.POST['language']
+   ##proyecto.rights = request.POST['rights']
+   #proyecto.coverage = request.POST['coverage']
+   #proyecto.subject = request.POST['subject']
+   #proyecto.save()
+   #alfresco = Alfresco ()
+   #alfresco.addMetadata (proyecto)
+   #return HttpResponseRedirect('/subirproyectos/results/')
