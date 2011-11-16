@@ -221,7 +221,6 @@ class Anexo(Contenido):
 
 def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
-    print proyecto_contenido
     cml = Alfresco().cml()
    
     proyecto.save_to_alfresco(cml)
@@ -229,10 +228,10 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
         anexo.save_to_alfresco(cml)
     cml.do()
 
-    #if proyecto_contenido is not None:
-        #Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
-    #for anexo, contenido in zip(anexos, anexos_contenidos):
-        #Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+    if proyecto_contenido is not None:
+        Alfresco().upload_file(proyecto.uuid, proyecto_contenido)
+    for anexo, contenido in zip(anexos, anexos_contenidos):
+        Alfresco().upload_file(anexo.uuid, contenido)
 
     if update_db:
         proyecto.save()
