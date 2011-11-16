@@ -7,32 +7,20 @@ from subirproyectos.models import *
 from subirproyectos import validators
 
 
-#class FormularioProyecto(forms.Form):
-    #title = forms.CharField(max_length=50)    
-    #creator = forms.CharField(max_length=200)
-    #description = forms.CharField(max_length=500)
-    ##type = models.CharField(max_length=200)
-    ##format = models.CharField(max_length=200)
-    #language = forms.CharField(max_length=200)
-    ##relation = models.CharField(max_length=500)
-    #niu = forms.CharField(max_length=15)
-    #tutor = forms.CharField(max_length=200)
-    ##centro = forms.CharField(max_length=200)
-    #centro = forms.ChoiceField(choices=CENTRO)
-    #titulacion = forms.ChoiceField(choices=TITULACION)
-    ##universidad = forms.CharField(max_length=200)
-    #file  = forms.FileField()
-    
-    
 class FormularioProyecto(forms.ModelForm):
-  file = forms.FileField(validators=[validators.file_format])
-  #def add_fields(self, form, index):
-	#super(FormularioAnexoFormset, self).add_fields(form, index)
-	#form.fields["file"] = forms.FileField()  
-  class Meta:
-	model = Proyecto   
-	exclude = ('estado', 'tribunal_vocal', 'tribunal_secretario', 'tribunal_presidente', 'modalidad', 'calificacion', 'fecha', 
-	'universidad', 'rights', 'coverage', 'subject', 'relation', 'format', 'type', 'alfresco_uuid')
+    file = forms.FileField(label="Documento de la memoria", validators=[validators.file_format])
+    
+    class Meta:
+	model = Proyecto
+	exclude = ('estado', 'creator_email', 'type', 'format', 'alfresco_uuid')
+
+    def append_field_error(self, field, error):
+        if not field in self._errors:
+            self._errors[field] = forms.util.ErrorList()
+        self._errors[field].append(error)
+
+    def append_non_field_error(self, error):
+        self.set_error(forms.NON_FIELD_ERRORS, error)
 
     
 class FormularioAnexoFormset (BaseInlineFormSet):
@@ -41,6 +29,7 @@ class FormularioAnexoFormset (BaseInlineFormSet):
 	form.fields["file"] = forms.FileField(validators=[validators.file_format])
 
 AnexoFormSet = inlineformset_factory(Proyecto, Anexo, exclude = ('format', 'relation', 'titulacion', 'alfresco_uuid'), formset = FormularioAnexoFormset)    
+
 
 class FormularioProyectoCalificado(forms.ModelForm):
   class Meta:

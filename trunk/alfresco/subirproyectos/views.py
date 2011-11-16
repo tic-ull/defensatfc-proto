@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 import mimetypes
 
 from subirproyectos.forms import *
-from subirproyectos.models import Proyecto, Anexo
+from subirproyectos.models import Proyecto, Anexo, ULLUser
 from subirproyectos.models import save_proyect_to_alfresco
 from subirproyectos.alfresco import Alfresco
 from subirproyectos.url_download_file import url_download_file 
@@ -53,31 +53,45 @@ def index(request):
 #TODO la plantilla de los anexos se ve mal, no caben tantos fields en una row
 @login_required        
 def solicitar_defensa(request):
+    niu = ULLUser.get_user(pk=request.user.pk).niu()
     if request.method == 'POST':
         proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        if proyecto_form.is_valid(): 
-	        proyecto = proyecto_form.save(commit=False)
-	        anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
-	        if anexo_formset.is_valid():
-	            proyecto.estado = 'SOL'
-	            proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
-	            proyecto.type = 'MEMORIA'
-		    anexos = anexo_formset.save(commit=False)
-		    lista_anexos = []
-		    for anexo, form in zip(anexos, anexo_formset.forms):
-		      anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
-		      lista_anexos.append (form.cleaned_data['file'])
-		    save_proyect_to_alfresco(proyecto, anexos, update_db=True, proyecto_contenido = request.FILES['file'], anexos_contenidos = lista_anexos )
-		    return HttpResponseRedirect('/subirproyectos/results/')	            
-	        else:
-	            print anexo_formset.errors 
-	            anexo_formset = AnexoFormSet (request.POST, request.FILES)
-        else:
-	    anexo_formset = AnexoFormSet (request.POST, request.FILES)
+        proyecto_form.is_valid()            # Necesario para tener cleaned_data
+        niu_test = (proyecto_form.cleaned_data['niu'] == niu)
+        if proyecto_form.is_valid() and niu_test:
+	    proyecto = proyecto_form.save(commit=False)
+	    proyecto.estado = 'SOL'
+	    proyecto.type = 'MEMORIA'
+            proyecto.creator_email = request.user.email
+	    proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
+
+            anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
+	    if anexo_formset.is_valid():
+	        anexos = anexo_formset.save(commit=False)
+	        anexos_files = []
+                for anexo, form in zip(anexos, anexo_formset.forms):
+	            anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
+		    anexos_files.append (form.cleaned_data['file'])
+		save_proyect_to_alfresco(proyecto, anexos,
+                                         update_db=True,
+                                         proyecto_contenido = request.FILES['file'],
+                                         anexos_contenidos = anexos_files)
+		return HttpResponseRedirect('/subirproyectos/results/')	            
+        elif not niu_test:
+            proyecto_form.append_field_error('niu', 'El NIU no parece corresponder al usuario')
+
+        anexo_formset = AnexoFormSet (request.POST, request.FILES)
     else:
-        proyecto_form = FormularioProyecto()
-        anexo_formset = AnexoFormSet(instance = Proyecto())
-    return render_to_response('subirproyectos/solicitar_defensa.html', {'f': proyecto_form, 'a' : anexo_formset }, context_instance=RequestContext(request))
+        initial = {}
+        if niu is not None:
+            initial['niu'] = niu
+        proyecto_form = FormularioProyecto(initial=initial)
+        anexo_formset = AnexoFormSet()
+    return render_to_response('subirproyectos/solicitar_defensa.html', {
+                                  'f': proyecto_form,
+                                  'a' : anexo_formset
+                              },
+                              context_instance=RequestContext(request))
 
 
 def formulario(request):

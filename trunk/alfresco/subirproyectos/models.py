@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-from datetime import date
 
 from django.db import models
 from django.contrib import auth
-import os
-
-
-import re
 
 from subirproyectos import settings, validators
 from subirproyectos.alfresco import Alfresco
+
+from datetime import date
+
+import os
+import re
 
 
 SELECCION_ESTADO = (
@@ -20,38 +20,68 @@ SELECCION_ESTADO = (
 )
 
 
-class Centro(models.Model):
+class AlfrescoPFCModel(models.Model):
+    NAMESPACES = Alfresco.NAMESPACES
+    NAMESPACES['pfc'] = settings.ALFRESCO_PFC_MODEL_NAMESPACE 
+
+    class Meta:
+        abstract = True
+
+    def get_alfresco_properties(self):
+        properties = self._get_alfresco_properties()
+        items = list(properties.items())
+        for i, item in enumerate(items):
+            (namespace, sep, name) = item[0].partition(':')
+            if sep and namespace in self.NAMESPACES:
+                items[i] = (self.NAMESPACES[namespace] % name, item[1])
+        return dict(items)
+
+    def _get_alfresco_properties(self):
+        return {}
+
+
+class Centro(AlfrescoPFCModel):
     nombre = models.CharField(max_length=200)
     codigo_centro = models.CharField(max_length=200)
     alfresco_uuid = models.CharField(max_length=36, blank = 'true', null = 'true', validators=[validators.UUIDValidator])
 
     def __unicode__(self):
         return self.nombre
+    
     def _get_alfresco_properties(self):
         return {
             'cm:name': self.nombre,
-        }    
+	    'pfc:codigoCentro' : self.codigo_centro,
+    }    
 
 
-class Titulacion(models.Model):
+class Titulacion(AlfrescoPFCModel):
     nombre = models.CharField(max_length=200)
     centro = models.ForeignKey(Centro)
     codigo_plan = models.CharField(max_length=200)
     anyo_comienzo_plan = models.IntegerField()
-    titulacion_vigente = models.CharField(max_length=200)
+    titulacion_vigente = models.BooleanField()
     alfresco_uuid = models.CharField(max_length=36, blank = 'true', null = 'true', validators=[validators.UUIDValidator])
 
     def __unicode__(self):
         return self.nombre
 
+    def _get_alfresco_properties(self):
+        return {
+            'cm:name': self.nombre,
+	    'pfc:codigoPlan' : self.codigo_plan,
+	    'pfc:anyoComienzoPlan' : self.anyo_comienzo_plan,
+	    'pfc:titulacionVigente' : self.titulacion_vigente
+        }    
 
-class Contenido(models.Model):
+
+class Contenido(AlfrescoPFCModel):
     # dublin core
     title = models.CharField(max_length=200, verbose_name="título")
     format = models.CharField(max_length=30)
     description = models.TextField(verbose_name="descripción")
     type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.SELECCION_TIPO_DOCUMENTO[0][0])
-    language = models.CharField(max_length=2, choices=settings.SELECCION_LENGUAJE, verbose_name="idioma")
+    language = models.CharField(max_length=2, choices=settings.SELECCION_LENGUAJE, verbose_name="idioma", default=settings.DEFECTO_LENGUAJE)
     # relation: sólo se incluirá en los metados del documento en el repositorio
     # TODO: Consultar sobre publisher, identifier, URI
 
@@ -67,34 +97,28 @@ class Contenido(models.Model):
     def __unicode__(self):
         return self.title
 
-    def save_to_alfresco(self, cml, force_insert=False, force_update=False):
+    def save_to_alfresco(self, parent_uuid, cml, force_insert=False, force_update=False):
         if force_insert and force_update:
             raise ValueError("Cannot force both insert and updating in model saving.")
 
-        #if force_update or not force_insert and self.alfresco_uuid is not None:
 	if force_update or not force_insert and self.alfresco_uuid:
             return cml.update(self.alfresco_uuid,
-                self._get_alfresco_properties())
+                self.get_alfresco_properties())
         else:
             def create_callback(result):
                 self.alfresco_uuid = result.destination.uuid
-            if type(self).__name__ == 'Proyecto':
-		uuid = self.titulacion.alfresco_uuid
-	    else:#si no es un proyecto es un anexo
-		uuid = self.proyecto.titulacion.alfresco_uuid
             return cml.create(uuid,
                 settings.ALFRESCO_PFC_MODEL_NAMESPACE % 'contenido',
-                self._get_alfresco_properties(), create_callback)
+                self.get_alfresco_properties(), create_callback)
 
     def _get_alfresco_properties(self):
         return {
-	    '{http://www.alfresco.org/model/content/1.0}name' : self.title, #campo para que tenga nombre en alfresco
             'cm:name': self.title,
-            'dc:title': self.title,
-            'dc:format': self.format,
-            'dc:description': self.description,
-            'dc:type': self.type,
-            'dc:languaje': self.language,
+            'cm:title': self.title,
+            'cm:format': self.format,
+            'cm:description': self.description,
+            'cm:type': self.type,
+            'cm:language': self.language,
         }
 
 
@@ -102,7 +126,7 @@ class Proyecto(Contenido):
     # dublin core
     creator_nombre = models.CharField(max_length=50, verbose_name= 'nombre del autor')
     creator_apellidos = models.CharField(max_length=50, verbose_name= 'apellidos del autor')
-    creator_email = models.EmailField(max_length=50, verbose_name = 'email del autor', validators=[validators.EmailAluValidator])
+    creator_email = models.EmailField(max_length=50, verbose_name = 'email del autor', validators=[validators.EmailCreatorValidator])
     # pfc
     niu = models.CharField(max_length=10, verbose_name="NIU", validators=[validators.NIUValidator])
     centro = models.ForeignKey(Centro, verbose_name="centro")
@@ -112,10 +136,9 @@ class Proyecto(Contenido):
     tutor_email = models.EmailField(max_length=50, verbose_name='email del tutor', validators=[validators.EmailTutorValidator]) 
     director_nombre = models.CharField(max_length=50, blank=True, null=True, verbose_name='nombre del director')
     director_apellidos = models.CharField(max_length=50, blank=True, null=True, verbose_name='apellidos del director')
-    #auxiliares
-    fecha_subido = models.DateField (auto_now_add = True)
 
     # internos
+    fecha_subido = models.DateField(auto_now_add = True)
     estado = models.CharField(max_length=3, choices=SELECCION_ESTADO)
 
     def __getattr__(self, name):
@@ -136,15 +159,13 @@ class Proyecto(Contenido):
 
     def _get_alfresco_properties(self):
         properties = super(Proyecto, self)._get_alfresco_properties()
-        new_properties = {
-            'dc:creator': self.creator_nombre_completo(),
-            'pfc:niu': self.niu,
-            'pfc:centro': self.centro.nombre,
-            'pfc:titulacion': self.titulacion.nombre,
-            'pfc:tutor': self.tutor_nombre_completo(),
-            'pfc:director': self.director_nombre_completo(),
-        }
-        return dict(properties.items() + new_properties.items())
+        properties['cm:creator'] = self.creator_nombre_completo()
+        properties['pfc:niu'] = self.niu
+        properties['pfc:centro'] = self.centro.nombre
+        properties['pfc:titulacion'] = self.titulacion.nombre
+        properties['pfc:tutor'] = self.tutor_nombre_completo()
+        properties['pfc:director'] = self.director_nombre_completo()
+        return properties
 
 
 class ProyectoCalificado(Proyecto):
@@ -152,21 +173,25 @@ class ProyectoCalificado(Proyecto):
     calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica")
     calificacion = models.CharField(max_length=30, choices=settings.SELECCION_CALIFICACION, verbose_name="calificación")
     modalidad = models.CharField(max_length=30) # TODO: Añadir selector de modalidad
-    tribunal_presidente_nombre = models.CharField(max_length=50, verbose_name="nombre presidente tribunal")
-    tribunal_presidente_apellidos = models.CharField(max_length=50, verbose_name="apellidos presidente tribunal")
-    tribunal_secretario_nombre = models.CharField(max_length=50, verbose_name="nombre secretario tribunal")
-    tribunal_secretario_apellidos = models.CharField(max_length=50, verbose_name="apellidos secretario tribunal")
-    
+    tribunal_presidente_nombre = models.CharField(max_length=50)
+    tribunal_presidente_apellidos = models.CharField(max_length=50)
+    tribunal_secretario_nombre = models.CharField(max_length=50)
+    tribunal_secretario_apellidos = models.CharField(max_length=50)
+ 
     def clean(self):
-	# TODO sacar las reglas de la lógica del programa
-	if ((self.calificacion_numerica >= 0.0) and (self.calificacion_numerica <= 4.9)):
-	    self.calificacion = 'Suspenso'
-	if ((self.calificacion_numerica >= 5) and (self.calificacion_numerica <= 6.9)):    
-	    self.calificacion = 'Aprobado'
-	if ((self.calificacion_numerica >= 7) and (self.calificacion_numerica <= 8.9)):    
-	    self.calificacion = 'Notable'
-	if ((self.calificacion_numerica >= 9) and (self.calificacion_numerica <= 10)):    
-	    self.calificacion = 'Sobresaliente'	    
+	if (self.calificacion_numerica >= 0.0) and (self.calificacion_numerica <= 4.9):
+            if self.calificacion == 'Suspenso':
+		return
+	if (self.calificacion_numerica >= 5) and (self.calificacion_numerica <= 6.9):    
+	    if self.calificacion == 'Aprobado':
+		return
+	if (self.calificacion_numerica >= 7) and (self.calificacion_numerica <= 8.9):   
+	    if self.calificacion == 'Notable':
+		return
+	if (self.calificacion_numerica >= 9) and (self.calificacion_numerica <= 10):    
+	    if self.calificacion == 'Sobresaliente':	    
+		return
+	exceptions.ValidationError("La calificación y la nota numérica no coinciden")
 
     def tribunal_vocales(self):
         return [vocal.nombre_completo() for vocal in
@@ -174,16 +199,14 @@ class ProyectoCalificado(Proyecto):
 
     def _get_alfresco_properties(self):
         properties = super(ProyectoCalificado, self)._get_alfresco_properties()
-        new_properties = {
-            'pfc:fechaDefensa': self.fecha_defensa.isoformat(),
-            'pfc:calificacion': self.calificacion,
-            'pfc:calificacionNumerica': self.calificacion_numerica,
-            'pfc:modalidad': self.modalidad,
-            'pfc:presidenteTribunal': self.tutor_nombre_completo(),
-            'pfc:secretarioTribunal': self.director_nombre_completo(),
-            'pfc:vocalesTribunal': self.tribunal_vocales()
-        }
-        return dict(properties.items() + new_properties.items())
+        properties['pfc:fechaDefensa'] = self.fecha_defensa.isoformat()
+        properties['pfc:calificacion'] = self.calificacion
+        properties['pfc:calificacionNumerica'] = self.calificacion_numerica
+        properties['pfc:modalidad'] = self.modalidad
+        properties['pfc:presidenteTribunal'] = self.tutor_nombre_completo()
+        properties['pfc:secretarioTribunal'] = self.director_nombre_completo()
+        properties['pfc:vocalesTribunal'] = self.tribunal_vocales()
+        return properties
 
 
 class TribunalVocal(models.Model):
@@ -208,11 +231,10 @@ class ProyectoArchivado(ProyectoCalificado):
 
     def _get_alfresco_properties(self):
         properties = super(ProyectoArchivado, self)._get_alfresco_properties()
-        return properties + {
-            'dc:subject': self.subject,
-            'dc:rights': settings.TEXTO_DERECHOS[self.rights],
-            'dc:coverage': self.coverage,
-        }
+        properties['cm:subject'] = self.subject
+        properties['cm:rights'] = settings.TEXTO_DERECHOS[self.rights]
+        properties['cm:coverage'] = self.coverage
+        return properties
 
 
 class Anexo(Contenido):
@@ -222,50 +244,59 @@ class Anexo(Contenido):
 def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
     cml = Alfresco().cml()
-   
-    proyecto.save_to_alfresco(cml)
+
+    proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
     for anexo in anexos:
-        anexo.save_to_alfresco(cml)
+        anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
     cml.do()
 
     if proyecto_contenido is not None:
-        Alfresco().upload_file(proyecto.uuid, proyecto_contenido)
+        Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
     for anexo, contenido in zip(anexos, anexos_contenidos):
-        Alfresco().upload_file(anexo.uuid, contenido)
+        Alfresco().upload_content(anexo.alfresco_uuid, contenido)
 
     if update_db:
         proyecto.save()
         for anexo in anexos:
-	    anexo.proyecto_id = proyecto.pk
+#           TODO: Revisar. No debería ser necesario.
+#	    anexo.proyecto_id = proyecto.pk
             anexo.save()
 
 
-#class ULLUser(auth.models.User):
-    #class Meta:
-        #proxy = True
+class ULLUser(auth.models.User):
+    class Meta:
+        proxy = True
 
-    #def niu(self):
-        #m = re.match("alu(?P<niu>\d{10})$", self.username)
-        #if m is None:
-            #return None
-        #else:
-            #return m.group('niu')
+    # UserManager para disponer de los métodos de auth.models.User
+    objects = auth.models.UserManager()
 
-    #def is_student(self):
-        #if re.match("alu\d{10}$", self.username) is None:
-            #return False
-        #else: 
-            #return True
+    @classmethod
+    def get_user(cls, pk):
+        return cls.objects.get(pk=pk)
 
-    #def has_perm_puede_archivar(self, proyecto):
-        #if self.has_perm('puede_archivar'):
-	        #return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
-                                        #centro=proyecto.centro).exists()
-        #else:
-            #return False
+    def niu(self):
+        m = re.match("alu(?P<niu>\d{10})$", self.username)
+        if m is None:
+            return None
+        else:
+            return m.group('niu')
+
+    def is_student(self):
+        if re.match("alu\d{10}$", self.username) is None:
+            return False
+        else: 
+            return True
+
+    def has_perm_puede_archivar(self, proyecto):
+        if self.has_perm('puede_archivar'):
+	        return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
+                                        centro=proyecto.centro).exists()
+        else:
+            return False
 
 
-#class AdscripcionUsuarioCentro(models.Model):
-    #user = models.ForeignKey(ULLUser, db_index=True)
-    #centro = models.ForeignKey(Centro, db_index=True)
-    #notificar_correo = models.BooleanField(default=False)
+class AdscripcionUsuarioCentro(models.Model):
+    user = models.ForeignKey(ULLUser, db_index=True)
+    centro = models.ForeignKey(Centro, db_index=True)
+    notificar_correo = models.BooleanField(default=False)
+

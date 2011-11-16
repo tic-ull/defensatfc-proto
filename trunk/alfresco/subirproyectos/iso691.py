@@ -39,7 +39,7 @@ ISO691_1 = (
     ('el', 'Griego (moderno)'),
     ('en', 'Inglés'),
     ('eo', 'Esperanto'),
-    ('es', 'Español (o castellano)'),
+    ('es', 'Español'),
     ('et', 'Estonio'),
     ('eu', 'Euskera'),
     ('fa', 'Persa'),

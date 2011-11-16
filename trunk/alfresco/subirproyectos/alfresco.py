@@ -16,13 +16,13 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Alfresco(object):
-    NAME_PROPERTY = 'cm:name'
     NAMESPACES = {
         'cm': '{http://www.alfresco.org/model/content/1.0}%s',
         'content': '{http://www.alfresco.org/ws/model/content/1.0}%s',
         'cml': '{http://www.alfresco.org/ws/cml/1.0}%s',
         'rep': '{http://www.alfresco.org/ws/service/repository/1.0}%s',
     }
+    NAME_PROPERTY = NAMESPACES['cm'] % 'name'
 
     _instance = None
 
@@ -103,7 +103,7 @@ class CML(object):
         store.address = 'SpacesStore'
         parent_reference = self._repository.factory.create(self.NAMESPACES['content'] % 'ParentReference')
         parent_reference.associationType = self.NAMESPACES['cm'] % 'contains'
-        parent_reference.childName = self.NAMESPACES['cm'] % properties['{http://www.alfresco.org/model/content/1.0}name']
+        parent_reference.childName = self.NAMESPACES['cm'] % properties[self.NAME_PROPERTY]
         parent_reference.uuid = parent_uuid
         parent_reference.store = store
 

@@ -4,9 +4,8 @@ from iso691 import ISO691_1
 
 PLANTILLA_NOMBRE_COMPLETO = '%(apellidos)s, %(nombre)s'
 
-DOMINIO_CORREO_ALU = '@ull.edu.es'
-
-DOMINIO_CORREO_TUTOR = '@ull.es'
+DOMINIO_CORREO_ALUMNO = 'ull.edu.es'
+DOMINIO_CORREO_TUTOR = 'ull.es'
 
 SELECCION_TIPO_DOCUMENTO = (
     ('ANEXO',   'Anexo'),
@@ -15,6 +14,7 @@ SELECCION_TIPO_DOCUMENTO = (
 )
 
 SELECCION_LENGUAJE = ISO691_1
+DEFECTO_LENGUAJE = 'es'
 
 SELECCION_FORMATO = (
     ('application/pdf', 'PDF'),
@@ -69,8 +69,7 @@ ALFRESCO_USERNAME = 'alfrescoproyfincar'
 ALFRESCO_PASSWORD = 'M4cvB73'
 
 ALFRESCO_PFC_MODEL_NAMESPACE = '{http://www.ull.es/2011/10/04/pfc.xsd}%s'
-
-TFC_UUID = '66fdb019-1500-4fdf-9e76-94d15ef04b55'
+ALFRESCO_PFC_FOLDER_UUID = '66fdb019-1500-4fdf-9e76-94d15ef04b55'
 
 ALFRESCO_URL_AUTH_SERVICE = 'http://localhost:1080/alfresco/wsdl/authentication-service.wsdl'
 #ALFRESCO_URL_AUTH_SERVICE = 'http://gestdoc.ccti.ull.es:8080/alfresco/wsdl/authentication-service.wsdl'
