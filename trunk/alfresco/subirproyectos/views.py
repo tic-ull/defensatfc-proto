@@ -82,7 +82,7 @@ def solicitar_defensa(request):
 
         anexo_formset = AnexoFormSet (request.POST, request.FILES)
     else:
-        initial = {}
+        initial = {"tutor_email": "@ull.es"}
         if niu is not None:
             initial['niu'] = niu
         proyecto_form = FormularioProyecto(initial=initial)
@@ -218,7 +218,7 @@ def archivar_proyecto_biblioteca(request, id):#TODO mostrar los values de los ca
             pc.save()
 	    return HttpResponseRedirect('/subirproyectos/results/') # Redirect after POST
     else:
-	form = FormularioProyectoArchivado() # An unbound form
+	form = FormularioProyectoArchivado(instance = pc) # An unbound form
 
     return render_to_response('subirproyectos/archivar_proyecto_biblioteca.html', {
         'f': form,
