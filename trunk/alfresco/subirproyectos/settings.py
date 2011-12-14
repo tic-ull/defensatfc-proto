@@ -61,6 +61,8 @@ SELECCION_CALIFICACION = (
     ('MH', 'Matrícula de honor'),
 )
 
+GRUPO_BIBLIOTECARIOS = 'bibliotecarios'
+
 # Configuración de alfresco
 ALFRESCO_PROXY_SERVER = {
     'http': 'localhost:1080'

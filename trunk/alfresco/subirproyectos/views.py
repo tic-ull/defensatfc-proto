@@ -50,6 +50,21 @@ def index(request):
 # def logout_view(request):
 #     logout(request)
 
+@login_required
+def redirecciona_segun_rol(request):
+    user = ULLUser.get_user(pk=request.user.pk)
+    if user.is_student():
+	return HttpResponseRedirect('/subirproyectos/solicitar_defensa/')
+    #if is_library_staff (request.user.username):
+	#return HttpResponseRedirect('/subirproyectos/mostrarlistabiblioteca/')
+    #if is_faculty_staff (request.user.username):
+	 #return HttpResponseRedirect('/subirproyectos/mostrarlista/')
+
+
+
+
+
+
 #TODO la plantilla de los anexos se ve mal, no caben tantos fields en una row
 @login_required        
 def solicitar_defensa(request):
@@ -94,19 +109,12 @@ def solicitar_defensa(request):
                               context_instance=RequestContext(request))
 
 
-def formulario(request):
-    ##necesita estar logueado
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect('/subirproyectos/')
-    f = FormularioProyecto()
-    return render_to_response('subirproyectos/subir.html', {'f': f},
-                               context_instance=RequestContext(request))
-    
 
 def result(request):
     return HttpResponse("Ha sido exitoso.")
  
 #mostrar un proyecto, diferente comportamiento segun el rol del que lo ve.
+@login_required  
 def mostrar(request, id):
     p = Proyecto.objects.get(id = id)
     if p.estado == 'SOL':  
@@ -116,14 +124,15 @@ def mostrar(request, id):
         for anexo in anexos:
 	  #TODO mostrar el nombre del anexo en la plantilla
 	  urls_anexos.append(Alfresco().get_download_url(anexo.alfresco_uuid))
-	return render_to_response('subirproyectos/revisar_tutor.html', {'p': p, 'url_proyecto' : url_proyecto, 'urls_anexos' : urls_anexos, 'anexos' : anexos})
+	return render_to_response('subirproyectos/revisar_tutor.html', {'p': p, 'url_proyecto' : url_proyecto, 'urls_anexos' : urls_anexos, 'anexos' : anexos}
+	,  context_instance= RequestContext(request))
     if p.estado == 'REV':
         #return render_to_response('subirproyectos/calificar_proyecto_tutor.html', {'p': p})
         return HttpResponseRedirect('/subirproyectos/'+id+'/calificar_proyecto_tutor/') 
     if p.estado == 'CAL':    
         return HttpResponseRedirect('/subirproyectos/'+id+'/archivar_proyecto_biblioteca/')
 
-
+@login_required  
 def mostrarlistatutor(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
@@ -133,12 +142,15 @@ def mostrarlistatutor(request):
     proyectos_por_calificar = Proyecto.objects.filter(tutor_email=request.user.username, estado='REV')    
     print proyectos_por_calificar
     t = loader.get_template('subirproyectos/mostrarlistatutor.html')
-    c = Context({
-        'proyectos': proyectos,
-        'proyectos_por_calificar': proyectos_por_calificar,
-    })
+    c = RequestContext(request, {'proyectos':proyectos, 'proyectos_por_calificar': proyectos_por_calificar })
+
+    #c = Context({
+        #'proyectos': proyectos,
+        #'proyectos_por_calificar': proyectos_por_calificar,
+    #})
     return HttpResponse(t.render(c))
-    
+
+@login_required  
 def mostrarlistabiblioteca(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
@@ -147,12 +159,13 @@ def mostrarlistabiblioteca(request):
        #proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
        
     t = loader.get_template('subirproyectos/mostrarlistabiblioteca.html')
-    c = Context({
-        'proyectos': proyectos,
-    })
+    c = RequestContext(request, {'proyectos': proyectos})
+    #c = Context({
+        #'proyectos': proyectos,
+    #})
     return HttpResponse(t.render(c))
 
-
+@login_required  
 def revisar(request):
    print request.POST['id']
    proyecto = Proyecto.objects.get(id = request.POST['id'])
@@ -168,7 +181,8 @@ def revisar(request):
 
    #correo a biblioteca avisando
    return HttpResponseRedirect('/subirproyectos/results/')
-   
+
+@login_required  
 def rechazar(request):
    print request.POST['id']
    proyecto = Proyecto.objects.get(id = request.POST['id'])
@@ -177,10 +191,10 @@ def rechazar(request):
    send_mail('ULL: PFC no validado', 'El tutor no ha validado tu proyecto. Ponte en contacto con el', 'from@example.com',
     ['nombre@alfrescoull.org'], fail_silently=False)
    return HttpResponseRedirect('/subirproyectos/results/')
-   
+
+@login_required  
 def calificar_proyecto_tutor(request, id):#TODO El codigo en caso de hacerse un post nunca se ejecuta
     p = Proyecto.objects.get(id = id)
-    #pc = p.proyectocalificado
     if request.method == 'POST': 
         form_proyecto_calificado = FormularioProyectoCalificado(request.POST) 
         if form_proyecto_calificado.is_valid(): 
@@ -188,7 +202,9 @@ def calificar_proyecto_tutor(request, id):#TODO El codigo en caso de hacerse un 
 	    vocales_formset = VocalesFormSet (request.POST, instance = pc)
 	    if vocales_formset.is_valid():
 		p.estado = 'CAL'
-		#TODO save project. update
+		#hacemos update
+		p.save()
+		p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
 		return HttpResponseRedirect('/subirproyectos/results/') 
 	    else:
 		print vocales_formset.errors
@@ -205,24 +221,23 @@ def calificar_proyecto_tutor(request, id):#TODO El codigo en caso de hacerse un 
         'v': vocales_formset}, 
         context_instance= RequestContext(request))
     
-   
-def archivar_proyecto_biblioteca(request, id):#TODO mostrar los values de los campos que hay que revisar en el template
+@login_required     
+def archivar_proyecto_biblioteca(request, id):
     pc = ProyectoCalificado.objects.get(id = id)
-    if request.method == 'POST': # If the form has been submitted...
-	form = FormularioProyectoArchivado(request.POST) # A form bound to the POST data
+    if request.method == 'POST': 
+	form = FormularioProyectoArchivado(request.POST) 
 	if form.is_valid(): # All validation rules pass
 	    pc.proyectoarchivado = form.save(commit=False)
-            # Process the data in form.cleaned_data
-            # ...
             pc.estado = 'ARC'
             pc.save()
+            p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
 	    return HttpResponseRedirect('/subirproyectos/results/') # Redirect after POST
     else:
 	form = FormularioProyectoArchivado(instance = pc) # An unbound form
 
     return render_to_response('subirproyectos/archivar_proyecto_biblioteca.html', {
-        'f': form,
-    })
+        'f': form},
+    context_instance= RequestContext(request))
    
    #proyecto.estado = '4'
    #proyecto.title = request.POST['title']

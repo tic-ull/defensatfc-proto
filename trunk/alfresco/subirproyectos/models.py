@@ -107,7 +107,7 @@ class Contenido(AlfrescoPFCModel):
         else:
             def create_callback(result):
                 self.alfresco_uuid = result.destination.uuid
-            return cml.create(uuid,
+            return cml.create(parent_uuid,
                 settings.ALFRESCO_PFC_MODEL_NAMESPACE % 'contenido',
                 self.get_alfresco_properties(), create_callback)
 
@@ -259,7 +259,7 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
         proyecto.save()
         for anexo in anexos:
 #           TODO: Revisar. No debería ser necesario.
-#	    anexo.proyecto_id = proyecto.pk
+	    anexo.proyecto_id = proyecto.pk
             anexo.save()
 
 
