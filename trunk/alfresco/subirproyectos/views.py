@@ -16,8 +16,9 @@ from subirproyectos.url_download_file import url_download_file
 
 
 def index(request):
-    return render_to_response('subirproyectos/index.html',
-                               context_instance=RequestContext(request))
+    return HttpResponseRedirect('/accounts/login/')
+    #return render_to_response('subirproyectos/login.html',
+                               #context_instance=RequestContext(request))
                                
                                
 # def login(request):
@@ -51,10 +52,12 @@ def index(request):
 #     logout(request)
 
 @login_required
-def redirecciona_segun_rol(request):
-    user = ULLUser.get_user(pk=request.user.pk)
-    if user.is_student():
-	return HttpResponseRedirect('/subirproyectos/solicitar_defensa/')
+def menu(request):
+    user = ULLUser.get_user(pk=request.user.pk)#TODO identificar rol
+    tutor = False
+    biblioteca = True
+    return render_to_response('subirproyectos/menu.html',  {'tutor': tutor, 'biblioteca' : biblioteca},
+                               context_instance=RequestContext(request))    
     #if is_library_staff (request.user.username):
 	#return HttpResponseRedirect('/subirproyectos/mostrarlistabiblioteca/')
     #if is_faculty_staff (request.user.username):

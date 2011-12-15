@@ -7,7 +7,7 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('subirproyectos.views',
     (r'^/$', 'index'),
     (r'^/results/$', 'result'),
-    (r'^/redirecciona_segun_rol/$', 'redirecciona_segun_rol'),
+    (r'^/menu/$', 'menu'),
     (r'^/solicitar_defensa/$', 'solicitar_defensa'),
     #(r'^/logout_view/$', 'logout_view'),
     (r'^/(?P<id>\d+)/mostrar/$', 'mostrar'),

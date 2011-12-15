@@ -90,12 +90,13 @@
   </div>
 
   <div class="left">
+    <h2>{% block menu_title %}{% endblock %}</h2>
     {% block menu %}
     {% endblock %}
 
     <h2>{% trans 'Mapa del sitio' %}: </h2>
     <ul>
-      <li><a href="/gestion/">{% trans 'Inicio' %}</a></li>
+      <li><a href="/subirproyectos/menu/">{% trans 'Inicio' %}</a></li>
       <li><a href="/gestion/">{% trans 'Informaci&oacute;n b&aacute;sica' %}</a></li>
     </ul>
   </div>
