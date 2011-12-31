@@ -253,7 +253,8 @@ class Anexo(Contenido):
         return properties
 
 
-def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
+def save_proyect_to_alfresco(proyecto, anexos,
+                             update_relationship=True, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
     cml = Alfresco().cml()
 
@@ -266,6 +267,20 @@ def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
         Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
     for anexo, contenido in zip(anexos, anexos_contenidos):
         Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+
+    if update_relationship and anexos:
+        # Si es necesario, hay que salvar la relacion entre los documentos
+        cml = Alfresco().cml()
+        relation_propname = Alfresco.NAMESPACES['dc'] % 'relation'
+        proyecto_relaciones = ['hastPart %s' % anexo.alfreso_uuid for anexo in anexos]
+        cml.update(proyecto.alfresco_uuid, {
+            relation_propname: proyecto_relaciones
+        })
+        for anexo in anexos:
+            cml.update(anexo.alfresco_uuid, {
+                property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
+            })
+        cml.do()
 
     if update_db:
         proyecto.save()
