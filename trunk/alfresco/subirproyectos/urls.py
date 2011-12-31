@@ -9,7 +9,6 @@ from subirproyectos import models
 urlpatterns = patterns('subirproyectos.views',
     (r'^/$', 'index'),
     (r'^/results/$', 'result'),
-    (r'^/menu/$', 'menu'),
     (r'^/titulacion/find-by-centro/$', 'filter', {
         'model_class': models.Titulacion,
         'field_name': 'centro',

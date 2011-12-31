@@ -11,27 +11,16 @@ from django.utils.simplejson import dumps
 import mimetypes
 
 from subirproyectos.forms import *
-from subirproyectos.models import Proyecto, Anexo, ULLUser
+from subirproyectos.models import Proyecto, Anexo
 from subirproyectos.models import save_proyect_to_alfresco
 from subirproyectos.alfresco import Alfresco
 from subirproyectos.url_download_file import url_download_file 
 
 
-def index(request):
-    return HttpResponseRedirect('/accounts/login/')
-
-                               
 @login_required
-def menu(request):
-    user = ULLUser.get_user(pk=request.user.pk)#TODO identificar rol
-    tutor = False
-    biblioteca = True
-    return render_to_response('subirproyectos/menu.html',  {'tutor': tutor, 'biblioteca' : biblioteca},
-                               context_instance=RequestContext(request))    
-    #if is_library_staff (request.user.username):
-	#return HttpResponseRedirect('/subirproyectos/mostrarlistabiblioteca/')
-    #if is_faculty_staff (request.user.username):
-	 #return HttpResponseRedirect('/subirproyectos/mostrarlista/')
+def index(request):
+    return render_to_response('subirproyectos/index.html',
+                              context_instance=RequestContext(request))
 
 
 def filter(request, model_class, field_name):
@@ -49,12 +38,11 @@ def filter(request, model_class, field_name):
 
 @login_required
 def solicitar_defensa(request):
-    user = ULLUser.get_user(pk=request.user.pk)
     if request.method == 'POST':
 	proyecto = None
 	anexos = None
 
-        request.POST['niu'] = user.niu()
+        request.POST['niu'] = request.user.niu()
 	proyecto_form = FormularioProyecto(request.POST, request.FILES)
 	anexo_formset = AnexoFormSet (request.POST, request.FILES)
 
@@ -83,10 +71,10 @@ def solicitar_defensa(request):
 	    return HttpResponseRedirect('/subirproyectos/results/')
 
     else:
-        initial = { 'niu': user.niu() }
+        initial = { 'niu': request.user.niu() }
         proyecto_form = FormularioProyecto(initial=initial)
         anexo_formset = AnexoFormSet()
-    if user.niu() is not None:
+    if request.user.niu() is not None:
         proyecto_form.fields['niu'].widget.attrs['disabled'] = True
     return render_to_response('subirproyectos/solicitar_defensa.html', {
                         'f': proyecto_form,

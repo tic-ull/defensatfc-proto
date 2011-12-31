@@ -256,6 +256,9 @@ class Anexo(Contenido):
 def save_proyect_to_alfresco(proyecto, anexos,
                              update_relationship=True, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
+    """ Salvar toda la información relacionada con un proyecto en el gestor
+    documental"""
+
     cml = Alfresco().cml()
 
     proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
@@ -290,40 +293,25 @@ def save_proyect_to_alfresco(proyecto, anexos,
             anexo.save()
 
 
-class ULLUser(auth.models.User):
-    class Meta:
-        proxy = True
+#
+# Extendemos auth.models.User con nuevos métodos
+#
 
-    # UserManager para disponer de los métodos de auth.models.User
-    objects = auth.models.UserManager()
+def user_niu(self):
+    m = re.match("alu(?P<niu>\d{10})$", self.username)
+    if m is None:
+        return None
+    else:
+        return m.group('niu')
 
-    @classmethod
-    def get_user(cls, pk):
-        return cls.objects.get(pk=pk)
+def user_is_tutor(self):
+    return Proyecto.objects.filter(tutor_email=self.email).exists()
 
-    def niu(self):
-        m = re.match("alu(?P<niu>\d{10})$", self.username)
-        if m is None:
-            return None
-        else:
-            return m.group('niu')
-
-    def is_student(self):
-        if re.match("alu\d{10}$", self.username) is None:
-            return False
-        else: 
-            return True
-
-    def has_perm_puede_archivar(self, proyecto):
-        if self.has_perm('puede_archivar'):
-	        return AdscripcionUsuarioCentro.objects.filter(user=self.pk,
-                                        centro=proyecto.centro).exists()
-        else:
-            return False
+auth.models.User.add_to_class('niu', user_niu)
+auth.models.User.add_to_class('is_tutor', user_is_tutor)
 
 
 class AdscripcionUsuarioCentro(models.Model):
-    user = models.ForeignKey(ULLUser, db_index=True)
+    user = models.ForeignKey(auth.models.User, db_index=True)
     centro = models.ForeignKey(Centro, db_index=True)
     notificar_correo = models.BooleanField(default=False)
-

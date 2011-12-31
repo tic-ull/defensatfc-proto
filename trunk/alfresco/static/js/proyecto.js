@@ -68,7 +68,7 @@ var proyecto = {
                 dialog += "¿Está seguro de que desea eliminar el ";
                 dialog += $(this).prev("a").text();
                 dialog += " y toda la información guardada en el formulario? ";
-                dialog += "Tenga en cuenta que una vez hecho no será posible recuperarla.</p></div>"
+                dialog += "Tenga en cuenta que una vez borrada no será posible recuperarla.</p></div>"
                 
                 var div = $(dialog);
                 div.attr("title","Confirmar").appendTo("body").dialog({

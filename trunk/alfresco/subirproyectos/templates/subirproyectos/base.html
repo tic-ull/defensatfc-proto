@@ -39,9 +39,7 @@
 {% block body %}
 <div id="menu">
   <ul>
-    <li><a href="/gestion/">{% trans 'Inicio' %}</a></li>
-    <li><a href="/gestion/cursos/listado/">{% trans 'Cursos' %}</a></li>
-    <li><a href="/gestion/ciclos/listado/">{% trans 'Ciclos' %}</a></li>
+    <li><a href="/subirproyectos/">{% trans 'Inicio' %}</a></li>
   </ul>
 <!--
 	   <div class="langTab">
@@ -90,14 +88,31 @@
   </div>
 
   <div class="left">
-    <h2>{% block menu_title %}{% endblock %}</h2>
     {% block menu %}
     {% endblock %}
 
+    {% if user.is_authenticated %}
+    <h2>Proyectos:</h2>
+    <ul>
+        <li><a href="/subirproyectos/solicitar_defensa/">Solicitar defensa</a></li>
+        {%if user.is_tutor %}
+            <li><a href="/subirproyectos/mostrarlistatutor/">Autorizar defensa</a></li>
+            <li><a href="/subirproyectos/mostrarlistatutor/">Calificar proyectos</a></li>
+        {% else %}
+            <li>Autorizar defensa</li>
+            <li>Calificar proyectos</li>
+        {%endif%}
+        {%if perm.solicitar_defensa.puede_archivar %}
+            <li><a href="/subirproyectos/mostrarlistabiblioteca/">Archivar proyectos</a></li>
+        {% else %}
+            <li>Archivar proyectos</a></li>
+        {%endif%}
+    </ul>
+    {% endif %}
+
     <h2>{% trans 'Mapa del sitio' %}: </h2>
     <ul>
-      <li><a href="/subirproyectos/menu/">{% trans 'Inicio' %}</a></li>
-      <li><a href="/gestion/">{% trans 'Informaci&oacute;n b&aacute;sica' %}</a></li>
+      <li><a href="/subirproyectos/">{% trans 'Inicio' %}</a></li>
     </ul>
   </div>
 
