@@ -246,6 +246,12 @@ class ProyectoArchivado(ProyectoCalificado):
 class Anexo(Contenido):
     proyecto = models.ForeignKey(Proyecto)
 
+    # Muchas de las propiedades de los anexos se heredan de las del proyecto
+    def _get_alfresco_properties(self):
+        properties = proyecto._get_alfresco_properties()
+        properties.update(super(Anexo, self)._get_alfresco_properties())
+        return properties
+
 
 def save_proyect_to_alfresco(proyecto, anexos, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
