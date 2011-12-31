@@ -17,8 +17,6 @@ from subirproyectos.url_download_file import url_download_file
 
 def index(request):
     return HttpResponseRedirect('/accounts/login/')
-    #return render_to_response('subirproyectos/login.html',
-                               #context_instance=RequestContext(request))
                                
                                
 # def login(request):
@@ -64,46 +62,46 @@ def menu(request):
 	 #return HttpResponseRedirect('/subirproyectos/mostrarlista/')
 
 
-
-
-
-
-#TODO la plantilla de los anexos se ve mal, no caben tantos fields en una row
 @login_required        
 def solicitar_defensa(request):
-    niu = ULLUser.get_user(pk=request.user.pk).niu()
+    user = ULLUser.get_user(pk=request.user.pk)
     if request.method == 'POST':
-        proyecto_form = FormularioProyecto(request.POST, request.FILES)
-        proyecto_form.is_valid()            # Necesario para tener cleaned_data
-        niu_test = (proyecto_form.cleaned_data['niu'] == niu)
-        if proyecto_form.is_valid() and niu_test:
+	proyecto = None
+	anexos = None
+
+	proyecto_form = FormularioProyecto(request.POST, request.FILES, user=user)
+	anexo_formset = AnexoFormSet (request.POST, request.FILES)
+
+	if proyecto_form.is_valid():
 	    proyecto = proyecto_form.save(commit=False)
+	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
+
+	if anexo_formset.is_valid():
+	    anexos = anexo_formset.save(commit=False)
+
+	if proyecto is not None and anexos is not None:
 	    proyecto.estado = 'SOL'
 	    proyecto.type = 'MEMORIA'
             proyecto.creator_email = request.user.email
 	    proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
+	    
+	    anexos_files = []
+            for anexo, form in zip(anexos, anexo_formset.forms):
+	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
+		anexos_files.append (form.cleaned_data['file'])
+	    save_proyect_to_alfresco(proyecto, anexos,
+				     update_db=True,
+                                     proyecto_contenido = request.FILES['file'],
+				     anexos_contenidos = anexos_files)
 
-            anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
-	    if anexo_formset.is_valid():
-	        anexos = anexo_formset.save(commit=False)
-	        anexos_files = []
-                for anexo, form in zip(anexos, anexo_formset.forms):
-	            anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
-		    anexos_files.append (form.cleaned_data['file'])
-		save_proyect_to_alfresco(proyecto, anexos,
-                                         update_db=True,
-                                         proyecto_contenido = request.FILES['file'],
-                                         anexos_contenidos = anexos_files)
-		return HttpResponseRedirect('/subirproyectos/results/')	            
-        elif not niu_test:
-            proyecto_form.append_field_error('niu', 'El NIU no parece corresponder al usuario')
-
-        anexo_formset = AnexoFormSet (request.POST, request.FILES)
+	    return HttpResponseRedirect('/subirproyectos/results/')
+            
     else:
-        initial = {"tutor_email": "@ull.es"}
-        if niu is not None:
-            initial['niu'] = niu
-        proyecto_form = FormularioProyecto(initial=initial)
+        initial = {
+	    'tutor_email': '@ull.es',
+	    'niu': user.niu(),
+	}
+        proyecto_form = FormularioProyecto(initial=initial, user=user)
         anexo_formset = AnexoFormSet()
     return render_to_response('subirproyectos/solicitar_defensa.html', {
                                   'f': proyecto_form,
@@ -135,7 +133,7 @@ def mostrar(request, id):
     if p.estado == 'CAL':    
         return HttpResponseRedirect('/subirproyectos/'+id+'/archivar_proyecto_biblioteca/')
 
-@login_required  
+@login_required
 def mostrarlistatutor(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
@@ -168,7 +166,7 @@ def mostrarlistabiblioteca(request):
     #})
     return HttpResponse(t.render(c))
 
-@login_required  
+@login_required
 def revisar(request):
    print request.POST['id']
    proyecto = Proyecto.objects.get(id = request.POST['id'])
@@ -224,7 +222,7 @@ def calificar_proyecto_tutor(request, id):#TODO El codigo en caso de hacerse un 
         'v': vocales_formset}, 
         context_instance= RequestContext(request))
     
-@login_required     
+@login_required 
 def archivar_proyecto_biblioteca(request, id):
     pc = ProyectoCalificado.objects.get(id = id)
     if request.method == 'POST': 

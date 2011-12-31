@@ -3,64 +3,59 @@
 {% block extra_head %}
 <script language="javascript" src="{{ MEDIA_URL}}js/jquery-1.6.3.min.js"></script>
 <script language="javascript" src="{{ MEDIA_URL}}js/jquery-ui-1.8.16.custom.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL}}js/jquery.formset.js"></script>
+<script language="javascript" src="{{ MEDIA_URL}}js/tabbed_formset.js"></script>
+<script language="javascript" src="{{ MEDIA_URL}}js/auxiliar.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/custom-theme/jquery-ui-1.8.16.custom.css" />
+<style>
+#tabs { margin-top: 1em; }
+#tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
+.errortab { color: red !important; }
+</style>
 <script type="text/javascript">
     $(function() {
-        $('#proyecto_anexos tbody tr').formset({
-             prefix: '{{ a.prefix }}',
-             addText: 'añadir',
-             deleteText: 'eliminar',
-             extraClasses: ['row1', 'row2', 'row3']
-        });
-        $('#accordion').accordion({
-             active: false,
-             collapsible: true,
-             autoHeight: false,
-             animated: false
-        });
+        configurarFormularioProyecto("#tabs", "#add_tab",
+            "#tabs span.ui-icon-close", {{ a|length }});
     })
 </script>
 {% endblock %}
 
 {% block content_title %}Solicitud de defensa de Trabajo Fin de Carrera{% endblock %}
 {% block content %}
-<div class="item">
-<!--   <form action="." method="POST"> -->
-<form action="." enctype="multipart/form-data" method="POST"> 
+<button id="add_tab">Añadir anexo</button>
+<form id="form" action="." enctype="multipart/form-data" method="POST">
     {% csrf_token %}
-    <table id="proyecto">
-    {{ f.as_table }}
-    </table>
-    <div id="accordion">
-      <h3><a href="#">Adjuntar anexos</a></h3>
-      <div>
-        <table id="proyecto_anexos">
-          <thead>
-            <tr>
-              <th scope="col">Título</th>
-              <th scope="col">Tipo documento</th>
-              <th scope="col">Idioma</th>
-	      <th scope="col">Descripcion</th>
-              <th scope="col">Archivo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for form in a.forms %}
-            <tr id="{{ form.prefix }}-row">
-	      <td>{{ form.title.errors }}{{ form.title }}</td> 
-              <td>{{ form.type.errors }}{{ form.type }}</td>
-	      <td>{{ form.language.errors }}{{ form.language }}</td>
-	      <td>{{ form.description.errors }}{{ form.description }}</td> 
-	      <td>{{ form.file.errors }}{{ form.file }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {{ a.management_form }} 
-      </div>
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-proyecto">Proyecto</a></li>
+	    {% for form in a %}
+	    <li><a href="#tabs-anexo-{{ forloop.counter }}">Anexo {{ forloop.counter }}</a> <span class='ui-icon ui-icon-close'>Eliminar anexo</span></li>
+	    {% endfor %}
+        </ul>
+
+        <div id="tabs-proyecto">
+            <table>
+                {{ f.as_table }}
+            </table>
+        </div>
+
+	{% for form in a %}
+	<div id="tabs-anexo-{{ forloop.counter }}">
+	    <table>
+		{{ form.as_table }}
+	    </table>
+	</div>
+	{% endfor %}
     </div>
+
+    {% with a.empty_form as form %}
+    <div id="anexo-empty-form">
+        <table>
+            {{ form.as_table }}
+        </table>
+    </div>
+    {% endwith %}
+
+    {{ a.management_form }}
     <input type="submit" class="button" value="Enviar" />
-  </form>
-</div>
+</form>
 {% endblock %}

@@ -14,21 +14,40 @@ class FormularioProyecto(forms.ModelForm):
 	model = Proyecto
 	exclude = ('estado', 'creator_email', 'type', 'format', 'alfresco_uuid')
 
+    def __init__(self, *args, **kwargs):
+	if 'user' in kwargs:
+	    self.user = kwargs['user']
+	    del kwargs['user']
+	else:
+	    self.user = None
+	super(FormularioProyecto, self).__init__(*args, **kwargs)
+
     def append_field_error(self, field, error):
-        if not field in self._errors:
+        if field not in self._errors:
             self._errors[field] = forms.util.ErrorList()
-        self._errors[field].append(error)
+	self._errors[field].append(error)
 
     def append_non_field_error(self, error):
         self.set_error(forms.NON_FIELD_ERRORS, error)
 
-    
+    def clean_niu(self):
+	if self.user is not None:
+	    niu = self.user.niu()
+	    if niu is not None and not niu == self.cleaned_data['niu']:
+		raise forms.ValidationError('El NIU no parece corresponder al usuario')
+	return self.cleaned_data['niu']
+
+
 class FormularioAnexoFormset (BaseInlineFormSet):
     def add_fields(self, form, index):
 	super(FormularioAnexoFormset, self).add_fields(form, index)
 	form.fields["file"] = forms.FileField(validators=[validators.file_format])
 
-AnexoFormSet = inlineformset_factory(Proyecto, Anexo, exclude = ('format', 'relation', 'titulacion', 'alfresco_uuid'), formset = FormularioAnexoFormset)    
+AnexoFormSet = inlineformset_factory(Proyecto, Anexo,
+	formset = FormularioAnexoFormset,
+	exclude = ('format', 'relation', 'titulacion', 'alfresco_uuid'),
+	extra = 0,
+    )
 
 
 class FormularioProyectoCalificado(forms.ModelForm):
