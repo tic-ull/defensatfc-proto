@@ -76,7 +76,7 @@
         },
 
         _removeHandler: function(event, ui, removeHandler) {
-            var form = $(ui.panel).children().clone(true).hide();
+            var form = $(ui.panel).clone(true).hide();
             var del = form.find('input:hidden[id $= "-DELETE"]');
             del.val("on");
             this.element.after(form);

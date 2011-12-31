@@ -1,10 +1,11 @@
 {% extends "subirproyectos/base.html" %}
 
 {% block extra_head %}
-<script language="javascript" src="{{ MEDIA_URL}}js/jquery-1.6.3.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL}}js/jquery-ui-1.8.16.custom.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL}}js/tabbed_formset.js"></script>
-<script language="javascript" src="{{ MEDIA_URL}}js/auxiliar.js"></script>
+<script language="javascript" src="{{ MEDIA_URL }}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL }}js/jquery.chainedSelect.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL }}js/tabbed_formset.min.js"></script>
+<script language="javascript" src="{{ MEDIA_URL }}js/proyecto.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/custom-theme/jquery-ui-1.8.16.custom.css" />
 <style>
 #tabs { margin-top: 1em; }
@@ -13,14 +14,28 @@
 </style>
 <script type="text/javascript">
     $(function() {
-        configurarFormularioProyecto("#tabs", "#add_tab",
-            "#tabs span.ui-icon-close", {{ a|length }});
+        proyecto.initForm("#tabs", {
+            anexoFormsetPrefix: "{{ a.prefix }}",
+            anexoNo: {{ a|length }},
+            anexoFormTemplate: "#anexo-empty-form",
+            anexoAddButton: "#add_tab",
+            anexoRemoveButton: "#tabs span.ui-icon-close",
+        });
+        $('#id_titulacion').chainedSelect({
+            parent: '#id_centro',
+            url: '/subirproyectos/titulacion/find-by-centro/',
+            value: 'id',
+            label: 'nombre',
+            preloadUrl: '{{ MEDIA_URL }}images/busy.gif'
+        });
     })
 </script>
 {% endblock %}
 
 {% block content_title %}Solicitud de defensa de Trabajo Fin de Carrera{% endblock %}
 {% block content %}
+<div class=item>
+
 <button id="add_tab">Añadir anexo</button>
 <form id="form" action="." enctype="multipart/form-data" method="POST">
     {% csrf_token %}
@@ -28,34 +43,160 @@
         <ul>
             <li><a href="#tabs-proyecto">Proyecto</a></li>
 	    {% for form in a %}
-	    <li><a href="#tabs-anexo-{{ forloop.counter }}">Anexo {{ forloop.counter }}</a> <span class='ui-icon ui-icon-close'>Eliminar anexo</span></li>
+	    <li><a href="#tabs-{{ a.prefix }}-{{ forloop.counter0 }}">Anexo {{ forloop.counter }}</a> <span class='ui-icon ui-icon-close'>Eliminar anexo</span></li>
 	    {% endfor %}
         </ul>
 
         <div id="tabs-proyecto">
+            {{ f.non_field_errors }}
             <table>
-                {{ f.as_table }}
+                <tr>
+                    <th><label for="id_title">Título (*):</label><br/>
+                        (máx. 200 caracteres)</th>
+                    <td>{{ f.title.errors }}{{ f.title }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_description">Descripción (*):</label><br/>
+                        (máx. 1000 caracteres)</th>
+                    <td>{{ f.description.errors }}{{ f.description }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_language">Idioma (*):</label></th>
+                    <td>{{ f.language.errors }}{{ f.language }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_file">Documento de la memoria (*):</label></th>
+                    <td>{{ f.file.errors }}{{ f.file }}</td>
+                </tr>
+            </table>
+            <div class="line"></div>
+
+            <h3>Autor</h3>
+            <table>
+                <tr>
+                    <th><label for="id_creator_nombre">Nombre (*):</label></th>
+                    <td>{{ f.creator_nombre.errors }}{{ f.creator_nombre }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_creator_apellidos">Apellidos (*):</label></th>
+                    <td>{{ f.creator_apellidos.errors }}{{ f.creator_apellidos }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_niu">NIU (*):</label></th>
+                    <td>{{ f.niu.errors }}{{ f.niu }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_centro">Centro (*):</label></th>
+                    <td>{{ f.centro.errors }}{{ f.centro }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_titulacion">Titulación (*):</label></th>
+                    <td>{{ f.titulacion.errors }}{{ f.titulacion }}</td>
+                </tr>
+            </table>
+            <div class="line"></div>
+
+            <h3>Tutor</h3>
+            <table>
+                <tr>
+                    <th><label for="id_tutor_nombre">Nombre (*):</label></th>
+                    <td>{{ f.tutor_nombre.errors }}{{ f.tutor_nombre }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_tutor_apellidos">Apellidos (*):</label></th>
+                    <td>{{ f.tutor_nombre.errors }}{{ f.tutor_nombre }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_tutor_email">Correo electrónico (*):</label></th>
+                    <td>
+                        {{ f.tutor_email.errors }}
+                        {{ f.tutor_email }}
+                        @{{ dominio_correo_tutor }}
+                    </td>
+                </tr>
+            </table>
+            <div class="line"></div>
+
+            <h3>Director</h3>
+            <table>
+                <tr>
+                    <th><label for="id_director_nombre">Nombre:</label></th>
+                    <td>{{ f.director_nombre.errors }}{{ f.director_nombre }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_director_apellidos">Apellidos:</label></th>
+                    <td>{{ f.director_nombre.errors }}{{ f.director_nombre }}</td>
+                </tr>
             </table>
         </div>
 
 	{% for form in a %}
-	<div id="tabs-anexo-{{ forloop.counter }}">
+	<div id="tabs-{{ a.prefix }}-{{ forloop.counter0 }}">
+            {{ form.non_field_errors }}
 	    <table>
-		{{ form.as_table }}
+                <tr>
+                    <th><label for="id_anexo_set-{{ forloop.counter0 }}-title">Título (*):</label><br/>
+                        (máx. 200 caracteres)</th>
+                    <td>{{ form.title.errors }}{{ form.title }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_anexo_set-{{ forloop.counter0 }}-description">Descripción (*):</label><br/>
+                        (máx. 1000 caracteres)</th>
+                    <td>{{ form.description.errors }}{{ form.description }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_anexo_set-{{ forloop.counter0 }}-language">Idioma (*):</label></th>
+                    <td>{{ form.language.errors }}{{ form.language }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_anexo_set-{{ forloop.counter0 }}-type">Tipo (*):</label></th>
+                    <td>{{ form.type.errors }}{{ form.type }}</td>
+                </tr>
+                <tr>
+                    <th><label for="id_anexo_set-{{ forloop.counter0 }}-file">Documento del anexo (*):</label></th>
+                    <td>{{ form.file.errors }}{{ form.file }}</td>
+                </tr>
 	    </table>
+            <label for="id_anexo_set-{{ forloop.counter0 }}-DELETE">Eliminar:</label>
+            {{ form.DELETE }}
 	</div>
 	{% endfor %}
     </div>
 
     {% with a.empty_form as form %}
     <div id="anexo-empty-form">
+        {{ form.non_field_errors }}
         <table>
-            {{ form.as_table }}
+            <tr>
+                <th><label for="id_anexo_set-__prefix__-title">Título (*):</label><br/>
+                    (máx. 200 caracteres)</th>
+                <td>{{ form.title.errors }}{{ form.title }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_anexo_set-__prefix__-description">Descripción (*):</label><br/>
+                    (máx. 1000 caracteres)</th>
+                <td>{{ form.description.errors }}{{ form.description }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_anexo_set-__prefix__-language">Idioma (*):</label></th>
+                <td>{{ form.language.errors }}{{ form.language }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_anexo_set-__prefix__-type">Tipo (*):</label></th>
+                <td>{{ form.type.errors }}{{ form.type }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_anexo_set-__prefix__-file">Documento del anexo (*):</label></th>
+                <td>{{ form.file.errors }}{{ form.file }}</td>
+            </tr>
         </table>
+        <label for="id_anexo_set-__prefix__-DELETE">Eliminar:</label>
+        {{ form.DELETE }}
     </div>
     {% endwith %}
 
     {{ a.management_form }}
     <input type="submit" class="button" value="Enviar" />
 </form>
+</div>
 {% endblock %}

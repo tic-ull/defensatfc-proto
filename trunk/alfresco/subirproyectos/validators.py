@@ -21,12 +21,12 @@ NIUValidator = RegexValidator(regex ='^\d{10}$', message='Ej: 0100353303')
 UUIDValidator = RegexValidator(regex ='^\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$',
     message='Ej: 550e8400-e29b-41d4-a716-446655440000 ')
 
-EmailCreatorValidator = RegexValidator(regex='^\w+@(%s)|(%s)$ ' % (
+EmailCreatorValidator = RegexValidator(regex='@(%s)|(%s)$ ' % (
         re.escape(settings.DOMINIO_CORREO_ALUMNO),
         re.escape(settings.DOMINIO_CORREO_TUTOR)
     ),
     message='Solo se admiten correos ULL')
 
-EmailTutorValidator = RegexValidator(regex='^\w+@%s$' %
+EmailTutorValidator = RegexValidator(regex='@%s$' %
     re.escape(settings.DOMINIO_CORREO_TUTOR),
     message='Solo se admiten correos ULL')

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.contrib import auth
 
@@ -79,7 +80,7 @@ class Contenido(AlfrescoPFCModel):
     # dublin core
     title = models.CharField(max_length=200, verbose_name="título")
     format = models.CharField(max_length=30)
-    description = models.TextField(verbose_name="descripción")
+    description = models.TextField(verbose_name="descripción", validators=[MaxLengthValidator(1000)])
     type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.SELECCION_TIPO_DOCUMENTO[0][0])
     language = models.CharField(max_length=2, choices=settings.SELECCION_LENGUAJE, verbose_name="idioma", default=settings.DEFECTO_LENGUAJE)
     # relation: sólo se incluirá en los metados del documento en el repositorio
@@ -126,16 +127,21 @@ class Proyecto(Contenido):
     # dublin core
     creator_nombre = models.CharField(max_length=50, verbose_name= 'nombre del autor')
     creator_apellidos = models.CharField(max_length=50, verbose_name= 'apellidos del autor')
-    creator_email = models.EmailField(max_length=50, verbose_name = 'email del autor', validators=[validators.EmailCreatorValidator])
+    creator_email = models.EmailField(max_length=50,
+                                      verbose_name = 'correo electrónico del autor',
+                                      validators=[validators.EmailCreatorValidator])
     # pfc
     niu = models.CharField(max_length=10, verbose_name="NIU", validators=[validators.NIUValidator])
-    centro = models.ForeignKey(Centro, verbose_name="centro")
     titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
     tutor_nombre = models.CharField(max_length=50, verbose_name='nombre del tutor')
     tutor_apellidos = models.CharField(max_length=50, verbose_name='apellidos del tutor')
-    tutor_email = models.EmailField(max_length=50, verbose_name='email del tutor', validators=[validators.EmailTutorValidator]) 
-    director_nombre = models.CharField(max_length=50, blank=True, null=True, verbose_name='nombre del director')
-    director_apellidos = models.CharField(max_length=50, blank=True, null=True, verbose_name='apellidos del director')
+    tutor_email = models.EmailField(max_length=50,
+                                    verbose_name='correo electrónico del tutor',
+                                    validators=[validators.EmailTutorValidator])
+    director_nombre = models.CharField(max_length=50, blank=True, null=True,
+                                       verbose_name='nombre del director')
+    director_apellidos = models.CharField(max_length=50, blank=True, null=True,
+                                          verbose_name='apellidos del director')
 
     # internos
     fecha_subido = models.DateField(auto_now_add = True)
@@ -161,7 +167,7 @@ class Proyecto(Contenido):
         properties = super(Proyecto, self)._get_alfresco_properties()
         properties['cm:creator'] = self.creator_nombre_completo()
         properties['pfc:niu'] = self.niu
-        properties['pfc:centro'] = self.centro.nombre
+        properties['pfc:centro'] = self.titulacion.centro.nombre
         properties['pfc:titulacion'] = self.titulacion.nombre
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()

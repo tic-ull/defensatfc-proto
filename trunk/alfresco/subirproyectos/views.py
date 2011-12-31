@@ -1,10 +1,12 @@
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 from django.forms.models import inlineformset_factory, formset_factory
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext, Context, loader
-from django.contrib.auth.decorators import login_required
+from django.utils.simplejson import dumps
+
 
 import mimetypes
 
@@ -17,38 +19,8 @@ from subirproyectos.url_download_file import url_download_file
 
 def index(request):
     return HttpResponseRedirect('/accounts/login/')
-                               
-                               
-# def login(request):
-#     username = request.POST['username']
-#     password = request.POST['password']
-#     user = authenticate(username=username, password=password)
-#     if user is not None:
-#         if user.is_active:
-#             auth_login(request, user)
-#             print "You provided a correct username and password!"
-#             if is_student(request.user.username):
-# 	       return HttpResponseRedirect('/subirproyectos/subir/')
-#             if is_library_staff (request.user.username):
-# 	       return HttpResponseRedirect('/subirproyectos/mostrarlistabiblioteca/')
-#             #if is_faculty_staff (request.user.username):
-# 	       #return HttpResponseRedirect('/subirproyectos/mostrarlista/')
-# 	    if is_professor (request.user.username):
-# 	       return HttpResponseRedirect('/subirproyectos/mostrarlistatutor/')
-#             #si eres alumno goto formulario
-#             
-# 
-#             #si eres otra cosa goto mostrarlista
-#         else:
-# 	    print "Your account has been disabled!"
-#             # Return a 'disabled account' error message
-#     else:
-#         print "Your username and password were incorrect."
-#         # Return an 'invalid login' error message.
-#         
-# def logout_view(request):
-#     logout(request)
 
+                               
 @login_required
 def menu(request):
     user = ULLUser.get_user(pk=request.user.pk)#TODO identificar rol
@@ -62,14 +34,28 @@ def menu(request):
 	 #return HttpResponseRedirect('/subirproyectos/mostrarlista/')
 
 
-@login_required        
+def filter(request, model_class, field_name):
+    query_test = 'q' in request.GET and request.GET['q']
+    if not request.user.is_authenticated() or not query_test:
+        return HttpResponseNotFound()
+
+    kwargs = {field_name: request.GET['q']}
+    search = list(model_class.objects.filter(**kwargs).values('id', 'nombre'))
+    if not search:
+        return HttpResponseNotFound()
+
+    return HttpResponse(content=dumps(search), mimetype='application/json')
+
+
+@login_required
 def solicitar_defensa(request):
     user = ULLUser.get_user(pk=request.user.pk)
     if request.method == 'POST':
 	proyecto = None
 	anexos = None
 
-	proyecto_form = FormularioProyecto(request.POST, request.FILES, user=user)
+        request.POST['niu'] = user.niu()
+	proyecto_form = FormularioProyecto(request.POST, request.FILES)
 	anexo_formset = AnexoFormSet (request.POST, request.FILES)
 
 	if proyecto_form.is_valid():
@@ -95,19 +81,19 @@ def solicitar_defensa(request):
 				     anexos_contenidos = anexos_files)
 
 	    return HttpResponseRedirect('/subirproyectos/results/')
-            
+
     else:
-        initial = {
-	    'tutor_email': '@ull.es',
-	    'niu': user.niu(),
-	}
-        proyecto_form = FormularioProyecto(initial=initial, user=user)
+        initial = { 'niu': user.niu() }
+        proyecto_form = FormularioProyecto(initial=initial)
         anexo_formset = AnexoFormSet()
+    if user.niu() is not None:
+        proyecto_form.fields['niu'].widget.attrs['disabled'] = True
     return render_to_response('subirproyectos/solicitar_defensa.html', {
-                                  'f': proyecto_form,
-                                  'a' : anexo_formset
-                              },
-                              context_instance=RequestContext(request))
+                        'f': proyecto_form,
+                        'a': anexo_formset,
+                        'dominio_correo_tutor': settings.DOMINIO_CORREO_TUTOR,
+                        },
+                        context_instance=RequestContext(request))
 
 
 

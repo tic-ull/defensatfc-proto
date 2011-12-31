@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import *
 
+from subirproyectos import models
+
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
@@ -8,8 +10,11 @@ urlpatterns = patterns('subirproyectos.views',
     (r'^/$', 'index'),
     (r'^/results/$', 'result'),
     (r'^/menu/$', 'menu'),
+    (r'^/titulacion/find-by-centro/$', 'filter', {
+        'model_class': models.Titulacion,
+        'field_name': 'centro',
+    }),
     (r'^/solicitar_defensa/$', 'solicitar_defensa'),
-    #(r'^/logout_view/$', 'logout_view'),
     (r'^/(?P<id>\d+)/mostrar/$', 'mostrar'),
     (r'^/mostrarlistatutor/$', 'mostrarlistatutor'),
     (r'^/mostrarlistabiblioteca/$', 'mostrarlistabiblioteca'),
