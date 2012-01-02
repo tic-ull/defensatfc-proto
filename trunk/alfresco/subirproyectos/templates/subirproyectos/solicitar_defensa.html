@@ -1,12 +1,12 @@
 {% extends "subirproyectos/base.html" %}
 
 {% block extra_head %}
-<script language="javascript" src="{{ MEDIA_URL }}js/jquery-1.6.3.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL }}js/jquery.chainedSelect.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL }}js/tabbed_formset.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL }}js/proyecto.js"></script>
-<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/custom-theme/jquery-ui-1.8.16.custom.css" />
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery.chainedSelect.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/tabbed_formset.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/proyecto.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/custom-theme/jquery-ui-1.8.16.custom.css" />
 <style>
 #tabs { margin-top: 1em; }
 #tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
@@ -26,7 +26,7 @@
             url: '/subirproyectos/titulacion/find-by-centro/',
             value: 'id',
             label: 'nombre',
-            preloadUrl: '{{ MEDIA_URL }}images/busy.gif'
+            preloadUrl: '{{ STATIC_URL }}images/busy.gif'
         });
     })
 </script>

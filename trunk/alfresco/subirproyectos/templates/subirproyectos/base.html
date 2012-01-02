@@ -8,10 +8,10 @@
   <meta name="author" content="Oficina de Software Libre - Universidad de La Laguna" />
 
   {% block layout %}
-  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="{{ MEDIA_URL }}css/new_style.css" />
-  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="{{ MEDIA_URL }}css/custom.css" />
+  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="{{ STATIC_URL }}css/new_style.css" />
+  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="{{ STATIC_URL }}css/custom.css" />
   {% endblock %}
-  <link rel="icon" type="image/x-icon" href="{{ MEDIA_URL }}images/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="{{ STATIC_URL }}images/favicon.ico" />
   
   <title>{% block title %}{% endblock %}{% trans 'Repositorio de trabajos fin de carrera' %} - {% trans 'Universidad de La Laguna' %}</title>
 
@@ -23,7 +23,7 @@
 
 <div id="header">
   <div class="headerleft">
-     <a href="/"><img src="{{ MEDIA_URL }}images/logo_vicerrectorado.png"></a>
+     <a href="/"><img src="{{ STATIC_URL }}images/logo_vicerrectorado.png"></a>
   </div>
 
   <div class="headerright">

@@ -1,21 +1,24 @@
-from django.conf import settings
 from django.conf.urls.defaults import *
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^$', 'django.views.generic.simple.redirect_to', {'url': '/subirproyectos/'}),
-    (r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'subirproyectos/login.html'}),
-    (r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
-    (r'^subirproyectos', include('subirproyectos.urls')),
-    (r'^admin/', include(admin.site.urls))
+    # Examples:
+    # url(r'^$', 'alfresco.views.home', name='home'),
+    # url(r'^alfresco/', include('alfresco.foo.urls')),
+    url(r'^$', 'django.views.generic.simple.redirect_to', {'url': '/subirproyectos/'}),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'subirproyectos/login.html'}),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
+    url(r'^subirproyectos', include('subirproyectos.urls')),
+
+    # Uncomment the admin/doc line below to enable admin documentation:
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Uncomment the next line to enable the admin:
+    url(r'^admin/', include(admin.site.urls)),
 )
 
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^%s/(?P<path>.*)$' % settings.MEDIA_URL[1:-1],
-         'django.views.static.serve',
-         {'document_root':  settings.MEDIA_ROOT, 'show_indexes': False}),
-    )
+urlpatterns += staticfiles_urlpatterns()

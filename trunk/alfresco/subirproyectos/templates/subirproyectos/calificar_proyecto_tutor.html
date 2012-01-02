@@ -1,10 +1,10 @@
 {% extends "subirproyectos/base.html" %}
 
 {% block extra_head %}
-<script language="javascript" src="{{ MEDIA_URL}}js/jquery-1.6.3.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL}}js/jquery-ui-1.8.16.custom.min.js"></script>
-<script language="javascript" src="{{ MEDIA_URL}}js/jquery.formset.js"></script>
-<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/smoothness/jquery-ui-1.8.16.custom.css" />
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery.formset.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/smoothness/jquery-ui-1.8.16.custom.css" />
 <script type="text/javascript">
     $(function() {
         $('#proyecto_vocales tbody tr').formset({
