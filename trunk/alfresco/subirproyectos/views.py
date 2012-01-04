@@ -49,9 +49,13 @@ def solicitar_defensa(request):
 	if proyecto_form.is_valid():
 	    proyecto = proyecto_form.save(commit=False)
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
+	else:
+	    print proyecto_form.errors
 
 	if anexo_formset.is_valid():
 	    anexos = anexo_formset.save(commit=False)
+	else:
+	    print anexo_formset.errors
 
 	if proyecto is not None and anexos is not None:
 	    proyecto.estado = 'SOL'

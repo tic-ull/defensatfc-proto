@@ -102,7 +102,7 @@
             <li>Autorizar defensa</li>
             <li>Calificar proyectos</li>
         {%endif%}
-        {%if perm.solicitar_defensa.puede_archivar %}
+        {%if perms.subirproyectos.puede_archivar %}
             <li><a href="/subirproyectos/mostrarlistabiblioteca/">Archivar proyectos</a></li>
         {% else %}
             <li>Archivar proyectos</a></li>
