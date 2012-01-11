@@ -7,6 +7,9 @@ from subirproyectos import settings, models, validators
 
 
 class FormularioProyecto(forms.ModelForm):
+    # TODO: En clean hay que comprobar que si intrduce el nombre o el apellido
+    # del director hay que introducir también el otro.
+
     DOMINIO_CORREO_TUTOR = '@' + settings.DOMINIO_CORREO_TUTOR
 
     centro = forms.ModelChoiceField(label="Centro", queryset=models.Centro.objects)
@@ -52,6 +55,15 @@ AnexoFormSet = inlineformset_factory(models.Proyecto, models.Anexo,
 	formset = FormularioAnexoFormset,
         fields = ('title', 'description', 'language', 'type' ),
 	extra = 0)
+
+
+class FormularioAutorizar(forms.ModelForm):
+    comentario = forms.CharField(label="Comentario", max_length=500,
+        widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
+
+    class Meta:
+        model = models.Proyecto
+        fields = ('tutor_nombre', 'tutor_apellidos', 'director_nombre', 'director_apellidos')
 
 
 class FormularioProyectoCalificado(forms.ModelForm):

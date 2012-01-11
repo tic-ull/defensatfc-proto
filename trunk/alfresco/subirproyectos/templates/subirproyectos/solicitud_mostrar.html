@@ -1,0 +1,89 @@
+{% extends "subirproyectos/base.html" %}
+{% load defensa %}
+
+{% block menu %}
+<h2>Acciones:</h2>
+<ul>
+    {%if user.email = proyecto.tutor_email and proyecto.estado == 'SOL' %}
+    <li><a href="./autorizar">Autorizar defensa</a></li>
+    {% else %}
+    <li>Autorizar defensa</li>
+    {% endif %}
+</ul>
+{% endblock %}
+
+{% block content_title %}Trabajo Fin de Carrera{% endblock %}
+{% block content %}
+<h3>{{ proyecto.title }}</h3>
+<div class="item">
+<p>{{ proyecto.description }}</p><br/>
+<p style="text-align: right;">
+    <a href="./contenido"><span class="icon-download-small" style=""></span>Descargar</a> &#8211; en {{ proyecto.language_detallado }} &#8211;
+</p>
+</div>
+
+<div class="item">
+<table>
+    <tr>
+        <th>Estado:</th>
+        <td class="estado">
+            <span class="{{ proyecto.estado_detallado|truncatewords:1|lower }}">
+                {{ proyecto.estado_detallado }}
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <th>Centro:</th>
+        <td>{{ proyecto.titulacion.centro }}</td>
+    </tr>
+    <tr>
+        <th>Titulación:</th>
+        <td>{{ proyecto.titulacion }}</td>
+    </tr>
+    <tr>
+        <th>Autor:</th>
+        <td>{{ proyecto.creator_nombre_completo }}
+            <a href="mailto:{{ proyecto.creator_email }}"><span class="ui-icon ui-icon-mail-closed" style="float: left; margin-right: .3em;"></span></a>
+            ({{ proyecto.niu }})
+        </td>
+    </tr>
+    <tr>
+        <th>Tutor:</th>
+        <td>{{ proyecto.tutor_nombre_completo }}
+            <a href="mailto:{{ proyecto.tutor_email }}"><span class="ui-icon ui-icon-mail-closed" style="float: left; margin-right: .3em;"></span></a>
+        </td>
+    </tr>
+
+{% if proyecto.director_nombre_completo %}
+    <tr>
+        <th>Director:</th>
+        <td>{{ proyecto.director_nombre_completo }}</td>
+    </tr>
+{% endif %}
+</table>
+</div>
+
+{% block accion_workflow %}
+{% endblock %}
+
+{% if anexos %}
+<div class="item">
+    {% for anexo in anexos %}
+        <h3>Anexo {{ forloop.counter }}: {{ anexo.title }}</h3>
+        <p>{{ anexo.description }}</p><br/>
+        <table>
+            <tr>
+                <th>Tipo de documento:</br>
+                    <small>(Puede ser {% tipos_documentos %} )</small></th>
+                <td>{{ anexo.type_detallado }}</td>
+            </tr>
+        </table>
+
+        <p style="text-align: right;">
+            <a href="./anexo/{{ anexo.id }}"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
+            en {{ anexo.language_detallado }} &#8211;
+        </p>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

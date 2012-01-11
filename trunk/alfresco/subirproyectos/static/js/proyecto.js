@@ -63,9 +63,9 @@ var proyecto = {
                 var to_remove = $("li", $tabs).index($(this).parent());
                 $tabs.tabbed_formset("select", to_remove);
 
-                var dialog = "<div><p>"
-                dialog += '<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>';
-                dialog += "¿Está seguro de que desea eliminar el ";
+                var dialog = "<div>"
+                dialog += '<span class="icon-warning"></span>';
+                dialog += "<p style='margin-left: 39px;'>¿Está seguro de que desea eliminar el ";
                 dialog += $(this).prev("a").text();
                 dialog += " y toda la información guardada en el formulario? ";
                 dialog += "Tenga en cuenta que una vez borrada no será posible recuperarla.</p></div>"
@@ -89,6 +89,13 @@ var proyecto = {
                         }
                     },
                     open: function() {
+                        // para que los botones tenga iconos
+                        $('.ui-dialog-buttonpane').find('button:contains("Cancelar")').button({
+                            icons: {primary: 'ui-icon-close'}
+                        });
+                        $('.ui-dialog-buttonpane').find('button:contains("Aceptar")').button({
+                            icons: {primary: 'ui-icon-check'}
+                        });
                         // para que ningún botón tenga el foco
                         $(".ui-dialog :button").blur();
                     },

@@ -339,10 +339,11 @@ color: #aaa;
 text-decoration: underline; 
 }
 
-/* Para los listados de ciclos */ 
+/* Para los tabs en los formularios */
 
-.item ul.lista_ciclo { padding-top: 0px; }
-
+#tabs { margin-top: 1em; }
+#tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
+.errortab { color: red !important; }
 
 .validator {
 padding-top: 0.5em;
@@ -358,26 +359,106 @@ margin-bottom: 10px;
 .validator h3 { margin: 0em 0 0 0; }
 .validator img {vertical-align: middle; margin-right: 10px;}
 
+/*
+ * Estados de las solicitudes
+ */
 
-.correctval {
-background-color: #9FFFA6;
-border: 1px solid #008020;
-color: #000;
+.estado .solicitada,
+.estado .autorizado,
+.estado .calificado {
+color: #7CAD58;
 }
 
-.wrongval {
-background-color: #FFB0B0;
-border: 1px solid #FF0000;
-color: #000;
+.estado .rechazada {
+color: #F13232;
 }
 
 
-.warnval {
-background-color: #FAFF62;
-border: 1px solid #FFA702;
-color: #000;
+/* Mensajes. Estilos tomados de:
+ * http://mrben.co.uk/entry/a-nicer-way-of-using-the-Django-messages-framework/
+ */
+
+.messages .info,
+.messages .success,
+.messages .warning,
+.messages .error {
+border: 1px solid;
+padding: 12px 0 12px 43px;
+background-repeat: no-repeat;
+background-position: 5px center;
 }
 
+.messages .info {
+background-color: #CDEAF7;
+background-image: url("/static/images/info.png");
+border-color: #789FCC;
+color: #00529B;
+}
+
+.messages .success {
+background-color: #E6EFC2;
+background-image: url("/static/images/success.png");
+border-color: #C6D880;
+color: #264409;
+}
+
+.messages .warning {
+background-color: #FFF6BF;
+background-image: url("/static/images/warning.png");
+border-color: #FFD324;
+color: #514721;
+}
+
+.messages .error {
+background-color: #FBE3E4;
+background-image: url("/static/images/error.png");
+border-color: #FBC2C4;
+color: #8A1F11;
+}
+
+.icon-info,
+.icon-success,
+.icon-warning,
+.icon-error,
+.icon-download {
+display: inline-block;
+vertical-align: middle;
+width: 32px;
+height: 32px;
+margin: 0 .5em 0 0;
+}
+
+.icon-download-small {
+display: inline-block;
+vertical-align: middle;
+width: 16px;
+height: 16px;
+margin: 0 .5em 0 0;
+}
+
+.icon-info {
+background-image: url("/static/images/info.png") !important;
+}
+
+.icon-success {
+background-image: url("/static/images/success.png") !important;
+}
+
+.icon-warning {
+background-image: url("/static/images/warning.png") !important;
+}
+
+.icon-error {
+background-image: url("/static/images/error.png") !important;
+}
+
+.icon-download {
+background-image: url("/static/images/download.png") !important;
+}
+
+.icon-download-small {
+background-image: url("/static/images/download-small.png") !important;
+}
 
 /*para los menus de buscar y añadir usuarios */
 

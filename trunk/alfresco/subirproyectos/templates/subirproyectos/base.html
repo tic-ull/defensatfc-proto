@@ -9,7 +9,7 @@
 
   {% block layout %}
   <link rel="stylesheet" type="text/css" media="screen,projection,print" href="{{ STATIC_URL }}css/new_style.css" />
-  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="{{ STATIC_URL }}css/custom.css" />
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/custom-theme/jquery-ui-1.8.16.custom.css" />
   {% endblock %}
   <link rel="icon" type="image/x-icon" href="{{ STATIC_URL }}images/favicon.ico" />
   
@@ -82,6 +82,15 @@
 
 <div id="content">
   <div class="right">
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="{{ message.tags }}">{{ message|safe }}</div>
+      {% endfor %}
+    </div>
+    <br />
+    {% endif %}
+
     <h2>{% block content_title %}{% endblock %}</h2>
     {% block content %}
     {% endblock %}
@@ -96,10 +105,10 @@
     <ul>
         <li><a href="/subirproyectos/solicitar_defensa/">Solicitar defensa</a></li>
         {%if user.is_tutor %}
-            <li><a href="/subirproyectos/mostrarlistatutor/">Autorizar defensa</a></li>
+            <li><a href="/subirproyectos/mostrarlistatutor/">Autorizaciones</a></li>
             <li><a href="/subirproyectos/mostrarlistatutor/">Calificar proyectos</a></li>
         {% else %}
-            <li>Autorizar defensa</li>
+            <li>Autorizaciones</li>
             <li>Calificar proyectos</li>
         {%endif%}
         {%if perms.subirproyectos.puede_archivar %}

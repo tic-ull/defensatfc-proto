@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-ISO691_1 = (
+ISO639_1 = (
     ('aa', 'Afar'),
     ('ab', 'Abjaso (o abjasiano)'),
     ('ae', 'Avéstico'),

@@ -14,8 +14,9 @@ import re
 
 
 SELECCION_ESTADO = (
-    ('SOL', 'Solicitado'),
-    ('REV', 'Revisado'),
+    ('SOL', 'Solicitada la defensa'),
+    ('REC', 'Rechazado'),
+    ('AUT', 'Autorizado'),
     ('CAL', 'Calificado'),
     ('ARC', 'Archivado'),
 )
@@ -79,9 +80,9 @@ class Titulacion(AlfrescoPFCModel):
 class Contenido(AlfrescoPFCModel):
     # dublin core
     title = models.CharField(max_length=200, verbose_name="título")
-    format = models.CharField(max_length=30)
+    format = models.CharField(max_length=30, choices=settings.SELECCION_FORMATO)
     description = models.TextField(verbose_name="descripción", validators=[MaxLengthValidator(1000)])
-    type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.SELECCION_TIPO_DOCUMENTO[0][0])
+    type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.DEFECTO_TIPO_DOCUMENTO)
     language = models.CharField(max_length=2, choices=settings.SELECCION_LENGUAJE, verbose_name="idioma", default=settings.DEFECTO_LENGUAJE)
     # relation: sólo se incluirá en los metados del documento en el repositorio
     # TODO: Consultar sobre publisher, identifier, URI
@@ -97,6 +98,12 @@ class Contenido(AlfrescoPFCModel):
 
     def __unicode__(self):
         return self.title
+
+    def type_detallado(self):
+        return [value for key, value in settings.SELECCION_TIPO_DOCUMENTO if key == self.type][0]
+
+    def language_detallado(self):
+        return [value for key, value in settings.SELECCION_LENGUAJE if key == self.language][0]
 
     def save_to_alfresco(self, parent_uuid, cml, force_insert=False, force_update=False):
         if force_insert and force_update:
@@ -137,7 +144,8 @@ class Proyecto(Contenido):
     tutor_apellidos = models.CharField(max_length=50, verbose_name='apellidos del tutor')
     tutor_email = models.EmailField(max_length=50,
                                     verbose_name='correo electrónico del tutor',
-                                    validators=[validators.EmailTutorValidator])
+                                    validators=[validators.EmailTutorValidator],
+                                    db_index=True)
     director_nombre = models.CharField(max_length=50, blank=True, null=True,
                                        verbose_name='nombre del director')
     director_apellidos = models.CharField(max_length=50, blank=True, null=True,
@@ -153,16 +161,23 @@ class Proyecto(Contenido):
             campo_nombre = '_'.join(parts[0:-1])
             campo_apellidos = '_'.join(parts[0:-2] + ['apellidos'])
             if campo_nombre in self.__dict__ and campo_apellidos in self.__dict__:
-                def nombre_completo():
-                    return settings.PLANTILLA_NOMBRE_COMPLETO % {
-                        'nombre': self.__dict__[campo_nombre],
-                        'apellidos': self.__dict__[campo_apellidos],
-                    }
+                if self.__dict__[campo_nombre] and self.__dict__[campo_apellidos]:
+                    def nombre_completo():
+                        return settings.PLANTILLA_NOMBRE_COMPLETO % {
+                            'nombre': self.__dict__[campo_nombre],
+                            'apellidos': self.__dict__[campo_apellidos],
+                        }
+                else:
+                    def nombre_completo():
+                        return None
                 return nombre_completo
 
         raise AttributeError("%r object has no attribute %r" %
                              (type(self).__name__, name))
 
+    def estado_detallado(self):
+        return [value for key, value in SELECCION_ESTADO if key == self.estado][0]
+                             
     def _get_alfresco_properties(self):
         properties = super(Proyecto, self)._get_alfresco_properties()
         properties['cm:creator'] = self.creator_nombre_completo()
@@ -231,9 +246,9 @@ class TribunalVocal(models.Model):
 
 
 class ProyectoArchivado(ProyectoCalificado):
-    subject = models.CharField(max_length=30, verbose_name="tema")   # TODO: Añadir selector de lista de materias
+    subject = models.CharField(max_length=30, verbose_name="tema")
     rights = models.CharField(max_length=200, choices=settings.SELECCION_DERECHOS, verbose_name="derechos")
-    coverage = models.CharField(max_length=200, verbose_name="cobertura") # TODO: Añadir selector de coverage si es posible
+    coverage = models.CharField(max_length=200, verbose_name="cobertura")
 
     def _get_alfresco_properties(self):
         properties = super(ProyectoArchivado, self)._get_alfresco_properties()
@@ -259,31 +274,31 @@ def save_proyect_to_alfresco(proyecto, anexos,
     """ Salvar toda la información relacionada con un proyecto en el gestor
     documental"""
 
-    cml = Alfresco().cml()
+    #cml = Alfresco().cml()
 
-    proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
-    for anexo in anexos:
-        anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
-    cml.do()
+    #proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
+    #for anexo in anexos:
+        #anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
+    #cml.do()
 
-    if proyecto_contenido is not None:
-        Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
-    for anexo, contenido in zip(anexos, anexos_contenidos):
-        Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+    #if proyecto_contenido is not None:
+        #Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
+    #for anexo, contenido in zip(anexos, anexos_contenidos):
+        #Alfresco().upload_content(anexo.alfresco_uuid, contenido)
 
-    if update_relationship and anexos:
-        # Si es necesario, hay que salvar la relacion entre los documentos
-        cml = Alfresco().cml()
-        relation_propname = Alfresco.NAMESPACES['dc'] % 'relation'
-        proyecto_relaciones = ['hastPart %s' % anexo.alfreso_uuid for anexo in anexos]
-        cml.update(proyecto.alfresco_uuid, {
-            relation_propname: proyecto_relaciones
-        })
-        for anexo in anexos:
-            cml.update(anexo.alfresco_uuid, {
-                property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
-            })
-        cml.do()
+    #if update_relationship and anexos:
+        ## Si es necesario, hay que salvar la relacion entre los documentos
+        #cml = Alfresco().cml()
+        #relation_propname = Alfresco.NAMESPACES['dc'] % 'relation'
+        #proyecto_relaciones = ['hastPart %s' % anexo.alfreso_uuid for anexo in anexos]
+        #cml.update(proyecto.alfresco_uuid, {
+            #relation_propname: proyecto_relaciones
+        #})
+        #for anexo in anexos:
+            #cml.update(anexo.alfresco_uuid, {
+                #property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
+            #})
+        #cml.do()
 
     if update_db:
         proyecto.save()
@@ -307,8 +322,17 @@ def user_niu(self):
 def user_is_tutor(self):
     return Proyecto.objects.filter(tutor_email=self.email).exists()
 
+def user_can_view_proyecto(self, proyecto):
+    return (proyecto.creator_email == self.email or
+            proyecto.tutor_email == self.email)
+
+def user_can_autorizar_proyecto(self, proyecto):
+    return (proyecto.tutor_email == self.email)
+
 auth.models.User.add_to_class('niu', user_niu)
 auth.models.User.add_to_class('is_tutor', user_is_tutor)
+auth.models.User.add_to_class('can_view_proyecto', user_can_view_proyecto)
+auth.models.User.add_to_class('can_autorizar_proyecto', user_can_autorizar_proyecto)
 
 
 class AdscripcionUsuarioCentro(models.Model):

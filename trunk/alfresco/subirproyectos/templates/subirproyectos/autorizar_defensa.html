@@ -1,0 +1,76 @@
+{% extends "subirproyectos/solicitud_mostrar.html" %}
+
+{% block menu %}
+{% endblock %}
+
+{% block content_title %}Autorizar defensa de Trabajo Fin de Carrera{% endblock %}
+{% block accion_workflow %}
+<form id="form" action="." enctype="multipart/form-data" method="POST">
+{% csrf_token %}
+<div class="item">
+    <div class="messages">
+        <div class="info">
+            <h3>Revisión</h3>
+            <p>
+            Por favor, revise con detalle toda la información referente a este proyecto, incluidos
+            los documentos adjuntos. Si lo desea puede aprovechar para modificar tanto la información
+            referente a usted (tutor académico) como al director del proyecto.</p>
+        </div>
+    </div>
+    <br/>
+
+    <h3>Tutor académico</h3>
+    <p><small>Tutor académico del proyecto vinculado a la Universidad.</small></p>
+    {{ form.non_field_errors }}
+    <table>
+        <tr>
+           <th><label for="id_tutor_nombre">Nombre (*):</label></th>
+           <td>{{ form.tutor_nombre.errors }}{{ form.tutor_nombre }}</td>
+        </tr>
+        <tr>
+            <th><label for="id_tutor_apellidos">Apellidos (*):</label></th>
+            <td>{{ form.tutor_apellidos.errors }}{{ form.tutor_apellidos }}</td>
+        </tr>
+    </table>
+
+    <div class="line"></div>
+
+    <h3>Director (opcional)</h3>
+    <p><small>Director no académico del proyecto, generalmente externo a la Universidad
+    y vinculado a una empresa.</small></P>
+    <table>
+        <tr>
+            <th><label for="id_director_nombre">Nombre:</label></th>
+            <td>{{ form.director_nombre.errors }}{{ form.director_nombre }}</td>
+        </tr>
+        <tr>
+            <th><label for="id_director_apellidos">Apellidos:</label></th>
+            <td>{{ form.director_apellidos.errors }}{{ form.director_apellidos }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="item">
+    <div class="messages">
+        <div class="warning">
+            <h3>Autorización</h3>
+            <p>Si está de acuerdo en autorizar la defensa de esta proyecto, por favor haga <em>clic</em> en el botón <em>Autorizar</em>
+            para que se pueda proceder con la misma. Si por el contrario no está de acuerdo, haga <em>clic</em> en el botón <em>Rechazar</em>.
+            Tenga en cuenta que una vez autorizado no se podrá cambiar ningún dato relativo al proyecto, por lo que le recomendamos
+            que lo revise todo detenidamente.</p>
+        </div>
+    </div>
+
+    <br/>
+    <p>En ambos casos se le notificará al alumno por correo electrónico su decisión. Si desea que se incluya algún comentario
+    en la notificación, puede utilizar el siguiente campo (máx. 500 caracteres):</p>
+    <table>
+        <tr>
+            <td>{{ form.comentario.errors }}{{ form.comentario }}</td>
+        </tr>
+    </table>
+    <input type="submit" class="button" value="Autorizar" />
+    <input type="submit" class="button" value="Rechazar" />
+</div>
+</form>
+{% endblock %}

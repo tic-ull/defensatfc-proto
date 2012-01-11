@@ -6,12 +6,6 @@
 <script language="javascript" src="{{ STATIC_URL }}js/jquery.chainedSelect.min.js"></script>
 <script language="javascript" src="{{ STATIC_URL }}js/tabbed_formset.min.js"></script>
 <script language="javascript" src="{{ STATIC_URL }}js/proyecto.js"></script>
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/custom-theme/jquery-ui-1.8.16.custom.css" />
-<style>
-#tabs { margin-top: 1em; }
-#tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
-.errortab { color: red !important; }
-</style>
 <script type="text/javascript">
     $(function() {
         proyecto.initForm("#tabs", {
@@ -52,12 +46,12 @@
             <table>
                 <tr>
                     <th><label for="id_title">Título (*):</label><br/>
-                        (máx. 200 caracteres)</th>
+                        <small>(máx. 200 caracteres)</small></th>
                     <td>{{ f.title.errors }}{{ f.title }}</td>
                 </tr>
                 <tr>
                     <th><label for="id_description">Descripción (*):</label><br/>
-                        (máx. 1000 caracteres)</th>
+                        <small>(máx. 1000 caracteres)</small></th>
                     <td>{{ f.description.errors }}{{ f.description }}</td>
                 </tr>
                 <tr>
@@ -96,7 +90,8 @@
             </table>
             <div class="line"></div>
 
-            <h3>Tutor</h3>
+            <h3>Tutor académico</h3>
+            <p><small>Tutor académico del proyecto vinculado a la Universidad.</small></p>
             <table>
                 <tr>
                     <th><label for="id_tutor_nombre">Nombre (*):</label></th>
@@ -117,7 +112,9 @@
             </table>
             <div class="line"></div>
 
-            <h3>Director</h3>
+            <h3>Director (opcional)</h3>
+            <p><small>Director no académico del proyecto, generalmente externo a la
+            Universidad y vinculado a una empresa.</small></P>
             <table>
                 <tr>
                     <th><label for="id_director_nombre">Nombre:</label></th>
@@ -169,12 +166,12 @@
         <table>
             <tr>
                 <th><label for="id_anexo_set-__prefix__-title">Título (*):</label><br/>
-                    (máx. 200 caracteres)</th>
+                    <small>(máx. 200 caracteres)</small></th>
                 <td>{{ form.title.errors }}{{ form.title }}</td>
             </tr>
             <tr>
                 <th><label for="id_anexo_set-__prefix__-description">Descripción (*):</label><br/>
-                    (máx. 1000 caracteres)</th>
+                    <small>(máx. 1000 caracteres)</small></th>
                 <td>{{ form.description.errors }}{{ form.description }}</td>
             </tr>
             <tr>

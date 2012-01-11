@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from iso691 import ISO691_1
+from iso639 import ISO639_1
 
 
 PLANTILLA_NOMBRE_COMPLETO = '%(apellidos)s, %(nombre)s'
@@ -9,11 +9,12 @@ DOMINIO_CORREO_TUTOR = 'ull.es'
 
 SELECCION_TIPO_DOCUMENTO = (
     ('ANEXO',   'Anexo'),
-    ('MEMORIA', 'Memoria'),    
+    ('MEMORIA', 'Memoria'),
     ('PLANO',   'Plano'),
 )
+DEFECTO_TIPO_DOCUMENTO = 'ANEXO'
 
-SELECCION_LENGUAJE = ISO691_1
+SELECCION_LENGUAJE = sorted(ISO639_1, key=lambda lang: lang[1])
 DEFECTO_LENGUAJE = 'es'
 
 SELECCION_FORMATO = (

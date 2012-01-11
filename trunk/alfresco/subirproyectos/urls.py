@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
-from django.views.generic.simple import redirect_to
 
 from subirproyectos import models
 
@@ -14,13 +13,14 @@ urlpatterns = patterns('subirproyectos.views',
         'model_class': models.Titulacion,
         'field_name': 'centro',
     }),
-    url(r'^/(?P<id>\d+)/mostrar/$', 'mostrar'),
-    url(r'^/(?P<id>\d+)/$', redirect_to, {'url': '/%(id)s/mostrar'}),
-    url(r'^/solicitar_defensa/$', 'solicitar_defensa'),
-    url(r'^/mostrarlistatutor/$', 'mostrarlistatutor'),
-    url(r'^/mostrarlistabiblioteca/$', 'mostrarlistabiblioteca'),
-    url(r'^/(?P<id>\d+)/archivar_proyecto_biblioteca/$', 'archivar_proyecto_biblioteca'),
-    url(r'^/(?P<id>\d+)/calificar_proyecto_tutor/$', 'calificar_proyecto_tutor'),
-    url(r'^/revisar/$', 'revisar'),
-    url(r'^/rechazar/$', 'rechazar'),
+    url(r'^/solicitar_defensa$', 'solicitar_defensa'),
+    url(r'^/(?P<id>\d+)/mostrar$', 'solicitud_mostrar'),
+    url(r'^/(?P<id>\d+)/contenido$', 'descargar_contenido'),
+    url(r'^/(?P<id>\d+)/anexo/(?P<anexo_id>\d+)$', 'descargar_anexo'),
+    url(r'^/(?P<id>\d+)/autorizar$', 'autorizar_defensa'),
+    url(r'^/(?P<id>\d+)/calificar$', 'calificar_proyecto'),
+    url(r'^/(?P<id>\d+)/archivar$', 'archivar_proyecto'),
+    url(r'^/proyectos/autorizar$', 'lista_autorizar'),
+    url(r'^/proyectos/calificar$', 'lista_calificar'),
+    url(r'^/proyectos/archivar$', 'listar_archivar'),
 )
