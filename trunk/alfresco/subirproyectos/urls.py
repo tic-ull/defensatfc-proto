@@ -1,4 +1,6 @@
 from django.conf.urls.defaults import *
+from django.core.urlresolvers import reverse
+from django.views.generic.simple import redirect_to
 
 from subirproyectos import models
 
@@ -7,18 +9,18 @@ from subirproyectos import models
 # admin.autodiscover()
 
 urlpatterns = patterns('subirproyectos.views',
-    (r'^/$', 'index'),
-    (r'^/results/$', 'result'),
-    (r'^/titulacion/find-by-centro/$', 'filter', {
+    url(r'^/$', 'index'),
+    url(r'^/titulacion/find-by-centro/$', 'filter', {
         'model_class': models.Titulacion,
         'field_name': 'centro',
     }),
-    (r'^/solicitar_defensa/$', 'solicitar_defensa'),
-    (r'^/(?P<id>\d+)/mostrar/$', 'mostrar'),
-    (r'^/mostrarlistatutor/$', 'mostrarlistatutor'),
-    (r'^/mostrarlistabiblioteca/$', 'mostrarlistabiblioteca'),
-    (r'^/(?P<id>\d+)/archivar_proyecto_biblioteca/$', 'archivar_proyecto_biblioteca'),
-    (r'^/(?P<id>\d+)/calificar_proyecto_tutor/$', 'calificar_proyecto_tutor'),
-    (r'^/revisar/$', 'revisar'),
-    (r'^/rechazar/$', 'rechazar'),
+    url(r'^/(?P<id>\d+)/mostrar/$', 'mostrar'),
+    url(r'^/(?P<id>\d+)/$', redirect_to, {'url': '/%(id)s/mostrar'}),
+    url(r'^/solicitar_defensa/$', 'solicitar_defensa'),
+    url(r'^/mostrarlistatutor/$', 'mostrarlistatutor'),
+    url(r'^/mostrarlistabiblioteca/$', 'mostrarlistabiblioteca'),
+    url(r'^/(?P<id>\d+)/archivar_proyecto_biblioteca/$', 'archivar_proyecto_biblioteca'),
+    url(r'^/(?P<id>\d+)/calificar_proyecto_tutor/$', 'calificar_proyecto_tutor'),
+    url(r'^/revisar/$', 'revisar'),
+    url(r'^/rechazar/$', 'rechazar'),
 )
