@@ -177,7 +177,11 @@ class Proyecto(Contenido):
 
     def estado_detallado(self):
         return [value for key, value in SELECCION_ESTADO if key == self.estado][0]
-                             
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('proyecto_view', (), {'id': self.id})
+
     def _get_alfresco_properties(self):
         properties = super(Proyecto, self)._get_alfresco_properties()
         properties['cm:creator'] = self.creator_nombre_completo()
@@ -260,6 +264,13 @@ class ProyectoArchivado(ProyectoCalificado):
 
 class Anexo(Contenido):
     proyecto = models.ForeignKey(Proyecto)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('anexo_view', (), {
+            'id': self.proyecto.id,
+            'anexo_id': self.id,
+        })
 
     # Muchas de las propiedades de los anexos se heredan de las del proyecto
     def _get_alfresco_properties(self):

@@ -130,7 +130,7 @@ def descargar_anexo(request, id, anexo_id):
     if not request.user.can_view_proyecto(proyecto):
         return HttpResponseForbidden()
 
-    anexo = get_object_or_404(proyecto.anexos, id=anexo_id)
+    anexo = get_object_or_404(proyecto.anexo_set, id=anexo_id)
     content = Alfresco().download_content(anexo.alfresco_uuid)
     file_wrapper = FileWrapper(content)
     response = HTTPResponse(file_wrapper, content_type=proyect.format)
