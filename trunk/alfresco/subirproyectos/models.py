@@ -3,6 +3,8 @@
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.contrib import auth
+from django.core.exceptions import ValidationError
+
 
 from subirproyectos import settings, validators
 from subirproyectos.alfresco import Alfresco
@@ -191,6 +193,12 @@ class Proyecto(Contenido):
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()
         return properties
+        
+    def clean(self):
+	if ((self.director_nombre != '' and self.director_apellidos == '') or
+	   (self.director_nombre == '' and self.director_apellidos != '')):
+	    raise ValidationError('Debe proporcionar nombre y apellidos del director.')
+    
 
 
 class ProyectoCalificado(Proyecto):
@@ -215,8 +223,7 @@ class ProyectoCalificado(Proyecto):
 		return
 	if (self.calificacion_numerica >= 9) and (self.calificacion_numerica <= 10):    
 	    if self.calificacion == 'Sobresaliente':	    
-		return
-	exceptions.ValidationError("La calificación y la nota numérica no coinciden")
+		return ValidationError("La calificación y la nota numérica no coinciden")
 
     def tribunal_vocales(self):
         return [vocal.nombre_completo() for vocal in
@@ -300,7 +307,7 @@ def save_proyect_to_alfresco(proyecto, anexos,
     if update_relationship and anexos:
         # Si es necesario, hay que salvar la relacion entre los documentos
         cml = Alfresco().cml()
-        relation_propname = Alfresco.NAMESPACES['dc'] % 'relation'
+        relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
         proyecto_relaciones = ['hastPart %s' % anexo.alfreso_uuid for anexo in anexos]
         cml.update(proyecto.alfresco_uuid, {
             relation_propname: proyecto_relaciones
