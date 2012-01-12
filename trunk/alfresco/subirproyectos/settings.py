@@ -62,6 +62,9 @@ SELECCION_CALIFICACION = (
     ('MH', 'Matrícula de honor'),
 )
 
+ASUNTO_PROYECTO_SOLICITADO= "Defensa de trabajo de fin de carrera solicitada"
+MENSAJE_PROYECTO_SOLICITADO = "El alumno %(niu)s ha solicitado la defensa del proyecto %(proyecto)s."
+
 GRUPO_BIBLIOTECARIOS = 'bibliotecarios'
 
 # Configuración de alfresco

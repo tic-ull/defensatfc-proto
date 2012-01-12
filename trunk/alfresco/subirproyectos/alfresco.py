@@ -81,7 +81,7 @@ class Alfresco(object):
         proxy_host = settings.ALFRESCO_PROXY_SERVER[proxy_type]
         request = urllib2.Request(self.get_download_url(uuid))
         request.set_proxy(proxy_host, proxy_type)
-        return urlopen(request)
+        return urllib2.urlopen(request)
 
     def cml(self):
         return CML(self)

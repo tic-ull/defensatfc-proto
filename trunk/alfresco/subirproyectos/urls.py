@@ -23,4 +23,5 @@ urlpatterns = patterns('subirproyectos.views',
 #    url(r'^/proyectos/autorizar/$', 'lista_autorizar'),
 #    url(r'^/proyectos/calificar/$', 'lista_calificar'),
 #    url(r'^/proyectos/archivar/$', 'listar_archivar'),
+
 )
