@@ -1,0 +1,5 @@
+Hola.
+
+El alumno {{alumno_nombre}} {{alumno_apellidos}} ha solicitado la defensa del proyecto titulado {{ proyecto }}.
+Puede resivar el contenido de dicho proyecto siguiendo el siguiente link: http://localhost:8000/subirproyectos/{{id}}/
+Puede ponerse en contacto con {{alumno_nombre}} mediante la siguiente dirección email: {{ alumno_email }}

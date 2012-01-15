@@ -243,8 +243,8 @@ class ProyectoCalificado(Proyecto):
 
 class TribunalVocal(models.Model):
     proyecto_calificado = models.ForeignKey(ProyectoCalificado)
-    nombre = models.CharField(max_length=50)
-    apellidos = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=50, verbose_name="nombre vocal (*)")
+    apellidos = models.CharField(max_length=50, verbose_name="apellidos vocal (*)")
 
     def nombre_completo(self):
         return settings.PLANTILLA_NOMBRE_COMPLETO % {

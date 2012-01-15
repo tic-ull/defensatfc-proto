@@ -73,7 +73,7 @@ class FormularioProyectoCalificado(forms.ModelForm):
 	fields = ('fecha_defensa',  'calificacion_numerica', 'modalidad', 'tribunal_presidente_nombre', 'tribunal_presidente_apellidos', 
 	'tribunal_secretario_nombre', 'tribunal_secretario_apellidos')	
 	
-VocalesFormSet = inlineformset_factory(models.ProyectoCalificado, models.TribunalVocal)    
+VocalesFormSet = inlineformset_factory(models.ProyectoCalificado, models.TribunalVocal, extra=1)    
 
 
 class FormularioProyectoArchivado(forms.ModelForm):

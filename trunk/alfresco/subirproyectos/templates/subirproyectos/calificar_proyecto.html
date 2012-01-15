@@ -1,0 +1,122 @@
+{% extends "subirproyectos/solicitud_mostrar.html" %}
+
+{% block extra_head %}
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-1.6.3.min.js"></script>
+<script type="text/javascript">
+function cloneMore(selector, type) {
+    var newElement = $(selector).clone(true);
+    var total = $('#id_' + type + '-TOTAL_FORMS').val();
+    newElement.find(':input').each(function() {
+        var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
+        var id = 'id_' + name;
+        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+    });
+    newElement.find('label').each(function() {
+        var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
+        $(this).attr('for', newFor);
+    });
+    total++;
+    $('#id_' + type + '-TOTAL_FORMS').val(total);
+    $(selector).after(newElement);
+}
+
+</script>
+
+{% endblock %}
+
+{% block menu %}
+{% endblock %}
+
+
+{% block content_title %}Calificar Trabajo Fin de Carrera{% endblock %}
+{% block accion_workflow %}
+<form id="form" action="." enctype="multipart/form-data" method="POST">
+{% csrf_token %}
+<div class="item">
+    <div class="messages">
+        <div class="info">
+            <h3>Datos a rellenar</h3>
+            <p>
+            Por favor, rellene los siguientes datos referentes a la defensa del trabajo de fin de carrera. Tenga en cuenta
+            que estos datos han de ser completados una vez se haya producido la lectura del proyecto frente a un tribunal</p>
+        </div>
+    </div>
+    <br/>
+
+    <h3>Proyecto</h3>
+    <table>
+        <tr>
+           <th><label for="id_fecha_defensa">Fecha defensa (*):</label></th>
+           <td>{{ f.fecha_defensa.errors }}{{ f.fecha_defensa }}</td>
+        </tr>
+        <tr>
+            <th><label for="id_calificacion_numerica">Calificacion numerica (*):</label></th>
+            <td>{{ f.calificacion_numerica.errors }}{{ f.calificacion_numerica }}</td>
+        </tr>
+        <tr>
+            <th><label for="id_modalidad">Modalidad (*):</label></th>
+            <td>{{ f.modalidad.errors }}{{ f.modalidad }}</td>
+        </tr>
+    </table>
+
+    <h3>Presidente del tribunal</h3>
+    <p><small>Presidente del tribunal creado para la evalución del proyecto.</small></p>
+    <table>
+        <tr>
+           <th><label for="id_tribunal_presidente_nombre">Nombre (*):</label></th>
+           <td>{{ f.tribunal_presidente_nombre.errors }}{{ f.tribunal_presidente_nombre }}</td>
+        </tr>
+        <tr>
+            <th><label for="id_calificacion_numerica">Apellidos (*):</label></th>
+            <td>{{ f.tribunal_presidente_apellidos.errors }}{{ f.tribunal_presidente_apellidos }}</td>
+        </tr>
+    </table>
+
+    <h3>Secretario del tribunal</h3>
+    <p><small>Secretario del tribunal creado para la evalución del proyecto.</small></p>
+    <table>
+        <tr>
+           <th><label for="id_tribunal_secretario_nombre">Nombre (*):</label></th>
+           <td>{{ f.tribunal_tribunal_secretario_nombre.errors }}{{ f.tribunal_secretario_nombre }}</td>
+        </tr>
+        <tr>
+            <th><label for="id_tribunal_secretario_apellidos">Apellidos (*):</label></th>
+            <td>{{ f.tribunal_secretario_apellidos.errors }}{{ f.tribunal_secretario_apellidos }}</td>
+        </tr>
+    </table>
+
+    <h3>Vocales del tribunal</h3>
+    <p><small>Vocales del tribunal creado para la evalución del proyecto.</small></p>
+    {{ v.management_form }}
+    {% for form in v.forms %}
+	<div class='table'>
+	<table class='no_error'>
+	    {{ form.as_table }}
+	</table>
+	</div>
+    {% endfor %}
+    <input type="button" value="Añadir vocal" id="add_more">
+    <script>
+	$('#add_more').click(function() {
+	    cloneMore('div.table:last', 'service');
+	});
+    </script>
+</div>
+    
+<div class="item">
+    <div class="messages">
+        <div class="warning">
+            <h3>Calificación</h3>
+            <p>Al pulsar sobre el botón <em>Calificar</em>  estará de acuerdo en enviar los datos ya rellenos sobre el proyecto 
+	    a ser calificado. Tenga en cuenta que una vez calificado no se podrá cambiar ningún dato relativo al proyecto, por lo que le recomendamos
+            que lo revise todo detenidamente.</p>
+        </div>
+    </div>
+
+
+    <br>
+    <input type="submit" class="button" value="Calificar" />
+</div>
+</form>
+
+{% endblock %}

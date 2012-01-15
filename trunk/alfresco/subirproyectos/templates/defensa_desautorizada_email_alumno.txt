@@ -1,0 +1,5 @@
+Hola:
+
+Tu tutor de proyecto {{tutor_nombre}} {{tutor_apellidos}} NO ha autorizado la defensa del proyecto titulado {{ proyecto }}.
+
+{{comentario}}

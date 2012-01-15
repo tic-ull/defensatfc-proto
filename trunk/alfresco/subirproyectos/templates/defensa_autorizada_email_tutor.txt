@@ -1,0 +1,5 @@
+Hola.
+
+Has autorizado la defensa del proyecto {{proyecto}}. Puede consultar los datos del proyecto en el siguiente link: http://localhost:8000/subirproyectos/{{id}}/
+
+Una vez el proyecto sea leído deberá calificarlo siguiendo el siguiente link http://localhost:8000/subirproyectos/{{id}}/calificar/

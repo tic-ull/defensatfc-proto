@@ -1,0 +1,88 @@
+{% extends "subirproyectos/solicitud_mostrar.html" %}
+
+{% block menu %}
+{% endblock %}
+
+{% block content_title %}Archivar Trabajo Fin de Carrera{% endblock %}
+
+{% block accion_workflow %}
+<form id="form" action="." enctype="multipart/form-data" method="POST">
+{% csrf_token %}
+<div class="item">
+    <div class="messages">
+        <div class="info">
+            <h3>Revisión</h3>
+            <p>
+            Por favor, revise con detalle toda la información  mostrada a continuación referente a este proyecto. 
+	    Si encotrase algún error puede modificarla. Complete los campos subject, rights y coverage.
+        </div>
+    </div>
+    <br/>
+    <h3>Autor</h3>
+    <table>
+      <tr>
+	  <th><label for="id_creator_nombre">Nombre:</label></th>
+          <td>{{ f.creator_nombre.errors }}{{ f.creator_nombre }}</td>
+      </tr>
+      <tr>
+	  <th><label for="id_creator_apellidos">Apellidos:</label></th>
+          <td>{{ f.creator_apellidos.errors }}{{ f.creator_apellidos }}</td>
+      </tr>
+    </table>
+    <h3>Proyecto</h3>
+    <table>
+	<tr>
+	    <th><label for="id_title">Nombre:</label></th>
+            <td>{{ f.title.errors }}{{ f.title }}</td>
+	</tr>
+        <tr>
+	    <th><label for="id_language">Apellidos:</label></th>
+            <td>{{ f.language.errors }}{{ f.language }}</td>
+        </tr>
+        <tr>
+	    <th><label for="id_description">Descripcion:</label></th>
+            <td>{{ f.description.errors }}{{ f.description }}</td>
+        </tr>
+        <tr>
+	    <th><label for="id_subject">Subject:</label></th>
+            <td>{{ f.subject.errors }}{{ f.subject }}</td>
+        </tr>
+        <tr>
+	    <th><label for="id_rights">Rights:</label></th>
+            <td>{{ f.rights.errors }}{{ f.rights }}</td>
+        </tr>
+        <tr>
+	    <th><label for="id_coverage">Coverage:</label></th>
+            <td>{{ f.coverage.errors }}{{ f.coverage }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="item">
+    <div class="messages">
+        <div class="warning">
+            <h3>Autorización</h3>
+            <p>Si desea archivar el proyecto, por favor haga <em>clic</em> en el botón <em>Archivar</em>
+            para que se pueda proceder a realizar dichar acción. 
+            Tenga en cuenta que una vez archivado no se podrá cambiar ningún dato relativo al proyecto, por lo que le recomendamos
+            que lo revise todo detenidamente.</p>
+        </div>
+    </div>
+    <input type="submit" class="button" value="Archivar" />
+</div>
+</form>
+{% endblock %}
+
+<!--<div class="item">
+    <form action="." enctype="multipart/form-data" method="POST"> 
+    {% csrf_token %}
+    <table id="proyecto">
+    {{ f.as_table }}
+    </table>
+    <input type="submit" class="button" value="Enviar" />
+    </form>
+</div>
+
+</body>
+
+</html>-->
