@@ -26,7 +26,8 @@ import mimetypes
 import operator
 
 
-MAXIMOS_RESULTADOS_POR_PAGINA = 100
+BUSQUEDA_CAMPOS = ('title', 'creator_nombre', 'creator_apellidos', 'niu',)
+BUSQUEDA_RESULTADOS_POR_PAGINA = 30
 
 
 def filter(request, model_class, field_name):
@@ -38,68 +39,6 @@ def filter(request, model_class, field_name):
     search = list(model_class.objects.filter(**kwargs).values('id', 'nombre'))
     if not search:
         return HttpResponseNotFound()
-
-    return HttpResponse(content=dumps(search), mimetype='application/json')
-
-
-@login_required
-def buscar_proyectos_solicitados(request, where_search):
-    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['solicitado'],
-        tutor_email=request.user.email)
-    return buscar_proyectos(request, proyectos, where_search)
-
-
-@login_required
-def buscar_proyectos_autorizados(request, where_search):
-    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['autorizado'],
-        tutor_email=request.user.email)
-    return buscar_proyectos(request, proyectos, where_search)
-
-
-@permission_required('Proyecto.puede_archivar')
-def buscar_proyectos_calificados(request, where_search):
-    centros = AdscripcionUsuarioCentro.objects.filter(user=request.user)
-    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['calificado'],
-        centro__in=centros)
-    return buscar_proyectos(request, proyectos, where_search)
-
-
-def buscar_proyectos(request, proyectos, where_search):
-    if 'q' in request.GET and request.GET['q']:
-        words = request.GET['q'].split()
-        conditions = []
-        for field in where_search:
-            kwargs = dict([(field+'__icontains', word) for word in words])
-            conditions.append(Q(**kwargs))
-        proyectos = proyectos.filter(reduce(operator.or_, conditions))
-    proyectos = proyectos.order_by('creator_apellidos', 'creator_nombre')
-
-    # Paginar los resultados de la búsqueda
-    if 'per_page' in request.GET and request.GET['per_page']:
-        try:
-            per_page = int(request.GET['per_page'])
-        except ValueError:
-            per_page = MAXIMOS_RESULTADOS_POR_PAGINA
-        else:
-            per_page = min(per_page, MAXIMOS_RESULTADOS_POR_PAGINA)
-        paginator = Paginator(proyectos, per_page)
-    else:
-        paginator = Paginator(proyectos, MAXIMOS_RESULTADOS_POR_PAGINA)
-
-    try:
-        if 'page' in request.GET and request.GET['page']:
-            page = paginator.page(request.GET['page'])
-        else:
-            page = paginator.page(1)
-    except InvalidPage:
-        page = paginator.page(1)
-
-    search = [{
-        'title': proyecto.title,
-        'niu': proyecto.niu,
-        'creator': proyecto.creator_nombre_completo(),
-        'url': proyecto.get_absolute_url(),
-    } for proyecto in page.object_list]
 
     return HttpResponse(content=dumps(search), mimetype='application/json')
 
@@ -310,7 +249,7 @@ def autorizar_defensa(request, id):
 @login_required  
 def calificar_proyecto(request, id):
     p = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_autorizar_proyecto(p):
+    if not request.user.can_calificar_proyecto(p): # TODO: Esta no puede ser la comprobación del permiso. Mejor usar el decorado @permission_required
         return HttpResponseForbidden()
 
     anexos = p.anexo_set.all()
@@ -381,7 +320,7 @@ def calificar_proyecto(request, id):
                                 'proyecto': p, # TODO: ¿Para qué lo pasas?
                                 'anexos': anexos # TODO: Esto no está definido
                                 }, 
-                                context_instance= RequestContext(request))
+                                context_instance=RequestContext(request))
 
 
 @login_required 
@@ -410,20 +349,87 @@ def archivar_proyecto(request, id):
     return render_to_response('archivar_proyecto.html', {
                                 'f': form
                                 },
-                                context_instance= RequestContext(request))
+                                context_instance=RequestContext(request))
+
+
+def buscar_proyectos(request, proyectos):
+    if 'q' in request.GET and request.GET['q']:
+        words = request.GET['q'].split()
+        conditions = []
+        for field in BUSQUEDA_CAMPOS:
+            kwargs = dict([(field+'__icontains', word) for word in words])
+            conditions.append(Q(**kwargs))
+        proyectos = proyectos.filter(reduce(operator.or_, conditions))
+    proyectos = proyectos.order_by('creator_apellidos', 'creator_nombre')
+
+    # Paginar los resultados de la búsqueda
+    if 'per_page' in request.GET and request.GET['per_page']:
+        try:
+            per_page = int(request.GET['per_page'])
+        except ValueError:
+            per_page = BUSQUEDA_RESULTADOS_POR_PAGINA
+        else:
+            per_page = min(per_page, BUSQUEDA_RESULTADOS_POR_PAGINA)
+        paginator = Paginator(proyectos, per_page)
+    else:
+        paginator = Paginator(proyectos, BUSQUEDA_RESULTADOS_POR_PAGINA)
+
+    try:
+        if 'page' in request.GET and request.GET['page']:
+            page = paginator.page(request.GET['page'])
+        else:
+            page = paginator.page(1)
+    except InvalidPage:
+        page = paginator.page(1)
+
+    return page
 
 
 @login_required  
 def lista_autorizar(request):
+    if not request.user.is_tutor():
+        return HttpResponseForbidden()
+
+    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['solicitado'],
+        tutor_email=request.user.email)
+    page = buscar_proyectos(request, proyectos)
+    results = [{
+        'title': proyecto.title,
+        'niu': proyecto.niu,
+        'creator': proyecto.creator_nombre_completo(),
+        'url': proyecto.get_absolute_url(),
+    } for proyecto in page.object_list]
+
+    template_dict = {
+        'estado': 'solicitado',
+        'proyectos': results,
+        'total_paginas': page.paginator.num_pages,
+        'total_proyectos': page.paginator.count,
+    }
+
+    if request.is_ajax():
+        return render_to_response('lista_proyecto_partial.html', template_dict,
+            context_instance= RequestContext(request))
+
+    if 'q' in request.GET and request.GET['q']:
+        template_dict['q'] = request.GET['q']
+    return render_to_response('lista.html', template_dict,
+        context_instance= RequestContext(request))
+
+
+@login_required
+def lista_calificar(request):
+    # TODO: Preparar como lista autorizar
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
-    #proyectos por revisar la memoria y anexos   
+
+    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['autorizado'],
+        tutor_email=request.user.email)
+
+    #proyectos por revisar la memoria y anexos
     proyectos = Proyecto.objects.filter(tutor_email=request.user.username,
         estado=Proyecto.ESTADOS['solicitado'])
     #proyectos por poner nota.
-    proyectos_por_calificar = Proyecto.objects.filter(tutor_email=request.user.username,
-        estado=Proyecto.ESTADOS['revisado'])
-    print proyectos_por_calificar
     t = loader.get_template('subirproyectos/mostrarlistatutor.html')
     c = RequestContext(request, {'proyectos':proyectos, 'proyectos_por_calificar': proyectos_por_calificar })
 
@@ -433,11 +439,17 @@ def lista_autorizar(request):
     #})
     return HttpResponse(t.render(c))
 
-@login_required  
+
+@permission_required('Proyecto.puede_archivar')
 def lista_archivar(request):
+    # TODO: Preparar como lista autorizar
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
-    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['calificado'])#comprobar que es de la facultad
+
+    centros = AdscripcionUsuarioCentro.objects.filter(user=request.user)
+    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['calificado'],
+        centro__in=centros)
+
     #if is_faculty_staff (request.user.username):
        #proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
        
@@ -447,4 +459,3 @@ def lista_archivar(request):
         #'proyectos': proyectos,
     #})
     return HttpResponse(t.render(c))
-

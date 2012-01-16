@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery.pageless.min.js"></script>
+<script type="text/javascript">
+    $(function() {
+        $('#results').pageless({
+            totalPages: {{ total_paginas }},
+            url: './',
+            params : {
+                q: "{{ q }}"
+            },
+            loaderMsg: 'Cargando más resultados',
+            loaderImage: '{{ STATIC_URL }}images/busy.gif'
+        });
+    })
+</script>
+{% endblock %}
+
+{% block content_title %}Trabajos que esperan ser
+{% if estado == 'solicitado' %}
+autorizados
+{% endif %}
+{% if estado == 'autorizado' %}
+calificados
+{% endif %}
+{% if estado == 'calificado' %}
+archivados
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if proyectos %}
+<div class="item">
+<form action="." enctype="multipart/form-data" method="GET">
+    <label for="q"></label>
+    <input id="q" type="text" name="q" {% if q %}value="{{ q }}"{% endif %} />
+    <input type="submit" class="button" value="Buscar" />
+</form>
+</div>
+
+<div class="item">
+<p>Hay un total de {{ total_proyectos }} trabajos pendientes de ser revisados.</p>
+<table id="results">
+    <tr>
+        <th><strong>Alumno</strong></th>
+        <th><strong>Título</strong></th>
+    </tr>
+{% include "lista_proyecto_partial.html" %}
+</table>
+</div>
+{% else %}
+<div class="item">
+    <p>No hay proyectos pendientes de ser revisados.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+

@@ -186,7 +186,7 @@ class Proyecto(Contenido):
                              (type(self).__name__, name))
 
     def estado_detallado(self):
-        return [value for key, value in ESTADO_SELECCION if key == self.estado][0]
+        return [value for key, value in self.ESTADO_SELECCION if key == self.estado][0]
 
     @models.permalink
     def get_absolute_url(self):
@@ -354,10 +354,14 @@ def user_can_view_proyecto(self, proyecto):
 def user_can_autorizar_proyecto(self, proyecto):
     return (proyecto.tutor_email == self.email)
 
+def user_can_calificar_proyecto(self, proyecto):
+    return (proyecto.tutor_email == self.email)
+
 auth.models.User.add_to_class('niu', user_niu)
 auth.models.User.add_to_class('is_tutor', user_is_tutor)
 auth.models.User.add_to_class('can_view_proyecto', user_can_view_proyecto)
 auth.models.User.add_to_class('can_autorizar_proyecto', user_can_autorizar_proyecto)
+auth.models.User.add_to_class('can_calificar_proyecto', user_can_calificar_proyecto)
 
 
 class AdscripcionUsuarioCentro(models.Model):

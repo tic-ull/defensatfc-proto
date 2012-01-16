@@ -1,0 +1,8 @@
+{% for proyecto in proyectos %}
+<tr>
+    <td>{{ proyecto.creator }} ({{ proyecto.niu }})</td>
+    <td><a href="{{ proyecto.url }}{% if estado == 'solicitado' %}autorizar{% endif %}
+    {% if estado == 'autorizado' %}calificar{% endif %}
+    {% if estado == 'calificado' %}archivar{% endif %}">{{ proyecto.title }}</a></td>
+</tr>
+{% endfor %}
