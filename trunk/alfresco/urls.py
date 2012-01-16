@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'alfresco.views.home', name='home'),
     # url(r'^alfresco/', include('alfresco.foo.urls')),
     url(r'^$', redirect_to, {'url': '/subirproyectos/'}),
-    url(r'^accounts/login/$', login, {'template_name': 'subirproyectos/login.html'}),
+    url(r'^accounts/login/$', login, {'template_name': 'login.html'}),
     url(r'^accounts/logout/$', logout, {'next_page': '/'}),
     url(r'^subirproyectos', include('subirproyectos.urls')),
 

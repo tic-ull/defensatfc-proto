@@ -155,7 +155,9 @@ class Proyecto(Contenido):
 
     # internos
     fecha_subido = models.DateField(auto_now_add = True)
-    estado = models.CharField(max_length=3, choices=SELECCION_ESTADO)
+    estado = models.CharField(max_length=3,
+                              choices=SELECCION_ESTADO,
+                              db_index=True)
 
     def __getattr__(self, name):
         parts = name.rsplit('_')
@@ -195,10 +197,11 @@ class Proyecto(Contenido):
         return properties
         
     def clean(self):
+        # TODO: Esto no lo has probado. Seguro que no funciona :-/
 	if ((self.director_nombre != '' and self.director_apellidos == '') or
 	   (self.director_nombre == '' and self.director_apellidos != '')):
-	    raise ValidationError('Debe proporcionar nombre y apellidos del director.')
-    
+	    raise ValidationError("""Si desea indicar un director debe
+                proporcionar tanto el nombre como los apellidos.""")
 
 
 class ProyectoCalificado(Proyecto):

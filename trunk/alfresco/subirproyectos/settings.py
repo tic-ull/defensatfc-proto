@@ -4,8 +4,10 @@ from iso639 import ISO639_1
 
 PLANTILLA_NOMBRE_COMPLETO = '%(apellidos)s, %(nombre)s'
 
+
 DOMINIO_CORREO_ALUMNO = 'ull.edu.es'
 DOMINIO_CORREO_TUTOR = 'ull.es'
+
 
 SELECCION_TIPO_DOCUMENTO = (
     ('ANEXO',   'Anexo'),
@@ -14,12 +16,15 @@ SELECCION_TIPO_DOCUMENTO = (
 )
 DEFECTO_TIPO_DOCUMENTO = 'ANEXO'
 
+
 SELECCION_LENGUAJE = sorted(ISO639_1, key=lambda lang: lang[1])
 DEFECTO_LENGUAJE = 'es'
+
 
 SELECCION_FORMATO = (
     ('application/pdf', 'PDF'),
 )
+
 
 SELECCION_DERECHOS = (
     ('CC-BY', 'Creative Commons Reconocimiento 3.0 España'),
@@ -30,6 +35,7 @@ SELECCION_DERECHOS = (
     ('CC-BY-NC-ND', 'Creative Commons Reconocimiento-NoComercial-SinObraDerivada 3.0 España'),
     ('COPYRIGHT', 'Todos los derechos reservados'),
 )
+
 
 TEXTO_DERECHOS = {
     'CC-BY': "Esta obra está bajo una licencia Creative Commons " +
@@ -54,6 +60,7 @@ TEXTO_DERECHOS = {
                  "Todos los derechos reservados",
 }
 
+
 SELECCION_CALIFICACION = (
     ('SS', 'Suspenso'),
     ('AP', 'Aprobado'),
@@ -62,10 +69,15 @@ SELECCION_CALIFICACION = (
     ('MH', 'Matrícula de honor'),
 )
 
-ASUNTO_PROYECTO_SOLICITADO= "Defensa de trabajo de fin de carrera solicitada"
-MENSAJE_PROYECTO_SOLICITADO = "El alumno %(niu)s ha solicitado la defensa del proyecto %(proyecto)s."
 
-GRUPO_BIBLIOTECARIOS = 'bibliotecarios'
+# Correos de notificación
+FROM_EMAIL = "noreply@ull.es"
+ASUNTO_PROYECTO_SOLICITADO = "Solicitud de defensa de trabajo fin de carrera"
+ASUNTO_PROYECTO_AUTORIZADO_ALUMNO = "La defensa de su trabajo fin de carrera ha sido autorizada"
+ASUNTO_PROYECTO_RECHAZADO_ALUMNO = "La defensa de su trabajo fin de carrera ha sido rechazada"
+ASUNTO_PROYECTO_AUTORIZADO_TUTOR = "Éxito autorizando la defensa de un trabajo de fin de carrera"
+ASUNTO_PROYECTO_CALIFICADO = "Trabajo fin de carrera calificado pendiente de archivo"
+
 
 # Configuración de alfresco
 ALFRESCO_PROXY_SERVER = {

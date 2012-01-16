@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.core.mail import EmailMessage, send_mail 
+from django.core.mail import EmailMessage
+from django.core.paginator import Paginator, InvalidPage
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.forms.models import inlineformset_factory, formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden
@@ -13,24 +14,21 @@ from django.template import RequestContext, Context, loader
 from django.template.loader import get_template
 from django.utils.simplejson import dumps
 
-
-
-
-
+from subirproyectos.alfresco import Alfresco
+from subirproyectos.forms import *
+from subirproyectos.models import Proyecto, Anexo, ProyectoCalificado
+from subirproyectos.models import AdscripcionUsuarioCentro
+from subirproyectos.models import save_proyect_to_alfresco
+from subirproyectos import settings
 
 import mimetypes
 
-from subirproyectos.forms import *
-from subirproyectos.models import Proyecto, Anexo, ProyectoCalificado
-from subirproyectos.models import save_proyect_to_alfresco
-from subirproyectos.alfresco import Alfresco
-from subirproyectos.settings import *
 
+MAXIMOS_RESULTADOS_POR_PAGINA = 100
 
-@login_required
-def index(request):
-    return render_to_response('subirproyectos/index.html',
-                              context_instance=RequestContext(request))
+# TODO [para jesus]: Revisar nombres de estados, variables de selección y
+# Mirar plantillas de correo.
+# Revisar el formset de vocales.
 
 
 def filter(request, model_class, field_name):
@@ -47,25 +45,80 @@ def filter(request, model_class, field_name):
 
 
 @login_required
+def buscar_proyectos_solicitados(request, where_search):
+    proyectos = Proyecto.objects.filter(estado='SOL',
+        tutor_email=request.user.email)
+    return buscar_proyectos(request, proyectos, where_search)
+
+
+@login_required
+def buscar_proyectos_autorizados(request, where_search):
+    proyectos = Proyecto.objects.filter(estado='AUT',
+        tutor_email=request.user.email)
+    return buscar_proyectos(request, proyectos, where_search)
+
+
+@permission_required('Proyecto.puede_archivar')
+def buscar_proyectos_calificados(request, where_search):
+    centros = AdscripcionUsuarioCentro.objects.filter(user=request.user)
+    proyectos = Proyecto.objects.filter(estado='CAL', centro__in=centros)
+    return buscar_proyectos(request, proyectos, where_search)
+
+
+def buscar_proyectos(request, proyectos, where_search):
+    if 'q' in request.GET and request.GET['q']:
+        pass
+    proyectos = proyectos.order_by('creator_apellidos', 'creator_nombre')
+
+    # Paginar los resultados de la búsqueda
+    if 'per_page' in request.GET and request.GET['per_page']:
+        try:
+            per_page = int(request.GET['per_page'])
+        except ValueError:
+            per_page = MAXIMOS_RESULTADOS_POR_PAGINA
+        else:
+            per_page = min(per_page, MAXIMOS_RESULTADOS_POR_PAGINA)
+        paginator = Paginator(proyectos, per_page)
+    else:
+        paginator = Paginator(proyectos, MAXIMOS_RESULTADOS_POR_PAGINA)
+
+    try:
+        if 'page' in request.GET and request.GET['page']:
+            page = paginator.page(request.GET['page'])
+        else:
+            page = paginator.page(1)
+    except InvalidPage:
+        page = paginator.page(1)
+
+    search = [{
+        'title': proyecto.title,
+        'niu': proyecto.niu,
+        'creator': proyecto.creator_nombre_completo(),
+        'url': proyecto.get_absolute_url(),
+    } for proyecto in page.object_list]
+
+    return HttpResponse(content=dumps(search), mimetype='application/json')
+
+
+@login_required
+def index(request):
+    return render_to_response('index.html',
+                              context_instance=RequestContext(request))
+
+
+@login_required
 def solicitar_defensa(request):
     if request.method == 'POST':
-	proyecto = None
-	anexos = None
-
         request.POST['niu'] = request.user.niu()
-	proyecto_form = FormularioProyecto(request.POST, request.FILES)
+        proyecto_form = FormularioProyecto(request.POST, request.FILES)
 	anexo_formset = AnexoFormSet (request.POST, request.FILES)
 
 	if proyecto_form.is_valid():
 	    proyecto = proyecto_form.save(commit=False)
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
-	else:
-	    print proyecto_form.errors
 
 	if anexo_formset.is_valid():
 	    anexos = anexo_formset.save(commit=False)
-	else:
-	    print anexo_formset.errors
 
 	if proyecto_form.is_valid() and anexo_formset.is_valid():
 	    proyecto.estado = 'SOL'
@@ -81,20 +134,23 @@ def solicitar_defensa(request):
 				     update_db=True,
                                      proyecto_contenido = request.FILES['file'],
 				     anexos_contenidos = anexos_files)
-            # [DONE]: Mandar correo al tutor para informar de la solicitud
-            # El Correo debe contener el nombre del proyecto, el del alumno
-            # y su dirección de correo. Para generarlo se deben usar plantillas
-            # http://stackoverflow.com/questions/2809547/creating-email-templates-with-django
-            # De manera que sea más fácil cambiar el correo (ojo, sólo hay que
-            # mandar un correo en texto plano, no es necesario el envio de
-            # alternativas en HTML.
+
+            # enviar correo al alumno
             plaintext = get_template('solicitar_defensa_email.txt')
-	    subject, from_email, to = ASUNTO_PROYECTO_SOLICITADO, 'subirproyectos@ull.es', [proyecto.tutor_email]
-	    d = Context({ 'proyecto': proyecto.title, 'id': proyecto.id, 'alumno_nombre': proyecto.creator_nombre, 'alumno_apellidos' :  proyecto.creator_nombre,
-	    'alumno_email' : proyecto.creator_email})
-	    text_content = plaintext.render(d)	    
-	    email = EmailMessage(subject, text_content, from_email, to)
-	    email.send()    
+            subject = settings.ASUNTO_PROYECTO_SOLICITADO
+            from_email = settings.FROM_MAIL
+            to_email = [proyecto.tutor_email]
+            c = Context({
+                'proyecto': proyecto.title,
+                'id': proyecto.id,
+                'creator_nombre': proyecto.creator_nombre_compleo(),
+                'creator_email' : proyecto.creator_email
+                'niu': proyecto.niu,
+            })
+	    message_content = plaintext.render(c)
+	    email = EmailMessage(subject, message_content, from_email, to_email)
+	    email.send()
+
             messages.add_message(request, messages.SUCCESS, """
                 <strong>Su solicitud se ha registrado con éxito.</strong> En
                 breves instantes se le notificará al tutor que puede revisar
@@ -109,7 +165,7 @@ def solicitar_defensa(request):
         anexo_formset = AnexoFormSet()
     if request.user.niu() is not None:
         proyecto_form.fields['niu'].widget.attrs['disabled'] = True
-    return render_to_response('subirproyectos/solicitar_defensa.html', {
+    return render_to_response('solicitar_defensa.html', {
                         'f': proyecto_form,
                         'a': anexo_formset,
                         'dominio_correo_tutor': settings.DOMINIO_CORREO_TUTOR,
@@ -150,7 +206,6 @@ def descargar_anexo(request, id, anexo_id):
     return response
 
 
-# Sostrar una solicitud, diferente comportamiento segun el rol del que lo ve.
 @login_required  
 def solicitud_mostrar(request, id):
     proyecto = get_object_or_404(Proyecto, id=id)
@@ -158,29 +213,16 @@ def solicitud_mostrar(request, id):
         return HttpResponseForbidden()
     
     anexos = proyecto.anexo_set.all()
-    return render_to_response('subirproyectos/solicitud_mostrar.html', {
+    return render_to_response('solicitud_mostrar.html', {
                                 'proyecto': proyecto,
                                 'anexos': anexos,
                                 },
                                 context_instance=RequestContext(request))
-    #if p.estado == 'SOL':
-        #url_proyecto = Alfresco().get_download_url(p.alfresco_uuid)
-        #anexos = Anexo.objects.filter(proyecto = p.pk) 
-        #urls_anexos = []
-        #for anexo in anexos:
-	  ##TODO mostrar el nombre del anexo en la plantilla
-	  #urls_anexos.append(Alfresco().get_download_url(anexo.alfresco_uuid))
-	#return render_to_response('subirproyectos/revisar_tutor.html', {'p': p, 'url_proyecto' : url_proyecto, 'urls_anexos' : urls_anexos, 'anexos' : anexos}
-	#,  context_instance= RequestContext(request))
-    #if p.estado == 'REV':
-        ##return render_to_response('subirproyectos/calificar_proyecto_tutor.html', {'p': p})
-        #return HttpResponseRedirect('/subirproyectos/'+id+'/calificar_proyecto_tutor/') 
-    #if p.estado == 'CAL':    
-        #return HttpResponseRedirect('/subirproyectos/'+id+'/archivar_proyecto_biblioteca/')
+
 
 @login_required
 def autorizar_defensa(request, id):
-    proyecto = get_object_or_404(Proyecto, id=id)
+    proyecto = get_object_or_404(Proyecto, id=id) # TODO: Recuperar proyecto calificar
     if not request.user.can_autorizar_proyecto(proyecto):
         return HttpResponseForbidden()
 
@@ -193,33 +235,33 @@ def autorizar_defensa(request, id):
             if "Autorizar" in request.POST:
                 proyecto.estado = 'AUT'
                 save_proyect_to_alfresco(proyecto, [], update_db=True)
-                #email alumno
-                plaintext = get_template('defensa_autorizada_email_alumno.txt')
-		subject, from_email, to = 'El profesor ha autorizado tu proyecto', 'subirproyectos@ull.es', [proyecto.creator_email]
-		d = Context({ 'proyecto': proyecto.title, 'tutor_nombre': proyecto.tutor_nombre, 'tutor_apellidos' :  proyecto.tutor_apellidos,
-		'comentario' : proyecto_form.comentario})
-		text_content = plaintext.render(d)	    
-		email = EmailMessage(subject, text_content, from_email, to)
-		email.send()    
-		#email profesor
-                plaintext = get_template('defensa_autorizada_email_tutor.txt')
-		subject, from_email, to = 'El profesor ha autorizado tu proyecto', 'subirproyectos@ull.es', [proyecto.tutor_email]
-		d = Context({ 'proyecto': proyecto.title, 'id' : id})
-		text_content = plaintext.render(d)	    
-		email = EmailMessage(subject, text_content, from_email, to)
+
+                # enviar correo al alumno
+                plaintext = get_template('autorizar_defensa_email_alumno.txt')
+                subject = settings.ASUNTO_PROYECTO_AUTORIZADO_ALUMNO
+                from_email = settings.FROM_MAIL
+                to_email = [proyecto.creator_email]
+		c = Context({
+                    'proyecto': proyecto.title,
+		    'comentario' : proyecto_form.comentario
+                })
+		message_content = plaintext.render(c)
+		email = EmailMessage(subject, message_content, from_email, to_email)
+		email.send()
+
+                # enviar correo al tutor
+                plaintext = get_template('autorizar_defensa_email_tutor.txt')
+                subject = settings.ASUNTO_PROYECTO_AUTORIZADO_TUTOR
+                from_email = settings.FROM_MAIL
+		to_email, [proyecto.tutor_email]
+		c = Context({
+                    'proyecto': proyecto.title,
+                    'url' : proyecto.get_absolute_url()
+                })
+		message_content = plaintext.render(c)	    
+		email = EmailMessage(subject, message_content, from_email, to_email)
 		email.send()   		
 		
-                # [DONE]: Mandar correo al tutor y al alumno.
-                # Al alumno para notificarle la decisión del tutor incluyendo el
-                # comentario así como elnombre del proyecto.
-                # Al profesor para recorarle que a autorizado la defensa del proyecto
-                # X (incluir url a mostrar el proyecto) y recordándole una vez defendido
-                # debe calificarlo (incluir url).
-                # Para generarlo se deben usar plantillas
-                # http://stackoverflow.com/questions/2809547/creating-email-templates-with-django
-                # De manera que sea más fácil cambiar el correo (ojo, sólo hay que
-                # mandar un correo en texto plano, no es necesario el envio de
-                # alternativas en HTML.
                 messages.add_message(request, messages.SUCCESS, """
                     <strong>La defensa del proyecto se ha autorizado con éxito.</strong> En
                     breves instantes esta circunstancia le será notificada al alumno. Recuerde
@@ -230,25 +272,20 @@ def autorizar_defensa(request, id):
             elif "Rechazar" in request.POST:
                 proyecto.estado = 'REC'
                 save_proyect_to_alfresco(proyecto, [], update_db=True)
-                #email alumno
-                plaintext = get_template('defensa_desautorizada_email_alumno.txt')
-		subject, from_email, to = 'El profesor ha autorizado tu proyecto', 'subirproyectos@ull.es', [proyecto.creator_email]
-		d = Context({ 'proyecto': proyecto.title, 'tutor_nombre': proyecto.tutor_nombre, 'tutor_apellidos' :  proyecto.tutor_apellidos,
-		'comentario' : proyecto_form.comentario})
-		text_content = plaintext.render(d)	    
-		email = EmailMessage(subject, text_content, from_email, to)
-		email.send()                    
-                # TODO: Mandar correo al tutor y al alumno.
-                # Al alumno para notificarle la decisión del tutor incluyendo el
-                # comentario así como elnombre del proyecto.
-                # Al profesor para recorarle que a autorizado la defensa del proyecto
-                # X (incluir url a mostrar el proyecto) y recordándole una vez defendido
-                # debe calificarlo (incluir url).
-                # Para generarlo se deben usar plantillas
-                # http://stackoverflow.com/questions/2809547/creating-email-templates-with-django
-                # De manera que sea más fácil cambiar el correo (ojo, sólo hay que
-                # mandar un correo en texto plano, no es necesario el envio de
-                # alternativas en HTML.
+
+		# enviar correo al alumno
+                plaintext = get_template('rechazar_defensa_email_alumno.txt')
+                subject = settings.ASUNTO_PROYECTO_RECHAZADO_ALUMNO
+                from_email = settings.FROM_MAIL
+		to_email = [proyecto.creator_email]
+		c = Context({
+                    'proyecto': proyecto.title,
+		    'comentario' : proyecto_form.comentario
+                })
+		message_content = plaintext.render(c)
+		email = EmailMessage(subject, message_content, from_email, to_email)
+		email.send()
+
                 messages.add_message(request, messages.SUCCESS, """
                     <strong>La defensa del proyecto se ha rechazado con éxito.</strong> En
                     breves instantes esta circunstancia le será notificada al alumno.
@@ -258,24 +295,111 @@ def autorizar_defensa(request, id):
     else:
         proyecto_form = FormularioAutorizar(instance=proyecto)
 
-    return render_to_response('subirproyectos/autorizar_defensa.html', {
+    return render_to_response('autorizar_defensa.html', {
                                 'form': proyecto_form,
                                 'proyecto': proyecto,
                                 'anexos': anexos,
                                 },
                                 context_instance=RequestContext(request))
 
-#@login_required
-#def rechazar(request):
-   #print request.POST['id']
-   #proyecto = Proyecto.objects.get(id = request.POST['id'])
-   #proyecto.estado = 'error'
-   #proyecto.save()
-   #send_mail('ULL: PFC no validado', 'El tutor no ha validado tu proyecto. Ponte en contacto con el', 'from@example.com',
-    #['nombre@alfrescoull.org'], fail_silently=False)
-   #return HttpResponseRedirect('/subirproyectos/results/')
 
-@login_required
+@login_required  
+def calificar_proyecto(request, id):
+    p = get_object_or_404(Proyecto, id=id)
+    if not request.user.can_autorizar_proyecto(p):
+        return HttpResponseForbidden()
+
+    anexos = p.anexo_set.all()
+
+    if request.method == 'POST':
+        # TODO: Por coherencia usar proyecto_form simplemente
+        # TODO: ¿Seguro que no hace falta el instance=p?
+        # Si no se  pone ¿Como si vincula el formulario a esta instancia de proyecto?
+        form_proyecto_calificado = FormularioProyectoCalificado(request.POST)
+
+        if form_proyecto_calificado.is_valid(): 
+	    p.proyectocalificado = form_proyecto_calificado.save(commit=False) # TODO: Si se usa instance=p, no ace falta
+	    vocales_formset = VocalesFormSet (request.POST, instance = p)
+
+	    # TODO: Asegurarnos de que la validación de los dos tipos de
+	    # calificación funciona (númerica y no numérica).
+	    if vocales_formset.is_valid():
+		p.estado = 'CAL'
+		#hacemos update
+		p.save() # TODO: No hace falta, lo hace save_proyecto_to....
+		#p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
+		save_proyect_to_alfresco(pc, [], update_db=True)
+
+                # enviar correo a los bibliotecarios
+                plaintext = get_template('calificar_proyecto_email.txt')
+                subject = settings.ASUNTO_PROYECTO_CALIFICADO
+
+                perm = Permission.objects.get(codename='puede_archivar')
+                users = User.objects.filter(Q(groups__permissions=perm) | Q(user_permissions=perm) ).distinct()
+                to_email = [user.email for user in users]
+
+		c = Context({
+                    'proyecto': proyecto.title,           # TODO: Estás usando p ¿no será p?
+                    'url' : proyecto.get_absolute_url()   # TODO: Estás usando p ¿no será p?
+                }) 
+		message_content = plaintext.render(d)
+		email = EmailMessage(subject, message_content, from_email, to_email)
+		email.send()    
+
+                messages.add_message(request, messages.SUCCESS, """
+                    <strong>El proyecto se ha calificado con éxito.</strong> En
+                    breves instantes esta circunstancia le será notificada a biblioteca para proceder a arhivar
+                    el proyecto.
+                    """)
+                # TODO: Como autorizar, debe ir a lista_calificar si todo va bien
+		return redirect(calificar_proyecto)
+
+        vocales_formset = VocalesFormSet (request.POST)
+
+    else:
+        # TODO: ¿Seguro que no hace falta el instance=p?
+        form_proyecto_calificado = FormularioProyectoCalificado() 
+        vocales_formset = VocalesFormSet(instance = p)
+
+    return render_to_response('calificar_proyecto.html', {
+                                'f': form_proyecto_calificado,
+                                'v': vocales_formset,
+                                'proyecto': p, # TODO: ¿Para qué lo pasas?
+                                'anexos': anexos # TODO: Esto no está definido
+                                }, 
+                                context_instance= RequestContext(request))
+
+
+@login_required 
+def archivar_proyecto(request, id):
+    pc = get_object_or_404(ProyectoCalificado, id=id)
+    #pc = ProyectoCalificado.objects.get(id = id)
+
+    if request.method == 'POST':
+        # TODO: Por coherencia usar proyecto_form simplemente y vincular con
+        # pc (mejor p o proyecto como antes con el instance=p
+	form = FormularioProyectoArchivado(request.POST)
+	if form.is_valid():
+	    pc.proyectoarchivado = form.save(commit=False) # TODO: NO hace falta
+            pc.estado = 'ARC'
+            pc.save() # TODO: Tampoco hace falta
+            #pc.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
+            save_proyect_to_alfresco(pc, [], update_db=True)
+            messages.add_message(request, messages.SUCCESS, """
+		<strong>El proyecto se ha archivado con éxito.</strong> 
+                """)
+            # TODO: Volver al listado de proyectos a archiva.
+	    return redirect(archivar_proyecto)
+    else:
+	form = FormularioProyectoArchivado(instance = pc)
+
+    return render_to_response('archivar_proyecto.html', {
+                                'f': form
+                                },
+                                context_instance= RequestContext(request))
+
+
+@login_required  
 def lista_autorizar(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
@@ -308,90 +432,3 @@ def lista_archivar(request):
     #})
     return HttpResponse(t.render(c))
 
-@login_required  
-def calificar_proyecto(request, id):
-    p = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_autorizar_proyecto(p):
-        return HttpResponseForbidden()   
-    anexos = p.anexo_set.all()        
-    if request.method == 'POST': 
-        form_proyecto_calificado = FormularioProyectoCalificado(request.POST) 
-        if form_proyecto_calificado.is_valid(): 
-	    p.proyectocalificado = form_proyecto_calificado.save(commit=False)
-	    vocales_formset = VocalesFormSet (request.POST, instance = p)
-	    if vocales_formset.is_valid():
-		p.estado = 'CAL'
-		#hacemos update
-		p.save()
-		#p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
-		save_proyect_to_alfresco(pc, [], update_db=True)
-		messages.add_message(request, messages.SUCCESS, """
-		    <strong>El proyecto se ha archivado con éxito.</strong> En
-                    breves instantes esta circunstancia le será notificada a biblioteca para proceder a arhivar
-                    el proyecto.
-		    """)    
-		perm = Permission.objects.get(codename='puede_archivar')  
-		users = User.objects.filter(Q(groups__permissions=perm) | Q(user_permissions=perm) ).distinct() 
-		for user in users:
-		    email_list.add(user.email)
-                #email bibliotecarios
-                plaintext = get_template('proyecto_calificado_email.txt')
-		subject, from_email, to = 'Hay un proyecto calificado pendiente de archivar', 'subirproyectos@ull.es', email_list
-		d = Context({ 'proyecto': proyecto.title, 'id' : id})
-		text_content = plaintext.render(d)	    
-		email = EmailMessage(subject, text_content, from_email, to)
-		email.send()    
-
-		return redirect(calificar_proyecto)
-	    else:
-		print vocales_formset.errors
-		
-		vocales_formset = VocalesFormSet (request.POST)
-	else:
-	    print form_proyecto_calificado.errors
-	    vocales_formset = VocalesFormSet (request.POST)
-    else:
-        form_proyecto_calificado = FormularioProyectoCalificado() 
-        vocales_formset = VocalesFormSet(instance = p)
-    return render_to_response('subirproyectos/calificar_proyecto.html', {
-        'f': form_proyecto_calificado,
-        'v': vocales_formset,
-        'proyecto': p,
-        'anexos': anexos}, 
-        context_instance= RequestContext(request))
-    
-@login_required 
-def archivar_proyecto(request, id):
-    pc = get_object_or_404(ProyectoCalificado, id=id)
-    #pc = ProyectoCalificado.objects.get(id = id)
-    if request.method == 'POST': 
-	form = FormularioProyectoArchivado(request.POST) 
-	if form.is_valid(): # All validation rules pass
-	    pc.proyectoarchivado = form.save(commit=False)
-            pc.estado = 'ARC'
-            pc.save()
-            #pc.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
-            save_proyect_to_alfresco(pc, [], update_db=True)
-            messages.add_message(request, messages.SUCCESS, """
-		<strong>El proyecto se ha archivado con éxito.</strong> 
-                """)            
-	    return redirect(archivar_proyecto)
-    else:
-	form = FormularioProyectoArchivado(instance = pc)
-
-    return render_to_response('subirproyectos/archivar_proyecto.html', {
-        'f': form},
-    context_instance= RequestContext(request))
-   
-   #proyecto.estado = '4'
-   #proyecto.title = request.POST['title']
-   #proyecto.creator = request.POST['creator']
-   #proyecto.description = request.POST['description']
-   #proyecto.language = request.POST['language']
-   ##proyecto.rights = request.POST['rights']
-   #proyecto.coverage = request.POST['coverage']
-   #proyecto.subject = request.POST['subject']
-   #proyecto.save()
-   #alfresco = Alfresco ()
-   #alfresco.addMetadata (proyecto)
-   #return HttpResponseRedirect('/subirproyectos/results/')
