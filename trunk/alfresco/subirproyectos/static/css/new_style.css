@@ -296,7 +296,7 @@ margin: 5px auto 0 auto;
 
 .item table td.tdWarning{width:2.0em; height:2.0em; padding:2px 7px 2px 7px; border-left:solid 2px rgb(255,255,255); border-right:solid 2px rgb(255,255,255); border-top:solid 2px rgb(255,255,255); border-bottom:solid 2px rgb(255,255,255); background-color:rgb(255,255,192); text-align:left; font-weight:normal; color:rgb(80,80,80); font-size:110%;}
 
-
+.item table.listado th{font-weight: bold; }
 
 /* Label de los FORM en NEGRITA */
 /*.item table td label {font-weight:bold; } */
@@ -315,7 +315,9 @@ margin: 5px auto 0 auto;
 .item input.button {float:right; width:9.0em; margin-right:20px; padding:1px !important /*Non-IE6*/; padding:0 /*IE6*/; background:rgb(230,230,230); border:solid 1px rgb(150,150,150); text-align:center; font-family:verdana,arial,sans-serif; color:rgb(150,150,150); font-size:110%;}
 .item input.button:hover {cursor: pointer; border:solid 1px rgb(80,80,80); background:rgb(220,220,220); color:rgb(80,80,80);}
 
-
+.item .buscar { text-align: right; }
+.item .buscar input[type="text"] { width: 60%; }
+.item .buscar input.button { float: none; }
 
 
 .warn {

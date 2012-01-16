@@ -397,6 +397,7 @@ def lista_autorizar(request):
         'title': proyecto.title,
         'niu': proyecto.niu,
         'creator': proyecto.creator_nombre_completo(),
+        'creator_email' : proyecto.creator_email,
         'url': proyecto.get_absolute_url(),
     } for proyecto in page.object_list]
 
@@ -408,6 +409,8 @@ def lista_autorizar(request):
     }
 
     if request.is_ajax():
+        if 'json' in request.GET and request.GET['json']:
+            return HttpResponse(content=dumps(results), mimetype='application/json')
         return render_to_response('lista_proyecto_partial.html', template_dict,
             context_instance= RequestContext(request))
 
