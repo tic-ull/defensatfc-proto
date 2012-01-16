@@ -26,9 +26,6 @@ import mimetypes
 
 MAXIMOS_RESULTADOS_POR_PAGINA = 100
 
-# TODO [para jesus]: Revisar nombres de estados, variables de selección y
-# Revisar el formset de vocales.
-
 
 def filter(request, model_class, field_name):
     query_test = 'q' in request.GET and request.GET['q']
@@ -45,14 +42,14 @@ def filter(request, model_class, field_name):
 
 @login_required
 def buscar_proyectos_solicitados(request, where_search):
-    proyectos = Proyecto.objects.filter(estado='SOL',
+    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['solicitado'],
         tutor_email=request.user.email)
     return buscar_proyectos(request, proyectos, where_search)
 
 
 @login_required
 def buscar_proyectos_autorizados(request, where_search):
-    proyectos = Proyecto.objects.filter(estado='AUT',
+    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['autorizado'],
         tutor_email=request.user.email)
     return buscar_proyectos(request, proyectos, where_search)
 
@@ -60,7 +57,8 @@ def buscar_proyectos_autorizados(request, where_search):
 @permission_required('Proyecto.puede_archivar')
 def buscar_proyectos_calificados(request, where_search):
     centros = AdscripcionUsuarioCentro.objects.filter(user=request.user)
-    proyectos = Proyecto.objects.filter(estado='CAL', centro__in=centros)
+    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['calificado'],
+        centro__in=centros)
     return buscar_proyectos(request, proyectos, where_search)
 
 
@@ -120,7 +118,7 @@ def solicitar_defensa(request):
 	    anexos = anexo_formset.save(commit=False)
 
 	if proyecto_form.is_valid() and anexo_formset.is_valid():
-	    proyecto.estado = 'SOL'
+	    proyecto.estado = Proyecto.ESTADOS['solicitado']
 	    proyecto.type = 'MEMORIA'
             proyecto.creator_email = request.user.email
 	    proyecto.format = mimetypes.guess_type(request.FILES['file'].name)
@@ -232,7 +230,7 @@ def autorizar_defensa(request, id):
 
         if proyecto_form.is_valid():
             if "Autorizar" in request.POST:
-                proyecto.estado = 'AUT'
+                proyecto.estado = Proyecto.ESTADOS['autorizado']
                 save_proyect_to_alfresco(proyecto, [], update_db=True)
 
                 # enviar correo al alumno
@@ -269,7 +267,7 @@ def autorizar_defensa(request, id):
                     procedimiento a través de su cuenta de correo electrónico.
                     """)
             elif "Rechazar" in request.POST:
-                proyecto.estado = 'REC'
+                proyecto.estado = Proyecto.ESTADOS['rechazado']
                 save_proyect_to_alfresco(proyecto, [], update_db=True)
 
 		# enviar correo al alumno
@@ -323,7 +321,7 @@ def calificar_proyecto(request, id):
 	    # TODO: Asegurarnos de que la validación de los dos tipos de
 	    # calificación funciona (númerica y no numérica).
 	    if vocales_formset.is_valid():
-		p.estado = 'CAL'
+		p.estado = Proyecto.ESTADOS['calificado']
 		#hacemos update
 		p.save() # TODO: No hace falta, lo hace save_proyecto_to....
 		#p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
@@ -390,7 +388,7 @@ def archivar_proyecto(request, id):
 	form = FormularioProyectoArchivado(request.POST)
 	if form.is_valid():
 	    pc.proyectoarchivado = form.save(commit=False) # TODO: NO hace falta
-            pc.estado = 'ARC'
+            pc.estado = Proyecto.ESTADOS['archivado']
             pc.save() # TODO: Tampoco hace falta
             #pc.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
             save_proyect_to_alfresco(pc, [], update_db=True)
@@ -413,9 +411,11 @@ def lista_autorizar(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
     #proyectos por revisar la memoria y anexos   
-    proyectos = Proyecto.objects.filter(tutor_email=request.user.username, estado='SOL')
+    proyectos = Proyecto.objects.filter(tutor_email=request.user.username,
+        estado=Proyecto.ESTADOS['solicitado'])
     #proyectos por poner nota.
-    proyectos_por_calificar = Proyecto.objects.filter(tutor_email=request.user.username, estado='REV')    
+    proyectos_por_calificar = Proyecto.objects.filter(tutor_email=request.user.username,
+        Proyecto.ESTADOS['revisado'])
     print proyectos_por_calificar
     t = loader.get_template('subirproyectos/mostrarlistatutor.html')
     c = RequestContext(request, {'proyectos':proyectos, 'proyectos_por_calificar': proyectos_por_calificar })
@@ -430,7 +430,7 @@ def lista_autorizar(request):
 def lista_archivar(request):
     if not request.user.is_authenticated():
        return HttpResponseRedirect('/subirproyectos/')
-    proyectos = Proyecto.objects.filter(estado='CAL')#comprobar que es de la facultad
+    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['calificado'])#comprobar que es de la facultad
     #if is_faculty_staff (request.user.username):
        #proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
        

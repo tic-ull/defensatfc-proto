@@ -15,15 +15,6 @@ import os
 import re
 
 
-SELECCION_ESTADO = (
-    ('SOL', 'Solicitada la defensa'),
-    ('REC', 'Rechazado'),
-    ('AUT', 'Autorizado'),
-    ('CAL', 'Calificado'),
-    ('ARC', 'Archivado'),
-)
-
-
 class AlfrescoPFCModel(models.Model):
     NAMESPACES = Alfresco.NAMESPACES
     NAMESPACES['pfc'] = settings.ALFRESCO_PFC_MODEL_NAMESPACE 
@@ -82,10 +73,10 @@ class Titulacion(AlfrescoPFCModel):
 class Contenido(AlfrescoPFCModel):
     # dublin core
     title = models.CharField(max_length=200, verbose_name="título")
-    format = models.CharField(max_length=30, choices=settings.SELECCION_FORMATO)
+    format = models.CharField(max_length=30, choices=settings.FORMATO_SELECCION)
     description = models.TextField(verbose_name="descripción", validators=[MaxLengthValidator(1000)])
-    type = models.CharField(max_length=30, choices=settings.SELECCION_TIPO_DOCUMENTO, default=settings.DEFECTO_TIPO_DOCUMENTO)
-    language = models.CharField(max_length=2, choices=settings.SELECCION_LENGUAJE, verbose_name="idioma", default=settings.DEFECTO_LENGUAJE)
+    type = models.CharField(max_length=30, choices=settings.TIPO_DOCUMENTO_SELECCION, default=settings.TIPO_DOCUMENTO_DEFECTO)
+    language = models.CharField(max_length=2, choices=settings.LENGUAJE_SELECCION, verbose_name="idioma", default=settings.LENGUAJE_DEFECTO)
     # relation: sólo se incluirá en los metados del documento en el repositorio
     # TODO: Consultar sobre publisher, identifier, URI
 
@@ -102,10 +93,10 @@ class Contenido(AlfrescoPFCModel):
         return self.title
 
     def type_detallado(self):
-        return [value for key, value in settings.SELECCION_TIPO_DOCUMENTO if key == self.type][0]
+        return [value for key, value in settings.TIPO_DOCUMENTO_SELECCION if key == self.type][0]
 
     def language_detallado(self):
-        return [value for key, value in settings.SELECCION_LENGUAJE if key == self.language][0]
+        return [value for key, value in settings.LENGUAJE_SELECCION if key == self.language][0]
 
     def save_to_alfresco(self, parent_uuid, cml, force_insert=False, force_update=False):
         if force_insert and force_update:
@@ -133,6 +124,21 @@ class Contenido(AlfrescoPFCModel):
 
 
 class Proyecto(Contenido):
+    ESTADOS = {
+        'solicitado': 'SOL',
+        'rechazado': 'REC',
+        'autorizado': 'AUT',
+        'calificado': 'CAL',
+        'archivado': 'ARC',
+    }
+    ESTADO_SELECCION = (
+        (ESTADOS['solicitado'], 'Solicitada la defensa'),
+        (ESTADOS['rechazado'],  'Rechazado'),
+        (ESTADOS['autorizado'], 'Autorizado'),
+        (ESTADOS['calificado'], 'Calificado'),
+        (ESTADOS['archivado'],  'Archivado'),
+    )
+
     # dublin core
     creator_nombre = models.CharField(max_length=50, verbose_name= 'nombre del autor')
     creator_apellidos = models.CharField(max_length=50, verbose_name= 'apellidos del autor')
@@ -156,7 +162,7 @@ class Proyecto(Contenido):
     # internos
     fecha_subido = models.DateField(auto_now_add = True)
     estado = models.CharField(max_length=3,
-                              choices=SELECCION_ESTADO,
+                              choices=ESTADO_SELECCION,
                               db_index=True)
 
     def __getattr__(self, name):
@@ -180,7 +186,7 @@ class Proyecto(Contenido):
                              (type(self).__name__, name))
 
     def estado_detallado(self):
-        return [value for key, value in SELECCION_ESTADO if key == self.estado][0]
+        return [value for key, value in ESTADO_SELECCION if key == self.estado][0]
 
     @models.permalink
     def get_absolute_url(self):
@@ -207,7 +213,7 @@ class Proyecto(Contenido):
 class ProyectoCalificado(Proyecto):
     fecha_defensa = models.DateField(default=date.today(), verbose_name="fecha defensa")
     calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica")
-    calificacion = models.CharField(max_length=30, choices=settings.SELECCION_CALIFICACION, verbose_name="calificación")
+    calificacion = models.CharField(max_length=30, choices=settings.CALIFICACION_SELECCION, verbose_name="calificación")
     modalidad = models.CharField(max_length=30) # TODO: Añadir selector de modalidad
     tribunal_presidente_nombre = models.CharField(max_length=50)
     tribunal_presidente_apellidos = models.CharField(max_length=50)
@@ -261,7 +267,7 @@ class TribunalVocal(models.Model):
 
 class ProyectoArchivado(ProyectoCalificado):
     subject = models.CharField(max_length=30, verbose_name="tema")
-    rights = models.CharField(max_length=200, choices=settings.SELECCION_DERECHOS, verbose_name="derechos")
+    rights = models.CharField(max_length=200, choices=settings.DERECHOS_SELECCION, verbose_name="derechos")
     coverage = models.CharField(max_length=200, verbose_name="cobertura")
 
     def _get_alfresco_properties(self):

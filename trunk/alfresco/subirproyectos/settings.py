@@ -9,24 +9,24 @@ DOMINIO_CORREO_ALUMNO = 'ull.edu.es'
 DOMINIO_CORREO_TUTOR = 'ull.es'
 
 
-SELECCION_TIPO_DOCUMENTO = (
+TIPO_DOCUMENTO_SELECCION = (
     ('ANEXO',   'Anexo'),
     ('MEMORIA', 'Memoria'),
     ('PLANO',   'Plano'),
 )
-DEFECTO_TIPO_DOCUMENTO = 'ANEXO'
+TIPO_DOCUMENTO_DEFECTO = 'ANEXO'
 
 
-SELECCION_LENGUAJE = sorted(ISO639_1, key=lambda lang: lang[1])
-DEFECTO_LENGUAJE = 'es'
+LENGUAJE_SELECCION = sorted(ISO639_1, key=lambda lang: lang[1])
+LENGUAJE_DEFECTO = 'es'
 
 
-SELECCION_FORMATO = (
+FORMATO_SELECCION = (
     ('application/pdf', 'PDF'),
 )
 
 
-SELECCION_DERECHOS = (
+DERECHOS_SELECCION = (
     ('CC-BY', 'Creative Commons Reconocimiento 3.0 España'),
     ('CC-BY-SA', 'Creative Commons Reconocimiento-CompartirIgual 3.0 España'),
     ('CC-BY-ND', 'Creative Commons Reconocimiento-SinObraDerivada 3.0 España'),
@@ -61,7 +61,7 @@ TEXTO_DERECHOS = {
 }
 
 
-SELECCION_CALIFICACION = (
+CALIFICACION_SELECCION = (
     ('SS', 'Suspenso'),
     ('AP', 'Aprobado'),
     ('NT', 'Notable'),

@@ -11,7 +11,7 @@ from subirproyectos import settings
  
 def file_format(value):
     (format, encoding) = mimetypes.guess_type(value.name)
-    formats = [mimetype for mimetype, name in settings.SELECCION_FORMATO]
+    formats = [mimetype for mimetype, name in settings.FORMATO_SELECCION]
     if format not in formats:
         raise ValidationError('Formato de fichero no válido')
 
