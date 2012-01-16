@@ -6,6 +6,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import Q
 from django.forms.models import inlineformset_factory, formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden
@@ -22,6 +23,7 @@ from subirproyectos.models import save_proyect_to_alfresco
 from subirproyectos import settings
 
 import mimetypes
+import operator
 
 
 MAXIMOS_RESULTADOS_POR_PAGINA = 100
@@ -64,7 +66,12 @@ def buscar_proyectos_calificados(request, where_search):
 
 def buscar_proyectos(request, proyectos, where_search):
     if 'q' in request.GET and request.GET['q']:
-        pass
+        words = request.GET['q'].split()
+        conditions = []
+        for field in where_search:
+            kwargs = dict([(field+'__icontains', word) for word in words])
+            conditions.append(Q(**kwargs))
+        proyectos = proyectos.filter(reduce(operator.or_, conditions))
     proyectos = proyectos.order_by('creator_apellidos', 'creator_nombre')
 
     # Paginar los resultados de la búsqueda
@@ -415,7 +422,7 @@ def lista_autorizar(request):
         estado=Proyecto.ESTADOS['solicitado'])
     #proyectos por poner nota.
     proyectos_por_calificar = Proyecto.objects.filter(tutor_email=request.user.username,
-        Proyecto.ESTADOS['revisado'])
+        estado=Proyecto.ESTADOS['revisado'])
     print proyectos_por_calificar
     t = loader.get_template('subirproyectos/mostrarlistatutor.html')
     c = RequestContext(request, {'proyectos':proyectos, 'proyectos_por_calificar': proyectos_por_calificar })
