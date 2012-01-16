@@ -27,7 +27,6 @@ import mimetypes
 MAXIMOS_RESULTADOS_POR_PAGINA = 100
 
 # TODO [para jesus]: Revisar nombres de estados, variables de selección y
-# Mirar plantillas de correo.
 # Revisar el formset de vocales.
 
 
@@ -144,7 +143,7 @@ def solicitar_defensa(request):
                 'proyecto': proyecto.title,
                 'id': proyecto.id,
                 'creator_nombre': proyecto.creator_nombre_compleo(),
-                'creator_email' : proyecto.creator_email
+                'creator_email' : proyecto.creator_email,
                 'niu': proyecto.niu,
             })
 	    message_content = plaintext.render(c)
@@ -330,10 +329,21 @@ def calificar_proyecto(request, id):
 		#p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
 		save_proyect_to_alfresco(pc, [], update_db=True)
 
-                # enviar correo a los bibliotecarios
-                plaintext = get_template('calificar_proyecto_email.txt')
+                # enviar correo al alumno
+                plaintext = get_template('calificar_proyecto_email_alumno.txt')
                 subject = settings.ASUNTO_PROYECTO_CALIFICADO
+                from_email = settings.FROM_MAIL
+                to_email = [proyecto.creator_email]
+                c = Context({
+                    'proyecto': proyecto.title,           # TODO: Estás usando p ¿no será p?
+                    'url' : proyecto.get_absolute_url()   # TODO: Estás usando p ¿no será p?
+                })
+                message_content = plaintext.render(d)
+                email = EmailMessage(subject, message_content, from_email, to_email)
+                email.send()
 
+                # enviar correo a los bibliotecarios
+                plaintext = get_template('calificar_proyecto_email_biblioteca.txt')
                 perm = Permission.objects.get(codename='puede_archivar')
                 users = User.objects.filter(Q(groups__permissions=perm) | Q(user_permissions=perm) ).distinct()
                 to_email = [user.email for user in users]
@@ -342,14 +352,13 @@ def calificar_proyecto(request, id):
                     'proyecto': proyecto.title,           # TODO: Estás usando p ¿no será p?
                     'url' : proyecto.get_absolute_url()   # TODO: Estás usando p ¿no será p?
                 }) 
-		message_content = plaintext.render(d)
+		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
 		email.send()    
 
                 messages.add_message(request, messages.SUCCESS, """
                     <strong>El proyecto se ha calificado con éxito.</strong> En
-                    breves instantes esta circunstancia le será notificada a biblioteca para proceder a arhivar
-                    el proyecto.
+                    breves instantes esta circunstancia le será notificada al alumno.
                     """)
                 # TODO: Como autorizar, debe ir a lista_calificar si todo va bien
 		return redirect(calificar_proyecto)

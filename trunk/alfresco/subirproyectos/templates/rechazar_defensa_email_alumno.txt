@@ -1,5 +1,14 @@
-Hola:
+Hola,
 
-Tu tutor de proyecto {{tutor_nombre}} {{tutor_apellidos}} NO ha autorizado la defensa del proyecto titulado {{ proyecto }}.
+El tutor ha rechazado la defensa de su trabajo fin de carrera titulado:
 
-{{comentario}}
+"{{ proyecto }}"
+{% if comentario %}
+
+y ha creido conveniente añadir el siguiente comentario:
+
+"{{ comentario }}"
+{% endif}
+
+Si tiene cualquier duda, debe ponerse contacto con el.
+

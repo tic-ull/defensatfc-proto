@@ -1,0 +1,12 @@
+Hola,
+
+El tutor ha calificado la defensa del trabajo fin de carrera titulado:
+
+"{{ proyecto }}"
+
+que ahora está pendiente de ser archivado.
+
+Puede archivar dicho trabajo a través del siguente enlace:
+
+{{ url }}archivar/
+

@@ -1,6 +1,0 @@
-Hola.
-
-El Trabajo de Fin de Carrera {{proyecto}} ha sido calificado por el tutor y está pendiente de ser archivado. Puede ver los datos del proyecto en
-http://localhost:8000/subirproyectos/{{id}}/
-
-Puede archivar dicho proyecto en el siguiente link: http://localhost:8000/subirproyectos/{{id}}/archivar/

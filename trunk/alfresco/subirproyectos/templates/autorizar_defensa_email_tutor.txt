@@ -1,5 +1,14 @@
-Hola.
+Hola,
 
-Has autorizado la defensa del proyecto {{proyecto}}. Puede consultar los datos del proyecto en el siguiente link: http://localhost:8000/subirproyectos/{{id}}/
+Ha autorizado la defensa del trabajo fin de carrera titulado:
 
-Una vez el proyecto sea leído deberá calificarlo siguiendo el siguiente link http://localhost:8000/subirproyectos/{{id}}/calificar/
+"{{ proyecto }}"
+
+Puede seguir consultando los datos del trabajo en la dirección:
+
+{{ url }}
+
+Recuerde que una vez haya sido defendido el trabajo deberá calificarlo a través del siguiente enlace:
+
+{{ url }}calificar/
+

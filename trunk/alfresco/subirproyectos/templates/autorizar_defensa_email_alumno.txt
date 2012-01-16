@@ -1,5 +1,14 @@
-Hola:
+Hola,
 
-Tu tutor de proyecto {{tutor_nombre}} {{tutor_apellidos}} ha autorizado la defensa del proyecto titulado {{ proyecto }}.
+El tutor ha autorizado la defensa de su trabajo fin de carrera titulado:
 
-{{comentario}}
+"{{ proyecto }}"
+{% if comentario %}
+
+y ha creido conveniente añadir el siguiente comentario:
+
+"{{ comentario }}"
+{% endif}
+
+No olvide que debe ponerse en contacto con el para proceder con la defensa.
+
