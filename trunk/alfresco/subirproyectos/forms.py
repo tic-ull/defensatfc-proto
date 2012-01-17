@@ -58,7 +58,7 @@ AnexoFormSet = inlineformset_factory(models.Proyecto, models.Anexo,
 
 
 class FormularioAutorizar(forms.ModelForm):
-    comentario = forms.CharField(label="Comentario", max_length=500,
+    comentario = forms.CharField(label="Comentario", max_length=500, required=False,
         widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
 
     class Meta:

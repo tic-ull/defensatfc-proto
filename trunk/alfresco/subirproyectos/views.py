@@ -81,12 +81,12 @@ def solicitar_defensa(request):
             # enviar correo al alumno
             plaintext = get_template('solicitar_defensa_email.txt')
             subject = settings.ASUNTO_PROYECTO_SOLICITADO
-            from_email = settings.FROM_MAIL
+            from_email = settings.FROM_EMAIL
             to_email = [proyecto.tutor_email]
             c = Context({
                 'proyecto': proyecto.title,
                 'id': proyecto.id,
-                'creator_nombre': proyecto.creator_nombre_compleo(),
+                'creator_nombre': proyecto.creator_nombre_completo(),
                 'creator_email' : proyecto.creator_email,
                 'niu': proyecto.niu,
             })
@@ -122,7 +122,6 @@ def solicitar_defensa(request):
 
 @login_required
 def descargar_contenido(request, id):
-    # TODO: Probar que funciona
     proyecto = get_object_or_404(Proyecto, id=id)
     if not request.user.can_view_proyecto(proyecto):
         return HttpResponseForbidden()
@@ -182,11 +181,11 @@ def autorizar_defensa(request, id):
                 # enviar correo al alumno
                 plaintext = get_template('autorizar_defensa_email_alumno.txt')
                 subject = settings.ASUNTO_PROYECTO_AUTORIZADO_ALUMNO
-                from_email = settings.FROM_MAIL
+                from_email = settings.FROM_EMAIL
                 to_email = [proyecto.creator_email]
 		c = Context({
                     'proyecto': proyecto.title,
-		    'comentario' : proyecto_form.comentario
+		    'comentario' : proyecto_form.cleaned_data['comentario'] #TODO: con proyecto_form.comentario no funciona
                 })
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
@@ -195,7 +194,7 @@ def autorizar_defensa(request, id):
                 # enviar correo al tutor
                 plaintext = get_template('autorizar_defensa_email_tutor.txt')
                 subject = settings.ASUNTO_PROYECTO_AUTORIZADO_TUTOR
-                from_email = settings.FROM_MAIL
+                from_email = settings.FROM_EMAIL
 		to_email, [proyecto.tutor_email]
 		c = Context({
                     'proyecto': proyecto.title,
@@ -219,11 +218,11 @@ def autorizar_defensa(request, id):
 		# enviar correo al alumno
                 plaintext = get_template('rechazar_defensa_email_alumno.txt')
                 subject = settings.ASUNTO_PROYECTO_RECHAZADO_ALUMNO
-                from_email = settings.FROM_MAIL
+                from_email = settings.FROM_EMAIL
 		to_email = [proyecto.creator_email]
 		c = Context({
                     'proyecto': proyecto.title,
-		    'comentario' : proyecto_form.comentario
+		    'comentario' : proyecto_form.cleaned_data['comentario'] #TODO: con proyecto_form.comentario no funciona
                 })
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
@@ -234,7 +233,7 @@ def autorizar_defensa(request, id):
                     breves instantes esta circunstancia le será notificada al alumno.
                     """)
 
-            return redirect(mostrarlistatutor)
+            return redirect(lista_autorizar)
     else:
         proyecto_form = FormularioAutorizar(instance=proyecto)
 
@@ -255,13 +254,10 @@ def calificar_proyecto(request, id):
     anexos = p.anexo_set.all()
 
     if request.method == 'POST':
-        # TODO: Por coherencia usar proyecto_form simplemente
-        # TODO: ¿Seguro que no hace falta el instance=p?
-        # Si no se  pone ¿Como si vincula el formulario a esta instancia de proyecto?
-        form_proyecto_calificado = FormularioProyectoCalificado(request.POST)
+        proyecto_form = FormularioProyectoCalificado(request.POST, instance=p)
 
-        if form_proyecto_calificado.is_valid(): 
-	    p.proyectocalificado = form_proyecto_calificado.save(commit=False) # TODO: Si se usa instance=p, no ace falta
+        if form_proyecto.is_valid(): 
+	    #p.proyectocalificado = proyecto_form.save(commit=False) # TODO: Si se usa instance=p, no ace falta
 	    vocales_formset = VocalesFormSet (request.POST, instance = p)
 
 	    # TODO: Asegurarnos de que la validación de los dos tipos de
@@ -269,9 +265,9 @@ def calificar_proyecto(request, id):
 	    if vocales_formset.is_valid():
 		p.estado = Proyecto.ESTADOS['calificado']
 		#hacemos update
-		p.save() # TODO: No hace falta, lo hace save_proyecto_to....
+		#p.save() # TODO: No hace falta, lo hace save_proyecto_to....
 		#p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
-		save_proyect_to_alfresco(pc, [], update_db=True)
+		save_proyect_to_alfresco(p, [], update_db=True)
 
                 # enviar correo al alumno
                 plaintext = get_template('calificar_proyecto_email_alumno.txt')
@@ -279,8 +275,8 @@ def calificar_proyecto(request, id):
                 from_email = settings.FROM_MAIL
                 to_email = [proyecto.creator_email]
                 c = Context({
-                    'proyecto': proyecto.title,           # TODO: Estás usando p ¿no será p?
-                    'url' : proyecto.get_absolute_url()   # TODO: Estás usando p ¿no será p?
+                    'proyecto': p.title,           
+                    'url' : p.get_absolute_url()   
                 })
                 message_content = plaintext.render(d)
                 email = EmailMessage(subject, message_content, from_email, to_email)
@@ -293,8 +289,8 @@ def calificar_proyecto(request, id):
                 to_email = [user.email for user in users]
 
 		c = Context({
-                    'proyecto': proyecto.title,           # TODO: Estás usando p ¿no será p?
-                    'url' : proyecto.get_absolute_url()   # TODO: Estás usando p ¿no será p?
+                    'proyecto': p.title,         
+                    'url' : p.get_absolute_url()   
                 }) 
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
@@ -304,14 +300,13 @@ def calificar_proyecto(request, id):
                     <strong>El proyecto se ha calificado con éxito.</strong> En
                     breves instantes esta circunstancia le será notificada al alumno.
                     """)
-                # TODO: Como autorizar, debe ir a lista_calificar si todo va bien
-		return redirect(calificar_proyecto)
+		return redirect(lista_calificar)
 
         vocales_formset = VocalesFormSet (request.POST)
 
     else:
         # TODO: ¿Seguro que no hace falta el instance=p?
-        form_proyecto_calificado = FormularioProyectoCalificado() 
+        proyecto_form = FormularioProyectoCalificado() 
         vocales_formset = VocalesFormSet(instance = p)
 
     return render_to_response('calificar_proyecto.html', {
@@ -325,17 +320,17 @@ def calificar_proyecto(request, id):
 
 @login_required 
 def archivar_proyecto(request, id):
-    pc = get_object_or_404(ProyectoCalificado, id=id)
+    pc = get_object_or_404(Proyecto, id=id)
     #pc = ProyectoCalificado.objects.get(id = id)
 
     if request.method == 'POST':
         # TODO: Por coherencia usar proyecto_form simplemente y vincular con
         # pc (mejor p o proyecto como antes con el instance=p
-	form = FormularioProyectoArchivado(request.POST)
+	proyecto_form = FormularioProyectoArchivado(request.POST, instance = pc)
 	if form.is_valid():
-	    pc.proyectoarchivado = form.save(commit=False) # TODO: NO hace falta
+	    #pc.proyectoarchivado = form.save(commit=False) # TODO: NO hace falta
             pc.estado = Proyecto.ESTADOS['archivado']
-            pc.save() # TODO: Tampoco hace falta
+           # pc.save() # TODO: Tampoco hace falta
             #pc.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
             save_proyect_to_alfresco(pc, [], update_db=True)
             messages.add_message(request, messages.SUCCESS, """

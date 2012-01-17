@@ -8,7 +8,7 @@ El tutor ha rechazado la defensa de su trabajo fin de carrera titulado:
 y ha creido conveniente añadir el siguiente comentario:
 
 "{{ comentario }}"
-{% endif}
+{% endif %}
 
 Si tiene cualquier duda, debe ponerse contacto con el.
 
