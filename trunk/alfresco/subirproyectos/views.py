@@ -185,7 +185,7 @@ def autorizar_defensa(request, id):
                 to_email = [proyecto.creator_email]
 		c = Context({
                     'proyecto': proyecto.title,
-		    'comentario' : proyecto_form.cleaned_data['comentario'] #TODO: con proyecto_form.comentario no funciona
+		    'comentario' : proyecto_form.cleaned_data['comentario']
                 })
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
@@ -222,7 +222,7 @@ def autorizar_defensa(request, id):
 		to_email = [proyecto.creator_email]
 		c = Context({
                     'proyecto': proyecto.title,
-		    'comentario' : proyecto_form.cleaned_data['comentario'] #TODO: con proyecto_form.comentario no funciona
+		    'comentario' : proyecto_form.cleaned_data['comentario']
                 })
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
@@ -257,7 +257,6 @@ def calificar_proyecto(request, id):
         proyecto_form = FormularioProyectoCalificado(request.POST, instance=p)
 
         if form_proyecto.is_valid(): 
-	    #p.proyectocalificado = proyecto_form.save(commit=False) # TODO: Si se usa instance=p, no ace falta
 	    vocales_formset = VocalesFormSet (request.POST, instance = p)
 
 	    # TODO: Asegurarnos de que la validación de los dos tipos de
@@ -265,8 +264,6 @@ def calificar_proyecto(request, id):
 	    if vocales_formset.is_valid():
 		p.estado = Proyecto.ESTADOS['calificado']
 		#hacemos update
-		#p.save() # TODO: No hace falta, lo hace save_proyecto_to....
-		#p.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
 		save_proyect_to_alfresco(p, [], update_db=True)
 
                 # enviar correo al alumno
@@ -320,19 +317,13 @@ def calificar_proyecto(request, id):
 
 @login_required 
 def archivar_proyecto(request, id):
-    pc = get_object_or_404(Proyecto, id=id)
-    #pc = ProyectoCalificado.objects.get(id = id)
+    p = get_object_or_404(ProyectoCalificado, id=id)
 
     if request.method == 'POST':
-        # TODO: Por coherencia usar proyecto_form simplemente y vincular con
-        # pc (mejor p o proyecto como antes con el instance=p
-	proyecto_form = FormularioProyectoArchivado(request.POST, instance = pc)
+	proyecto_form = FormularioProyectoArchivado(request.POST, instance = p)
 	if form.is_valid():
-	    #pc.proyectoarchivado = form.save(commit=False) # TODO: NO hace falta
-            pc.estado = Proyecto.ESTADOS['archivado']
-           # pc.save() # TODO: Tampoco hace falta
-            #pc.save_to_alfresco(p.titulacion.alfresco_uuid, False, True)
-            save_proyect_to_alfresco(pc, [], update_db=True)
+            p.estado = Proyecto.ESTADOS['archivado']
+            save_proyect_to_alfresco(p, [], update_db=True)
             messages.add_message(request, messages.SUCCESS, """
 		<strong>El proyecto se ha archivado con éxito.</strong> 
                 """)
