@@ -260,6 +260,7 @@ border: 1px solid #996699;
 border: 1px solid #EBE8DB;
 padding : 5px 5px 5px 5px;
 margin: 10px auto 0 auto;
+background-color: #ffffff;
 }
 
 .item table td ul.errorlist li {
