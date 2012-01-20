@@ -328,7 +328,7 @@ def archivar_proyecto(request, id):
 		<strong>El proyecto se ha archivado con éxito.</strong> 
                 """)
             # TODO: Volver al listado de proyectos a archiva.
-	    return redirect(archivar_proyecto)
+	    return redirect(lista_archivar)
     else:
 	form = FormularioProyectoArchivado(instance = pc)
 
@@ -408,43 +408,69 @@ def lista_autorizar(request):
 
 @login_required
 def lista_calificar(request):
-    # TODO: Preparar como lista autorizar
-    if not request.user.is_authenticated():
-       return HttpResponseRedirect('/subirproyectos/')
-
+    if not request.user.is_tutor():
+        return HttpResponseForbidden()  
     proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['autorizado'],
         tutor_email=request.user.email)
+    page = buscar_proyectos(request, proyectos)
+    results = [{
+        'title': proyecto.title,
+        'niu': proyecto.niu,
+        'creator': proyecto.creator_nombre_completo(),
+        'creator_email' : proyecto.creator_email,
+        'url': proyecto.get_absolute_url(),
+    } for proyecto in page.object_list]
 
-    #proyectos por revisar la memoria y anexos
-    proyectos = Proyecto.objects.filter(tutor_email=request.user.username,
-        estado=Proyecto.ESTADOS['solicitado'])
-    #proyectos por poner nota.
-    t = loader.get_template('subirproyectos/mostrarlistatutor.html')
-    c = RequestContext(request, {'proyectos':proyectos, 'proyectos_por_calificar': proyectos_por_calificar })
+    template_dict = {
+        'estado': 'autorizado',
+        'proyectos': results,
+        'total_paginas': page.paginator.num_pages,
+        'total_proyectos': page.paginator.count,
+    }
 
-    #c = Context({
-        #'proyectos': proyectos,
-        #'proyectos_por_calificar': proyectos_por_calificar,
-    #})
+    if request.is_ajax():
+        if 'json' in request.GET and request.GET['json']:
+            return HttpResponse(content=dumps(results), mimetype='application/json')
+        return render_to_response('lista_proyecto_partial.html', template_dict,
+            context_instance= RequestContext(request))
+
+    if 'q' in request.GET and request.GET['q']:
+        template_dict['q'] = request.GET['q']
+    return render_to_response('lista.html', template_dict,
+        context_instance= RequestContext(request))
     return HttpResponse(t.render(c))
 
 
-@permission_required('Proyecto.puede_archivar')
+@permission_required('subirproyectos.puede_archivar')
 def lista_archivar(request):
-    # TODO: Preparar como lista autorizar
-    if not request.user.is_authenticated():
-       return HttpResponseRedirect('/subirproyectos/')
-
-    centros = AdscripcionUsuarioCentro.objects.filter(user=request.user)
+    centros = AdscripcionUsuarioCentro.objects.filter(user=request.user).values('centro')
     proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['calificado'],
-        centro__in=centros)
+        titulacion__centro__in=centros)
+    page = buscar_proyectos(request, proyectos)
+    results = [{
+        'title': proyecto.title,
+        'niu': proyecto.niu,
+        'creator': proyecto.creator_nombre_completo(),
+        'creator_email' : proyecto.creator_email,
+        'url': proyecto.get_absolute_url(),
+    } for proyecto in page.object_list]
 
-    #if is_faculty_staff (request.user.username):
-       #proyectos = Proyecto.objects.filter(centro=get_faculty(request.user.username),estado=3)
-       
-    t = loader.get_template('subirproyectos/mostrarlistabiblioteca.html')
-    c = RequestContext(request, {'proyectos': proyectos})
-    #c = Context({
-        #'proyectos': proyectos,
-    #})
+    template_dict = {
+        'estado': 'calificado',
+        'proyectos': results,
+        'total_paginas': page.paginator.num_pages,
+        'total_proyectos': page.paginator.count,
+    }
+
+    if request.is_ajax():
+        if 'json' in request.GET and request.GET['json']:
+            return HttpResponse(content=dumps(results), mimetype='application/json')
+        return render_to_response('lista_proyecto_partial.html', template_dict,
+            context_instance= RequestContext(request))
+
+    if 'q' in request.GET and request.GET['q']:
+        template_dict['q'] = request.GET['q']
+    return render_to_response('lista.html', template_dict,
+        context_instance= RequestContext(request))
     return HttpResponse(t.render(c))
+
