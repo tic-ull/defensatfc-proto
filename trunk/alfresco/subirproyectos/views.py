@@ -327,7 +327,6 @@ def archivar_proyecto(request, id):
             messages.add_message(request, messages.SUCCESS, """
 		<strong>El proyecto se ha archivado con éxito.</strong> 
                 """)
-            # TODO: Volver al listado de proyectos a archiva.
 	    return redirect(lista_archivar)
     else:
 	form = FormularioProyectoArchivado(instance = pc)
@@ -410,6 +409,7 @@ def lista_autorizar(request):
 def lista_calificar(request):
     if not request.user.is_tutor():
         return HttpResponseForbidden()  
+
     proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['autorizado'],
         tutor_email=request.user.email)
     page = buscar_proyectos(request, proyectos)
@@ -438,7 +438,6 @@ def lista_calificar(request):
         template_dict['q'] = request.GET['q']
     return render_to_response('lista.html', template_dict,
         context_instance= RequestContext(request))
-    return HttpResponse(t.render(c))
 
 
 @permission_required('subirproyectos.puede_archivar')
@@ -472,5 +471,4 @@ def lista_archivar(request):
         template_dict['q'] = request.GET['q']
     return render_to_response('lista.html', template_dict,
         context_instance= RequestContext(request))
-    return HttpResponse(t.render(c))
 
