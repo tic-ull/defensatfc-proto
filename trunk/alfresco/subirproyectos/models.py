@@ -158,6 +158,21 @@ class Proyecto(Contenido):
                                        verbose_name='nombre del director')
     director_apellidos = models.CharField(max_length=50, blank=True, null=True,
                                           verbose_name='apellidos del director')
+                                          
+    #calificado
+    fecha_defensa = models.DateField(default=date.today(), verbose_name="fecha defensa", blank=True, null=True)
+    calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica", blank=True, null=True)
+    calificacion = models.CharField(max_length=30, choices=settings.CALIFICACION_SELECCION, verbose_name="calificación", blank=True, null=True)
+    modalidad = models.CharField(max_length=30, blank=True, null=True) # TODO: Añadir selector de modalidad
+    tribunal_presidente_nombre = models.CharField(max_length=50, blank=True, null=True)
+    tribunal_presidente_apellidos = models.CharField(max_length=50, blank=True, null=True)
+    tribunal_secretario_nombre = models.CharField(max_length=50, blank=True, null=True)
+    tribunal_secretario_apellidos = models.CharField(max_length=50, blank=True, null=True)  
+    
+    #archivado
+    subject = models.CharField(max_length=30, verbose_name="tema", blank=True, null=True)
+    rights = models.CharField(max_length=200, choices=settings.DERECHOS_SELECCION, verbose_name="derechos", blank=True, null=True)
+    coverage = models.CharField(max_length=200, verbose_name="cobertura", blank=True, null=True)    
 
     # internos
     fecha_subido = models.DateField(auto_now_add = True)
@@ -200,46 +215,6 @@ class Proyecto(Contenido):
         properties['pfc:titulacion'] = self.titulacion.nombre
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()
-        return properties
-        
-    def clean(self):
-        # TODO: Esto no lo has probado. Seguro que no funciona :-/
-	if ((self.director_nombre != '' and self.director_apellidos == '') or
-	   (self.director_nombre == '' and self.director_apellidos != '')):
-	    raise ValidationError("""Si desea indicar un director debe
-                proporcionar tanto el nombre como los apellidos.""")
-
-
-class ProyectoCalificado(Proyecto):
-    fecha_defensa = models.DateField(default=date.today(), verbose_name="fecha defensa")
-    calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica")
-    calificacion = models.CharField(max_length=30, choices=settings.CALIFICACION_SELECCION, verbose_name="calificación")
-    modalidad = models.CharField(max_length=30) # TODO: Añadir selector de modalidad
-    tribunal_presidente_nombre = models.CharField(max_length=50)
-    tribunal_presidente_apellidos = models.CharField(max_length=50)
-    tribunal_secretario_nombre = models.CharField(max_length=50)
-    tribunal_secretario_apellidos = models.CharField(max_length=50)
- 
-    def clean(self):
-	if (self.calificacion_numerica >= 0.0) and (self.calificacion_numerica <= 4.9):
-            if self.calificacion == 'Suspenso':
-		return
-	if (self.calificacion_numerica >= 5) and (self.calificacion_numerica <= 6.9):    
-	    if self.calificacion == 'Aprobado':
-		return
-	if (self.calificacion_numerica >= 7) and (self.calificacion_numerica <= 8.9):   
-	    if self.calificacion == 'Notable':
-		return
-	if (self.calificacion_numerica >= 9) and (self.calificacion_numerica <= 10):    
-	    if self.calificacion == 'Sobresaliente':	    
-		return ValidationError("La calificación y la nota numérica no coinciden")
-
-    def tribunal_vocales(self):
-        return [vocal.nombre_completo() for vocal in
-            TribunalVocal.objects.filter(proyecto_calificado=self.pk).all()]
-
-    def _get_alfresco_properties(self):
-        properties = super(ProyectoCalificado, self)._get_alfresco_properties()
         properties['pfc:fechaDefensa'] = self.fecha_defensa.isoformat()
         properties['pfc:calificacion'] = self.calificacion
         properties['pfc:calificacionNumerica'] = self.calificacion_numerica
@@ -247,11 +222,44 @@ class ProyectoCalificado(Proyecto):
         properties['pfc:presidenteTribunal'] = self.tutor_nombre_completo()
         properties['pfc:secretarioTribunal'] = self.director_nombre_completo()
         properties['pfc:vocalesTribunal'] = self.tribunal_vocales()
+        properties['cm:subject'] = self.subject
+        properties['cm:rights'] = settings.TEXTO_DERECHOS[self.rights]
+        properties['cm:coverage'] = self.coverage        
         return properties
+        
+    #def clean(self):
+
+    #calificado            
+    def clean(self):  
+	#proyecto nombre y apellidos director
+	if (((len(self.director_nombre) == 0)  and (len(self.director_apellidos) > 0)) or
+	   ((len(self.director_nombre) > 0) and (len(self.director_apellidos) == 0))):
+	     raise ValidationError("""Si desea indicar un director debe
+                proporcionar tanto el nombre como los apellidos.""")                  
+
+  
+	#proyecto_calificado nota
+	if (self.calificacion_numerica >= 0.0) and (self.calificacion_numerica <= 4.9):
+	    print calificacion_numerica
+            if self.calificacion != 'SS':
+		raise ValidationError("La calificación y la nota numérica no coinciden")
+	if (self.calificacion_numerica >= 5) and (self.calificacion_numerica <= 6.9):    
+	    if self.calificacion != 'AP':
+		raise ValidationError("La calificación y la nota numérica no coinciden")
+	if (self.calificacion_numerica >= 7) and (self.calificacion_numerica <= 8.9):   
+	    if self.calificacion != 'NT':
+		raise ValidationError("La calificación y la nota numérica no coinciden")
+	if (self.calificacion_numerica >= 9) and (self.calificacion_numerica <= 10):    
+	    if self.calificacion != 'SB':	    
+		raise ValidationError("La calificación y la nota numérica no coinciden")
+
+    def tribunal_vocales(self):
+        return [vocal.nombre_completo() for vocal in
+            TribunalVocal.objects.filter(proyecto_calificado=self.pk).all()]                
 
 
 class TribunalVocal(models.Model):
-    proyecto_calificado = models.ForeignKey(ProyectoCalificado)
+    proyecto_calificado = models.ForeignKey(Proyecto)
     nombre = models.CharField(max_length=50, verbose_name="nombre vocal (*)")
     apellidos = models.CharField(max_length=50, verbose_name="apellidos vocal (*)")
 
@@ -263,19 +271,6 @@ class TribunalVocal(models.Model):
 
     def __unicode__(self):
         return self.nombre_completo()
-
-
-class ProyectoArchivado(ProyectoCalificado):
-    subject = models.CharField(max_length=30, verbose_name="tema")
-    rights = models.CharField(max_length=200, choices=settings.DERECHOS_SELECCION, verbose_name="derechos")
-    coverage = models.CharField(max_length=200, verbose_name="cobertura")
-
-    def _get_alfresco_properties(self):
-        properties = super(ProyectoArchivado, self)._get_alfresco_properties()
-        properties['cm:subject'] = self.subject
-        properties['cm:rights'] = settings.TEXTO_DERECHOS[self.rights]
-        properties['cm:coverage'] = self.coverage
-        return properties
 
 
 class Anexo(Contenido):
@@ -301,31 +296,31 @@ def save_proyect_to_alfresco(proyecto, anexos,
     """ Salvar toda la información relacionada con un proyecto en el gestor
     documental"""
 
-    cml = Alfresco().cml()
+    #cml = Alfresco().cml()
 
-    proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
-    for anexo in anexos:
-        anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
-    cml.do()
+    #proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
+    #for anexo in anexos:
+        #anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
+    #cml.do()
 
-    if proyecto_contenido is not None:
-        Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
-    for anexo, contenido in zip(anexos, anexos_contenidos):
-        Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+    #if proyecto_contenido is not None:
+        #Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
+    #for anexo, contenido in zip(anexos, anexos_contenidos):
+        #Alfresco().upload_content(anexo.alfresco_uuid, contenido)
 
-    if update_relationship and anexos:
-        # Si es necesario, hay que salvar la relacion entre los documentos
-        cml = Alfresco().cml()
-        relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
-        proyecto_relaciones = ['hastPart %s' % anexo.alfreso_uuid for anexo in anexos]
-        cml.update(proyecto.alfresco_uuid, {
-            relation_propname: proyecto_relaciones
-        })
-        for anexo in anexos:
-            cml.update(anexo.alfresco_uuid, {
-                property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
-            })
-        cml.do()
+    #if update_relationship and anexos:
+        ### Si es necesario, hay que salvar la relacion entre los documentos
+        #cml = Alfresco().cml()
+        #relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
+        #proyecto_relaciones = ['hastPart %s' % anexo.alfreso_uuid for anexo in anexos]
+        #cml.update(proyecto.alfresco_uuid, {
+            #relation_propname: proyecto_relaciones
+        #})
+        #for anexo in anexos:
+            #cml.update(anexo.alfresco_uuid, {
+                #property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
+            #})
+        #cml.do()
 
     if update_db:
         proyecto.save()

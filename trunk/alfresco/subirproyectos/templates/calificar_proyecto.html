@@ -44,6 +44,7 @@ function cloneMore(selector, type) {
     <br/>
 
     <h3>Proyecto</h3>
+    {{ f.non_field_errors }}
     <table>
         <tr>
            <th><label for="id_fecha_defensa">Fecha defensa (*):</label></th>
@@ -52,6 +53,10 @@ function cloneMore(selector, type) {
         <tr>
             <th><label for="id_calificacion_numerica">Calificacion numerica (*):</label></th>
             <td>{{ f.calificacion_numerica.errors }}{{ f.calificacion_numerica }}</td>
+        </tr>
+        <tr>
+            <th><label for="id_calificacion">Calificacion (*):</label></th>
+            <td>{{ f.calificacion.errors }}{{ f.calificacion }}</td>
         </tr>
         <tr>
             <th><label for="id_modalidad">Modalidad (*):</label></th>
@@ -77,7 +82,7 @@ function cloneMore(selector, type) {
     <table>
         <tr>
            <th><label for="id_tribunal_secretario_nombre">Nombre (*):</label></th>
-           <td>{{ f.tribunal_tribunal_secretario_nombre.errors }}{{ f.tribunal_secretario_nombre }}</td>
+           <td>{{ f.tribunal_secretario_nombre.errors }}{{ f.tribunal_secretario_nombre }}</td>
         </tr>
         <tr>
             <th><label for="id_tribunal_secretario_apellidos">Apellidos (*):</label></th>

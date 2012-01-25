@@ -2,8 +2,6 @@
 <tr>
     <td><a href="mailto:{{ proyecto.creator_email }}"><span class="ui-icon ui-icon-mail-closed" style="float: left; margin-right: .3em;"></span></a>
     {{ proyecto.creator }} ({{ proyecto.niu }})</td>
-    <td><a href="{{ proyecto.url }}{% if estado == 'solicitado' %}autorizar{% endif %}
-    {% if estado == 'autorizado' %}calificar{% endif %}
-    {% if estado == 'calificado' %}archivar{% endif %}">{{ proyecto.title }}</a></td>
+    <td><a href="{{ proyecto.url }}{% if estado == 'solicitado' %}autorizar{% endif %}{% if estado == 'autorizado' %}calificar{% endif %}{% if estado == 'calificado' %}archivar{% endif %}">{{ proyecto.title }}</a></td>
 </tr>
 {% endfor %}

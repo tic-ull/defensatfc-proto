@@ -67,18 +67,33 @@ class FormularioAutorizar(forms.ModelForm):
 
 
 class FormularioProyectoCalificado(forms.ModelForm):
-
+    def __init__(self, *args, **kwargs):
+	super(FormularioProyectoCalificado, self).__init__(*args, **kwargs)
+        self.fields['fecha_defensa'].required = True
+        self.fields['calificacion_numerica'].required = True
+        self.fields['calificacion'].required = True
+        self.fields['modalidad'].required = True
+        self.fields['tribunal_presidente_nombre'].required = True        
+        self.fields['tribunal_presidente_apellidos'].required = True        
+        self.fields['tribunal_secretario_nombre'].required = True        
+        self.fields['tribunal_secretario_apellidos'].required = True        
     class Meta:
-	model = models.ProyectoCalificado
-	fields = ('fecha_defensa',  'calificacion_numerica', 'modalidad', 'tribunal_presidente_nombre', 'tribunal_presidente_apellidos', 
+	model = models.Proyecto
+	fields = ('fecha_defensa', 'calificacion_numerica', 'calificacion', 'modalidad', 'tribunal_presidente_nombre', 'tribunal_presidente_apellidos', 
 	'tribunal_secretario_nombre', 'tribunal_secretario_apellidos')	
 	
-VocalesFormSet = inlineformset_factory(models.ProyectoCalificado, models.TribunalVocal, extra=1)    
+VocalesFormSet = inlineformset_factory(models.Proyecto, models.TribunalVocal, extra=1)    
 
 
 class FormularioProyectoArchivado(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+	super(FormularioProyectoArchivado, self).__init__(*args, **kwargs)
+	#duda, los que no son nullables?
+        self.fields['rights'].required = True      
+        self.fields['coverage'].required = True    
+        self.fields['subject'].required = True               
 
     class Meta:
-	model = models.ProyectoArchivado
+	model = models.Proyecto
 	fields = ('title', 'creator_nombre', 'creator_apellidos' ,'description', 'language', 'subject',  'rights', 'coverage')	
 	
