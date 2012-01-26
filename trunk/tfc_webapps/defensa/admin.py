@@ -23,7 +23,7 @@ from django.contrib import admin
 
 from defensa import models
 from defensa import forms
-from defensa.forms import calificacion_valida
+from defensa.forms import validar_calificacion
 
 
 class ProyectoAdminForm(forms.FormularioProyectoBase):
@@ -31,7 +31,7 @@ class ProyectoAdminForm(forms.FormularioProyectoBase):
         model = models.Proyecto
 
     def clean(self):
-	data = self.cleaned_data
+	data = super(ProyectoAdminForm, self).clean()
 	
 	# campos requeridos según el estado
 	if 'estado' in data:
@@ -43,7 +43,7 @@ class ProyectoAdminForm(forms.FormularioProyectoBase):
                     "tribunal_presidente_apellidos", "tribunal_secretario_nombre",
                     "tribunal_secretario_apellidos")
 
-                if not calificacion_valida(data['calificacion_numerica'], data['calificacion']):
+                if not validar_calificacion(data['calificacion_numerica'], data['calificacion']):
                     self.append_field_error('calificacion',
                         u"La calificación y la nota numérica no coinciden")
 
@@ -54,7 +54,7 @@ class ProyectoAdminForm(forms.FormularioProyectoBase):
                 data[field] or self.append_field_error(field, error)
 
         return data
-       
+
 
 class TribunalVocalInline(admin.TabularInline):
     model = models.TribunalVocal
