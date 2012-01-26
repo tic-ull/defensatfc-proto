@@ -3,7 +3,7 @@
 from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 
-from subirproyectos import settings, models, validators
+from defensa import settings, models, validators
 
 
 def calificacion_valida(calificacion_numerica, calificacion):

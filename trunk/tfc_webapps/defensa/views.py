@@ -16,12 +16,12 @@ from django.template import RequestContext, Context, loader
 from django.template.loader import get_template
 from django.utils.simplejson import dumps
 
-from subirproyectos.alfresco import Alfresco
-from subirproyectos.forms import *
-from subirproyectos.models import Proyecto, Anexo
-from subirproyectos.models import AdscripcionUsuarioCentro
-from subirproyectos.models import save_proyect_to_alfresco
-from subirproyectos import settings
+from defensa.alfresco import Alfresco
+from defensa.forms import *
+from defensa.models import Proyecto, Anexo
+from defensa.models import AdscripcionUsuarioCentro
+from defensa.models import save_proyect_to_alfresco
+from defensa import settings
 
 import mimetypes
 import operator
@@ -312,7 +312,7 @@ def calificar_proyecto(request, id):
                                 context_instance=RequestContext(request))
 
 
-@permission_required('subirproyectos.puede_archivar')
+@permission_required('defensa.puede_archivar')
 def archivar_proyecto(request, id):
     p = get_object_or_404(Proyecto, id=id)
     anexos = p.anexo_set.all()
@@ -439,7 +439,7 @@ def lista_calificar(request):
         context_instance= RequestContext(request))
 
 
-@permission_required('subirproyectos.puede_archivar')
+@permission_required('defensa.puede_archivar')
 def lista_archivar(request):
     centros = AdscripcionUsuarioCentro.objects.filter(user=request.user).values('centro')
     proyectos = Proyecto.objects.filter(estado='calificado',

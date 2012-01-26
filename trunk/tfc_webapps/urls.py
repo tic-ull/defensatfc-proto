@@ -11,10 +11,10 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'tfc_webapps.views.home', name='home'),
     # url(r'^tfc_webapps/', include('tfc_webapps.foo.urls')),
-    url(r'^$', redirect_to, {'url': '/subirproyectos/'}),
+    url(r'^$', redirect_to, {'url': '/defensa/'}),
     url(r'^accounts/login/$', login, {'template_name': 'login.html'}),
     url(r'^accounts/logout/$', logout, {'next_page': '/'}),
-    url(r'^subirproyectos', include('subirproyectos.urls')),
+    url(r'^defensa', include('defensa.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

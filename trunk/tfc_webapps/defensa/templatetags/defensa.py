@@ -1,6 +1,6 @@
 from django import template
 
-from subirproyectos import settings
+from defensa import settings
 
 
 register = template.Library()

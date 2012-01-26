@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from suds import wsse
 from suds.client import Client
 
-from subirproyectos import settings
+from defensa import settings
 
 
 class Alfresco(object):

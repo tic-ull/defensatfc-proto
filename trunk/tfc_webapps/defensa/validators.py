@@ -6,7 +6,7 @@ import re
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 
-from subirproyectos import settings
+from defensa import settings
 
  
 def file_format(value):

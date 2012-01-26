@@ -1,13 +1,13 @@
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 
-from subirproyectos import models
+from defensa import models
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('subirproyectos.views',
+urlpatterns = patterns('defensa.views',
     url(r'^/$', 'index'),
     url(r'^/titulacion/find-by-centro/$', 'filter', {
         'model_class': models.Titulacion,

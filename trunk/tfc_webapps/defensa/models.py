@@ -4,8 +4,8 @@ from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.contrib import auth
 
-from subirproyectos import settings, validators
-from subirproyectos.alfresco import Alfresco
+from defensa import settings, validators
+from defensa.alfresco import Alfresco
 
 from datetime import date
 

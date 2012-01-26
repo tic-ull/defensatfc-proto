@@ -39,7 +39,7 @@
 {% block body %}
 <div id="menu">
   <ul>
-    <li><a href="/subirproyectos/">{% trans 'Inicio' %}</a></li>
+    <li><a href="/defensa/">{% trans 'Inicio' %}</a></li>
   </ul>
 <!--
 	   <div class="langTab">
@@ -103,16 +103,16 @@
     {% if user.is_authenticated %}
     <h2>Proyectos:</h2>
     <ul>
-        <li><a href="/subirproyectos/solicitar/">Solicitar defensa</a></li>
+        <li><a href="/defensa/solicitar/">Solicitar defensa</a></li>
         {%if user.is_tutor %}
-            <li><a href="/subirproyectos/autorizar/">Autorizaciones</a></li>
-            <li><a href="/subirproyectos/calificar/">Calificar proyectos</a></li>
+            <li><a href="/defensa/autorizar/">Autorizaciones</a></li>
+            <li><a href="/defensa/calificar/">Calificar proyectos</a></li>
         {% else %}
             <li>Autorizaciones</li>
             <li>Calificar proyectos</li>
         {%endif%}
-        {%if perms.subirproyectos.puede_archivar %}
-            <li><a href="/subirproyectos/archivar/">Archivar proyectos</a></li>
+        {%if perms.defensa.puede_archivar %}
+            <li><a href="/defensa/archivar/">Archivar proyectos</a></li>
         {% else %}
             <li>Archivar proyectos</a></li>
         {%endif%}
@@ -121,7 +121,7 @@
 
     <h2>{% trans 'Mapa del sitio' %}: </h2>
     <ul>
-      <li><a href="/subirproyectos/">{% trans 'Inicio' %}</a></li>
+      <li><a href="/defensa/">{% trans 'Inicio' %}</a></li>
     </ul>
   </div>
 

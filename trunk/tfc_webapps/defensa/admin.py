@@ -3,9 +3,9 @@
 from django import forms
 from django.contrib import admin
 
-from subirproyectos import models
-from subirproyectos import forms
-from subirproyectos.forms import calificacion_valida
+from defensa import models
+from defensa import forms
+from defensa.forms import calificacion_valida
 
 
 class ProyectoAdminForm(forms.FormularioProyectoBase):

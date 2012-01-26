@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import NoArgsCommand
-from subirproyectos import settings, models
-from subirproyectos.alfresco import *
+from defensa import settings, models
+from defensa.alfresco import *
 
 class Command(NoArgsCommand):
     help = 'Sincroniza los centros y titulaciones de la BD con los centros y titulaciones de Alfresco'
