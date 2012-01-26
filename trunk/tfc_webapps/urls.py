@@ -9,8 +9,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'alfresco.views.home', name='home'),
-    # url(r'^alfresco/', include('alfresco.foo.urls')),
+    # url(r'^$', 'tfc_webapps.views.home', name='home'),
+    # url(r'^tfc_webapps/', include('tfc_webapps.foo.urls')),
     url(r'^$', redirect_to, {'url': '/subirproyectos/'}),
     url(r'^accounts/login/$', login, {'template_name': 'login.html'}),
     url(r'^accounts/logout/$', logout, {'next_page': '/'}),

@@ -1,4 +1,4 @@
-# Django settings for alfresco project.
+# Django settings for tfc_webapps project.
 import os
 
 PROJECT_DIR = os.path.normpath(os.path.dirname(__file__))
@@ -103,7 +103,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'alfresco.urls'
+ROOT_URLCONF = 'tfc_webapps.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
