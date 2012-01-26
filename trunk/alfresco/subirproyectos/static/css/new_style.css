@@ -263,7 +263,7 @@ margin: 10px auto 0 auto;
 background-color: #ffffff;
 }
 
-.item table td ul.errorlist li {
+.item ul.errorlist li {
 color: #ff0000;
 }
 
@@ -366,13 +366,13 @@ margin-bottom: 10px;
  * Estados de las solicitudes
  */
 
-.estado .solicitada,
+.estado .solicitado,
 .estado .autorizado,
 .estado .calificado {
 color: #7CAD58;
 }
 
-.estado .rechazada {
+.estado .rechazado {
 color: #F13232;
 }
 

@@ -3,8 +3,6 @@
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.contrib import auth
-from django.core.exceptions import ValidationError
-
 
 from subirproyectos import settings, validators
 from subirproyectos.alfresco import Alfresco
@@ -124,19 +122,12 @@ class Contenido(AlfrescoPFCModel):
 
 
 class Proyecto(Contenido):
-    ESTADOS = {
-        'solicitado': 'SOL',
-        'rechazado': 'REC',
-        'autorizado': 'AUT',
-        'calificado': 'CAL',
-        'archivado': 'ARC',
-    }
     ESTADO_SELECCION = (
-        (ESTADOS['solicitado'], 'Solicitada la defensa'),
-        (ESTADOS['rechazado'],  'Rechazado'),
-        (ESTADOS['autorizado'], 'Autorizado'),
-        (ESTADOS['calificado'], 'Calificado'),
-        (ESTADOS['archivado'],  'Archivado'),
+        ('solicitado', 'Solicitada la defensa'),
+        ('rechazado',  'Rechazado'),
+        ('autorizado', 'Autorizado'),
+        ('calificado', 'Calificado'),
+        ('archivado',  'Archivado'),
     )
 
     # dublin core
@@ -158,7 +149,7 @@ class Proyecto(Contenido):
                                        verbose_name='nombre del director')
     director_apellidos = models.CharField(max_length=50, blank=True, null=True,
                                           verbose_name='apellidos del director')
-                                          
+ 
     #calificado
     fecha_defensa = models.DateField(default=date.today(), verbose_name="fecha defensa", blank=True, null=True)
     calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica", blank=True, null=True)
@@ -168,7 +159,7 @@ class Proyecto(Contenido):
     tribunal_presidente_apellidos = models.CharField(max_length=50, blank=True, null=True)
     tribunal_secretario_nombre = models.CharField(max_length=50, blank=True, null=True)
     tribunal_secretario_apellidos = models.CharField(max_length=50, blank=True, null=True)  
-    
+ 
     #archivado
     subject = models.CharField(max_length=30, verbose_name="tema", blank=True, null=True)
     rights = models.CharField(max_length=200, choices=settings.DERECHOS_SELECCION, verbose_name="derechos", blank=True, null=True)
@@ -176,7 +167,7 @@ class Proyecto(Contenido):
 
     # internos
     fecha_subido = models.DateField(auto_now_add = True)
-    estado = models.CharField(max_length=3,
+    estado = models.CharField(max_length=20,
                               choices=ESTADO_SELECCION,
                               db_index=True)
 
@@ -227,35 +218,9 @@ class Proyecto(Contenido):
         properties['cm:coverage'] = self.coverage        
         return properties
         
-    #def clean(self):
-
-    #calificado            
-    def clean(self):  
-	#proyecto nombre y apellidos director
-	if (((len(self.director_nombre) == 0)  and (len(self.director_apellidos) > 0)) or
-	   ((len(self.director_nombre) > 0) and (len(self.director_apellidos) == 0))):
-	     raise ValidationError("""Si desea indicar un director debe
-                proporcionar tanto el nombre como los apellidos.""")                  
-
-  
-	#proyecto_calificado nota
-	if (self.calificacion_numerica >= 0.0) and (self.calificacion_numerica <= 4.9):
-	    print calificacion_numerica
-            if self.calificacion != 'SS':
-		raise ValidationError("La calificación y la nota numérica no coinciden")
-	if (self.calificacion_numerica >= 5) and (self.calificacion_numerica <= 6.9):    
-	    if self.calificacion != 'AP':
-		raise ValidationError("La calificación y la nota numérica no coinciden")
-	if (self.calificacion_numerica >= 7) and (self.calificacion_numerica <= 8.9):   
-	    if self.calificacion != 'NT':
-		raise ValidationError("La calificación y la nota numérica no coinciden")
-	if (self.calificacion_numerica >= 9) and (self.calificacion_numerica <= 10):    
-	    if self.calificacion != 'SB':	    
-		raise ValidationError("La calificación y la nota numérica no coinciden")
-
     def tribunal_vocales(self):
         return [vocal.nombre_completo() for vocal in
-            TribunalVocal.objects.filter(proyecto_calificado=self.pk).all()]                
+            TribunalVocal.objects.filter(proyecto_calificado=self.pk).all()]
 
 
 class TribunalVocal(models.Model):

@@ -6,10 +6,51 @@ from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from subirproyectos import settings, models, validators
 
 
-class FormularioProyecto(forms.ModelForm):
-    # TODO: En clean hay que comprobar que si intrduce el nombre o el apellido
-    # del director hay que introducir también el otro.
+class FormularioProyectoBase(forms.ModelForm):
+    class Meta:
+        model = models.Proyecto
 
+    def append_field_error(self, field, error):
+        if field not in self._errors:
+            self._errors[field] = forms.util.ErrorList()
+        self._errors[field].append(error)
+
+    def append_non_field_error(self, error):
+        self.set_error(forms.NON_FIELD_ERRORS, error)
+
+    def clean(self):
+        data = self.cleaned_data
+
+        # comprobar nombre y apellidos del director
+        if data['director_apellidos'] and not data['director_nombre']:
+            self.append_field_error('director_nombre', """
+                Si desea indicar un director debe proporcionar tanto el
+                nombre como los apellidos.""")
+        if data['director_nombre'] and not data['director_apellidos']:
+            self.append_field_error('director_apellidos', """
+                Si desea indicar un director debe proporcionar tanto el
+                nombre como los apellidos.""")
+
+        # comprobar calificación y nota numérica
+        if data.get('estado') in ('calificado', 'archivado'):
+            error = u"La calificación y la nota numérica no coinciden"
+            if data['calificacion_numerica'] >= 0.0 and data['calificacion_numerica'] <= 4.9:
+                if data['calificacion'] != 'suspenso':
+                    self.append_field_error('calificacion', error)
+            if data['calificacion_numerica'] >= 5.0 and data['calificacion_numerica'] <= 6.9:
+                if data['calificacion'] != 'aprobado':
+                    self.append_field_error('calificacion', error)
+            if data['calificacion_numerica'] >= 7.0 and data['calificacion_numerica'] <= 8.9:
+                if data['calificacion'] != 'notable':
+                    self.append_field_error('calificacion', error)
+            if data['calificacion_numerica'] >= 9.0 and data['calificacion_numerica'] <= 10.0:
+                if data['calificacion'] not in ('sobresaliente', 'matricula'):
+                    self.append_field_error('calificacion', error)
+
+        return data
+
+
+class FormularioProyecto(FormularioProyectoBase):
     DOMINIO_CORREO_TUTOR = '@' + settings.DOMINIO_CORREO_TUTOR
 
     centro = forms.ModelChoiceField(label="Centro", queryset=models.Centro.objects)
@@ -24,21 +65,13 @@ class FormularioProyecto(forms.ModelForm):
                                   label='Correo electrónico del tutor')
 
     class Meta:
-	model = models.Proyecto
+        model = models.Proyecto
 	fields = ('title', 'description', 'language', 'file', 'creator_nombre',
             'creator_apellidos', 'niu', 'centro', 'titulacion', 'tutor_nombre',
             'tutor_apellidos', 'tutor_email', 'director_nombre', 'director_apellidos')
         widgets = {
             'title': forms.Textarea(attrs={'cols': 40, 'rows': 3}),
         }
-
-    def append_field_error(self, field, error):
-        if field not in self._errors:
-            self._errors[field] = forms.util.ErrorList()
-	self._errors[field].append(error)
-
-    def append_non_field_error(self, error):
-        self.set_error(forms.NON_FIELD_ERRORS, error)
 
     def clean_tutor_email(self):
         return self.cleaned_data['tutor_email'] + self.DOMINIO_CORREO_TUTOR
@@ -63,7 +96,8 @@ class FormularioAutorizar(forms.ModelForm):
 
     class Meta:
         model = models.Proyecto
-        fields = ('tutor_nombre', 'tutor_apellidos', 'director_nombre', 'director_apellidos')
+        fields = ('tutor_nombre', 'tutor_apellidos', 'director_nombre',
+            'director_apellidos')
 
 
 class FormularioProyectoCalificado(forms.ModelForm):
@@ -73,14 +107,17 @@ class FormularioProyectoCalificado(forms.ModelForm):
         self.fields['calificacion_numerica'].required = True
         self.fields['calificacion'].required = True
         self.fields['modalidad'].required = True
-        self.fields['tribunal_presidente_nombre'].required = True        
-        self.fields['tribunal_presidente_apellidos'].required = True        
-        self.fields['tribunal_secretario_nombre'].required = True        
-        self.fields['tribunal_secretario_apellidos'].required = True        
+        self.fields['tribunal_presidente_nombre'].required = True
+        self.fields['tribunal_presidente_apellidos'].required = True
+        self.fields['tribunal_secretario_nombre'].required = True
+        self.fields['tribunal_secretario_apellidos'].required = True
+
     class Meta:
 	model = models.Proyecto
-	fields = ('fecha_defensa', 'calificacion_numerica', 'calificacion', 'modalidad', 'tribunal_presidente_nombre', 'tribunal_presidente_apellidos', 
-	'tribunal_secretario_nombre', 'tribunal_secretario_apellidos')	
+	fields = ('fecha_defensa', 'calificacion_numerica', 'calificacion',
+            'modalidad', 'tribunal_presidente_nombre',
+            'tribunal_presidente_apellidos', 'tribunal_secretario_nombre',
+            'tribunal_secretario_apellidos')
 	
 VocalesFormSet = inlineformset_factory(models.Proyecto, models.TribunalVocal, extra=1)    
 
@@ -95,5 +132,6 @@ class FormularioProyectoArchivado(forms.ModelForm):
 
     class Meta:
 	model = models.Proyecto
-	fields = ('title', 'creator_nombre', 'creator_apellidos' ,'description', 'language', 'subject',  'rights', 'coverage')	
-	
+	fields = ('title', 'creator_nombre', 'creator_apellidos',
+            'description', 'language', 'subject',  'rights', 'coverage')
+

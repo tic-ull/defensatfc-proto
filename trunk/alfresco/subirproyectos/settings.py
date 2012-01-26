@@ -10,11 +10,11 @@ DOMINIO_CORREO_TUTOR = 'ull.es'
 
 
 TIPO_DOCUMENTO_SELECCION = (
-    ('ANEXO',   'Anexo'),
-    ('MEMORIA', 'Memoria'),
-    ('PLANO',   'Plano'),
+    ('anexo',   'Anexo'),
+    ('memoria', 'Memoria'),
+    ('plano',   'Plano'),
 )
-TIPO_DOCUMENTO_DEFECTO = 'ANEXO'
+TIPO_DOCUMENTO_DEFECTO = 'anexo'
 
 
 LENGUAJE_SELECCION = sorted(ISO639_1, key=lambda lang: lang[1])
@@ -62,11 +62,11 @@ TEXTO_DERECHOS = {
 
 
 CALIFICACION_SELECCION = (
-    ('SS', 'Suspenso'),
-    ('AP', 'Aprobado'),
-    ('NT', 'Notable'),
-    ('SB', 'Sobresaliente'),
-    ('MH', 'Matrícula de honor'),
+    ('suspenso', 'Suspenso'),
+    ('aprobado', 'Aprobado'),
+    ('notable', 'Notable'),
+    ('sobresaliente', 'Sobresaliente'),
+    ('matricula', 'Matrícula de honor'),
 )
 
 

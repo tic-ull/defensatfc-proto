@@ -66,10 +66,11 @@ def solicitar_defensa(request):
 	    anexos = anexo_formset.save(commit=False)
 
 	if proyecto_form.is_valid() and anexo_formset.is_valid():
-	    proyecto.estado = Proyecto.ESTADOS['solicitado']
-	    proyecto.type = 'MEMORIA'
+	    proyecto.estado = 'solicitado'
+	    proyecto.type = 'memoria'
             proyecto.creator_email = request.user.email
-	    proyecto.format = mimetypes.guess_type(request.FILES['file'].name)[0]		
+	    proyecto.format = mimetypes.guess_type(request.FILES['file'].name)[0]
+
 	    anexos_files = []
             for anexo, form in zip(anexos, anexo_formset.forms):
 	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
@@ -164,7 +165,7 @@ def solicitud_mostrar(request, id):
 
 @login_required
 def autorizar_defensa(request, id):
-    proyecto = get_object_or_404(Proyecto, id=id) # TODO: Recuperar proyecto calificar
+    proyecto = get_object_or_404(Proyecto, id=id)
     if not request.user.can_autorizar_proyecto(proyecto):
         return HttpResponseForbidden()
 
@@ -175,7 +176,7 @@ def autorizar_defensa(request, id):
 
         if proyecto_form.is_valid():
             if "Autorizar" in request.POST:
-                proyecto.estado = Proyecto.ESTADOS['autorizado']
+                proyecto.estado = 'autorizado'
                 save_proyect_to_alfresco(proyecto, [], update_db=True)
 
                 # enviar correo al alumno
@@ -212,7 +213,7 @@ def autorizar_defensa(request, id):
                     procedimiento a través de su cuenta de correo electrónico.
                     """)
             elif "Rechazar" in request.POST:
-                proyecto.estado = Proyecto.ESTADOS['rechazado']
+                proyecto.estado = 'rechazado'
                 save_proyect_to_alfresco(proyecto, [], update_db=True)
 
 		# enviar correo al alumno
@@ -248,7 +249,7 @@ def autorizar_defensa(request, id):
 @login_required  
 def calificar_proyecto(request, id):
     p = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_calificar_proyecto(p): 
+    if not request.user.can_calificar_proyecto(p):
         return HttpResponseForbidden()
 
     anexos = p.anexo_set.all()
@@ -258,12 +259,13 @@ def calificar_proyecto(request, id):
 
         if proyecto_form.is_valid(): 
 	    vocales_formset = VocalesFormSet (request.POST, instance = p)
+
 	    if vocales_formset.is_valid():
-		p.estado = Proyecto.ESTADOS['calificado']
-		##hacemos update
+		p.estado = 'calificado'
+		# hacemos update
 		save_proyect_to_alfresco(p, [], update_db=True)
 
-                ## enviar correo al alumno
+                # enviar correo al alumno
                 plaintext = get_template('calificar_proyecto_email_alumno.txt')
                 subject = settings.ASUNTO_PROYECTO_CALIFICADO
                 from_email = settings.FROM_EMAIL
@@ -276,8 +278,9 @@ def calificar_proyecto(request, id):
                 email = EmailMessage(subject, message_content, from_email, to_email)
                 email.send()
 
-                ## enviar correo a los bibliotecarios
+                # enviar correo a los bibliotecarios
                 plaintext = get_template('calificar_proyecto_email_biblioteca.txt')
+		# TODO: Revisar esto. Creo que debería ser como antes
                 users = User.objects.filter(groups__name='bibliotecarios')
                 to_email = [user.email for user in users]                
 		c = Context({
@@ -303,13 +306,12 @@ def calificar_proyecto(request, id):
     return render_to_response('calificar_proyecto.html', {
                                 'f': proyecto_form,
                                 'v': vocales_formset,
-                                'proyecto': p, # TODO: ¿Para qué lo pasas? para mostrarlo en la cabecera de la pagina
-                                'anexos': anexos # TODO: Esto no está definido, sí lo está
+                                'proyecto': p,
+                                'anexos': anexos
                                 }, 
                                 context_instance=RequestContext(request))
 
 
-@login_required 
 @permission_required('subirproyectos.puede_archivar')
 def archivar_proyecto(request, id):
     p = get_object_or_404(Proyecto, id=id)
@@ -317,7 +319,7 @@ def archivar_proyecto(request, id):
     if request.method == 'POST':
 	proyecto_form = FormularioProyectoArchivado(request.POST, instance = p)
 	if proyecto_form.is_valid():
-            p.estado = Proyecto.ESTADOS['archivado']
+            p.estado = 'archivado'
             save_proyect_to_alfresco(p, [], update_db=True)
             messages.add_message(request, messages.SUCCESS, """
 		<strong>El proyecto se ha archivado con éxito.</strong> 
@@ -372,7 +374,7 @@ def lista_autorizar(request):
     if not request.user.is_tutor():
         return HttpResponseForbidden()
 
-    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['solicitado'],
+    proyectos = Proyecto.objects.filter(estado='solicitado',
         tutor_email=request.user.email)
     page = buscar_proyectos(request, proyectos)
     results = [{
@@ -407,7 +409,7 @@ def lista_calificar(request):
     if not request.user.is_tutor():
         return HttpResponseForbidden()  
 
-    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['autorizado'],
+    proyectos = Proyecto.objects.filter(estado='autorizado',
         tutor_email=request.user.email)
     page = buscar_proyectos(request, proyectos)
     results = [{
@@ -440,7 +442,7 @@ def lista_calificar(request):
 @permission_required('subirproyectos.puede_archivar')
 def lista_archivar(request):
     centros = AdscripcionUsuarioCentro.objects.filter(user=request.user).values('centro')
-    proyectos = Proyecto.objects.filter(estado=Proyecto.ESTADOS['calificado'],
+    proyectos = Proyecto.objects.filter(estado='calificado',
         titulacion__centro__in=centros)
     page = buscar_proyectos(request, proyectos)
     results = [{
