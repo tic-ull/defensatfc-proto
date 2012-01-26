@@ -5,6 +5,7 @@ from django.contrib import admin
 
 from subirproyectos import models
 from subirproyectos import forms
+from subirproyectos.forms import calificacion_valida
 
 
 class ProyectoAdminForm(forms.FormularioProyectoBase):
@@ -12,7 +13,7 @@ class ProyectoAdminForm(forms.FormularioProyectoBase):
         model = models.Proyecto
 
     def clean(self):
-	data = super(ProyectoAdminForm, self).clean()
+	data = self.cleaned_data
 	
 	# campos requeridos según el estado
 	if 'estado' in data:
@@ -23,6 +24,10 @@ class ProyectoAdminForm(forms.FormularioProyectoBase):
                     "calificacion", "modalidad", "tribunal_presidente_nombre",
                     "tribunal_presidente_apellidos", "tribunal_secretario_nombre",
                     "tribunal_secretario_apellidos")
+
+                if not calificacion_valida(data['calificacion_numerica'], data['calificacion']):
+                    self.append_field_error('calificacion',
+                        u"La calificación y la nota numérica no coinciden")
 
             if data['estado'] == 'archivado':
                 required_fields += ("subject", "rights", "coverage")
