@@ -5,14 +5,11 @@ import urllib2
 
 from datetime import datetime, timedelta
 
+# Requiere: https://bitbucket.org/schmichael/suds-timestamp/
 from suds import wsse
 from suds.client import Client
 
 from subirproyectos import settings
-
-
-logging.getLogger('suds.client').setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.INFO)
 
 
 class Alfresco(object):
