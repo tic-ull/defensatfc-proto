@@ -34,12 +34,13 @@ from django.template import RequestContext, Context, loader
 from django.template.loader import get_template
 from django.utils.simplejson import dumps
 
+from defensa import settings
+from defensa import pdf
 from defensa.alfresco import Alfresco
 from defensa.forms import *
 from defensa.models import Proyecto, Anexo
 from defensa.models import AdscripcionUsuarioCentro
 from defensa.models import save_proyect_to_alfresco
-from defensa import settings
 
 import mimetypes
 import operator
@@ -167,6 +168,11 @@ def descargar_anexo(request, id, anexo_id):
     return response
 
 
+@login_required
+def descargar_autorizacion(request, id):
+    proyecto = get_object_or_404(Proyecto, id=id)
+
+
 @login_required  
 def solicitud_mostrar(request, id):
     proyecto = get_object_or_404(Proyecto, id=id)
@@ -184,7 +190,7 @@ def solicitud_mostrar(request, id):
 @login_required
 def autorizar_defensa(request, id):
     proyecto = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_autorizar_proyecto(proyecto):
+    if not request.user.can_autorizar_proyecto(proyecto): # TODO: Y no estado solicitado
         return HttpResponseForbidden()
 
     anexos = proyecto.anexo_set.all()
@@ -267,7 +273,7 @@ def autorizar_defensa(request, id):
 @login_required  
 def calificar_proyecto(request, id):
     p = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_calificar_proyecto(p):
+    if not request.user.can_calificar_proyecto(p): # TODO: Y no estado autorizado
         return HttpResponseForbidden()
 
     anexos = p.anexo_set.all()
@@ -332,7 +338,7 @@ def calificar_proyecto(request, id):
 
 @permission_required('defensa.puede_archivar')
 def archivar_proyecto(request, id):
-    p = get_object_or_404(Proyecto, id=id)
+    p = get_object_or_404(Proyecto, id=id) # TODO: Forbidden if no estado calificado
     anexos = p.anexo_set.all()
     if request.method == 'POST':
 	proyecto_form = FormularioProyectoArchivado(request.POST, instance = p)
