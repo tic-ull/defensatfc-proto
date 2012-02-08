@@ -10,5 +10,9 @@ y ha creido conveniente añadir el siguiente comentario:
 "{{ comentario }}"
 {% endif %}
 
-No olvide que debe ponerse en contacto con el para proceder con la defensa.
+Para proceder con la defensa no olvide ponerse en contacto con su tutor y
+entregar en la secretaría de su centro el documento que puede descargar a
+través del siguiente enlace:
+
+{{ url }}autorizacion/
 

@@ -59,11 +59,11 @@ class FormularioProyectoBase(forms.ModelForm):
 
         # comprobar nombre y apellidos del director
         if data['director_apellidos'] and not data['director_nombre']:
-            self.append_field_error('director_nombre', """
+            self.append_field_error('director_nombre', u"""
                 Si desea indicar un director debe proporcionar tanto el
                 nombre como los apellidos.""")
         if data['director_nombre'] and not data['director_apellidos']:
-            self.append_field_error('director_apellidos', """
+            self.append_field_error('director_apellidos', u"""
                 Si desea indicar un director debe proporcionar tanto el
                 nombre como los apellidos.""")
 
@@ -73,16 +73,16 @@ class FormularioProyectoBase(forms.ModelForm):
 class FormularioProyecto(FormularioProyectoBase):
     DOMINIO_CORREO_TUTOR = '@' + settings.DOMINIO_CORREO_TUTOR
 
-    centro = forms.ModelChoiceField(label="Centro", queryset=models.Centro.objects)
-    titulacion = forms.ModelChoiceField(label="Titulación", queryset=models.Titulacion.objects)
-    file = forms.FileField(label="Documento de la memoria", validators=[validators.file_format])
+    centro = forms.ModelChoiceField(label=u"Centro", queryset=models.Centro.objects)
+    titulacion = forms.ModelChoiceField(label=u"Titulación", queryset=models.Titulacion.objects)
+    file = forms.FileField(label=u"Documento de la memoria", validators=[validators.file_format])
 
     # Sobreescribimos el campo 'tutor_email' para que la comprobación de
     # correo electrónico valido no se haga en el campo del formulario (antes
     # de clean_tutor_email) sino en el campo del modelo
     # (después de clean_tutor_email)
     tutor_email = forms.CharField(max_length=(50 - len(DOMINIO_CORREO_TUTOR)),
-                                  label='Correo electrónico del tutor')
+                                  label=u'Correo electrónico del tutor')
 
     class Meta:
         model = models.Proyecto

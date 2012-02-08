@@ -10,9 +10,9 @@ DOMINIO_CORREO_TUTOR = 'ull.es'
 
 
 TIPO_DOCUMENTO_SELECCION = (
-    ('anexo',   'Anexo'),
-    ('memoria', 'Memoria'),
-    ('plano',   'Plano'),
+    ('anexo',   u'Anexo'),
+    ('memoria', u'Memoria'),
+    ('plano',   u'Plano'),
 )
 TIPO_DOCUMENTO_DEFECTO = 'anexo'
 
@@ -27,56 +27,60 @@ FORMATO_SELECCION = (
 
 
 DERECHOS_SELECCION = (
-    ('CC-BY', 'Creative Commons Reconocimiento 3.0 España'),
-    ('CC-BY-SA', 'Creative Commons Reconocimiento-CompartirIgual 3.0 España'),
-    ('CC-BY-ND', 'Creative Commons Reconocimiento-SinObraDerivada 3.0 España'),
-    ('CC-BY-NC', 'Creative Commons Reconocimiento-NoComercial 3.0 España'),
-    ('CC-BY-NC-SA', 'Creative Commons Reconocimiento-NoComercial-CompartirIgual 3.0 España'),
-    ('CC-BY-NC-ND', 'Creative Commons Reconocimiento-NoComercial-SinObraDerivada 3.0 España'),
-    ('COPYRIGHT', 'Todos los derechos reservados'),
+    ('CC-BY', u'Creative Commons Reconocimiento 3.0 España'),
+    ('CC-BY-SA', u'Creative Commons Reconocimiento-CompartirIgual 3.0 España'),
+    ('CC-BY-ND', u'Creative Commons Reconocimiento-SinObraDerivada 3.0 España'),
+    ('CC-BY-NC', u'Creative Commons Reconocimiento-NoComercial 3.0 España'),
+    ('CC-BY-NC-SA', u'Creative Commons Reconocimiento-NoComercial-CompartirIgual 3.0 España'),
+    ('CC-BY-NC-ND', u'Creative Commons Reconocimiento-NoComercial-SinObraDerivada 3.0 España'),
+    ('COPYRIGHT', u'Todos los derechos reservados'),
 )
 
 
 TEXTO_DERECHOS = {
-    'CC-BY': "Esta obra está bajo una licencia Creative Commons " +
-             "Reconocimiento 3.0 España - " +
-             "http://creativecommons.org/licenses/by/3.0/es/",
-    'CC-BY-SA': "Esta obra está bajo una license Creative Commons " +
-                "Reconocimiento-CompartirIgual 3.0 España - " +
-                "http://creativecommons.org/licenses/by-sa/3.0/es/",
-    'CC-BY-ND': "Esta obra está bajo una licencia Creative Commons " +
-                "Reconocimiento-SinObraDerivada 3.0 España - " +
-                "http://creativecommons.org/licenses/by-nd/3.0/es/",
-    'CC-BY-NC': "Esta obra está bajo una licencia Creative Commons " +
-                "Reconocimiento-NoComercial 3.0 España - " +
-                "http://creativecommons.org/licenses/by-nc/3.0/es/",
-    'CC-BY-NC-SA': "Esta obra está bajo una licencia Creative Commons " +
-                   "Reconocimiento-NoComercial-CompartirIgual 3.0 España - "
-                   "http://creativecommons.org/licenses/by-nc-sa/3.0/es/",
-    'CC-BY-NC-ND': "Esta obra está bajo una licencia Creative Commons " +
-                   "Reconocimiento-NoComercial-SinObraDerivada 3.0 España - " +
-                   "http://creativecommons.org/licenses/by-nc-nd/3.0/es/",
-    'COPYRIGHT': "Esta obra está protegida por derechos de autor. " +
-                 "Todos los derechos reservados",
+    'CC-BY': u"Esta obra está bajo una licencia Creative Commons " +
+             u"Reconocimiento 3.0 España - " +
+             u"http://creativecommons.org/licenses/by/3.0/es/",
+    'CC-BY-SA': u"Esta obra está bajo una license Creative Commons " +
+                u"Reconocimiento-CompartirIgual 3.0 España - " +
+                u"http://creativecommons.org/licenses/by-sa/3.0/es/",
+    'CC-BY-ND': u"Esta obra está bajo una licencia Creative Commons " +
+                u"Reconocimiento-SinObraDerivada 3.0 España - " +
+                u"http://creativecommons.org/licenses/by-nd/3.0/es/",
+    'CC-BY-NC': u"Esta obra está bajo una licencia Creative Commons " +
+                u"Reconocimiento-NoComercial 3.0 España - " +
+                u"http://creativecommons.org/licenses/by-nc/3.0/es/",
+    'CC-BY-NC-SA': u"Esta obra está bajo una licencia Creative Commons " +
+                   u"Reconocimiento-NoComercial-CompartirIgual 3.0 España - "
+                   u"http://creativecommons.org/licenses/by-nc-sa/3.0/es/",
+    'CC-BY-NC-ND': u"Esta obra está bajo una licencia Creative Commons " +
+                   u"Reconocimiento-NoComercial-SinObraDerivada 3.0 España - " +
+                   u"http://creativecommons.org/licenses/by-nc-nd/3.0/es/",
+    'COPYRIGHT': u"Esta obra está protegida por derechos de autor. " +
+                 u"Todos los derechos reservados",
 }
 
 
 CALIFICACION_SELECCION = (
-    ('suspenso', 'Suspenso'),
-    ('aprobado', 'Aprobado'),
-    ('notable', 'Notable'),
-    ('sobresaliente', 'Sobresaliente'),
-    ('matricula', 'Matrícula de honor'),
+    ('suspenso', u'Suspenso'),
+    ('aprobado', u'Aprobado'),
+    ('notable', u'Notable'),
+    ('sobresaliente', u'Sobresaliente'),
+    ('matricula', u'Matrícula de honor'),
 )
+
+
+DESCARGAR_CONTENIDO_FILENAME = 'memoria-%s.pdf'
+DESCARGAR_ANEXO_FILENAME = 'anexo_%2d-%s.pdf'
 
 
 # Correos de notificación
 FROM_EMAIL = "noreply@ull.es"
-ASUNTO_PROYECTO_SOLICITADO = "Solicitud de defensa de trabajo fin de carrera"
-ASUNTO_PROYECTO_AUTORIZADO_ALUMNO = "La defensa de su trabajo fin de carrera ha sido autorizada"
-ASUNTO_PROYECTO_RECHAZADO_ALUMNO = "La defensa de su trabajo fin de carrera ha sido rechazada"
-ASUNTO_PROYECTO_AUTORIZADO_TUTOR = "Éxito autorizando la defensa de un trabajo de fin de carrera"
-ASUNTO_PROYECTO_CALIFICADO = "Trabajo fin de carrera calificado pendiente de archivo"
+ASUNTO_PROYECTO_SOLICITADO = u"Solicitud de defensa de trabajo fin de carrera"
+ASUNTO_PROYECTO_AUTORIZADO_ALUMNO = u"La defensa de su trabajo fin de carrera ha sido autorizada"
+ASUNTO_PROYECTO_RECHAZADO_ALUMNO = u"La defensa de su trabajo fin de carrera ha sido rechazada"
+ASUNTO_PROYECTO_AUTORIZADO_TUTOR = u"Éxito autorizando la defensa de un trabajo de fin de carrera"
+ASUNTO_PROYECTO_CALIFICADO = u"Trabajo fin de carrera calificado pendiente de archivo"
 
 
 # Configuración de alfresco

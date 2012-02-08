@@ -35,7 +35,6 @@ from django.template.loader import get_template
 from django.utils.simplejson import dumps
 
 from defensa import settings
-from defensa import pdf
 from defensa.alfresco import Alfresco
 from defensa.forms import *
 from defensa.models import Proyecto, Anexo
@@ -151,6 +150,8 @@ def descargar_contenido(request, id):
     file_wrapper = FileWrapper(content)
     response = HttpResponse(file_wrapper, content_type=proyecto.format)
     response['Content-Length'] = content.headers.get('Content-Length')
+    response['Content-Disposition'] = ('attachment; filename=' +
+        (settings.DESCARGAR_CONTENIDO_FILENAME % proyecto.niu))
     return response
 
 
@@ -165,6 +166,8 @@ def descargar_anexo(request, id, anexo_id):
     file_wrapper = FileWrapper(content)
     response = HttpResponse(file_wrapper, content_type=proyecto.format)
     response['Content-Length'] = content.headers.get('Content-Length')
+    response['Content-Disposition'] = ('attachment; filename=' +
+        (settings.DESCARGAR_ANEXO_FILENAME % (anexo.id, proyecto.niu)))
     return response
 
 
@@ -210,7 +213,8 @@ def autorizar_defensa(request, id):
                 to_email = [proyecto.creator_email]
 		c = Context({
                     'proyecto': proyecto.title,
-		    'comentario' : proyecto_form.cleaned_data['comentario']
+		    'comentario' : proyecto_form.cleaned_data['comentario'],
+		    'url' : proyecto.get_absolute_url()
                 })
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)

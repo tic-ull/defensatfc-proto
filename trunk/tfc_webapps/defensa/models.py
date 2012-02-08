@@ -102,7 +102,7 @@ class Contenido(AlfrescoPFCModel):
     class Meta:
         abstract = True
         permissions = (
-            ('puede_archivar', 'Puede revisar y archivar un trabajo'),
+            ('puede_archivar', u'Puede revisar y archivar un trabajo'),
         )
 
     def __unicode__(self):
@@ -141,37 +141,37 @@ class Contenido(AlfrescoPFCModel):
 
 class Proyecto(Contenido):
     ESTADO_SELECCION = (
-        ('solicitado', 'Solicitada la defensa'),
-        ('rechazado',  'Rechazado'),
-        ('autorizado', 'Autorizado'),
-        ('calificado', 'Calificado'),
-        ('archivado',  'Archivado'),
+        ('solicitado', u'Solicitada la defensa'),
+        ('rechazado',  u'Rechazado'),
+        ('autorizado', u'Autorizado'),
+        ('calificado', u'Calificado'),
+        ('archivado',  u'Archivado'),
     )
 
     # dublin core
-    creator_nombre = models.CharField(max_length=50, verbose_name= 'nombre del autor')
-    creator_apellidos = models.CharField(max_length=50, verbose_name= 'apellidos del autor')
+    creator_nombre = models.CharField(max_length=50, verbose_name= u'nombre del autor')
+    creator_apellidos = models.CharField(max_length=50, verbose_name= u'apellidos del autor')
     creator_email = models.EmailField(max_length=50,
-                                      verbose_name = 'correo electrónico del autor',
+                                      verbose_name = u'correo electrónico del autor',
                                       validators=[validators.EmailCreatorValidator])
     # pfc
-    niu = models.CharField(max_length=10, verbose_name="NIU", validators=[validators.NIUValidator])
-    titulacion = models.ForeignKey(Titulacion, verbose_name="titulación")
-    tutor_nombre = models.CharField(max_length=50, verbose_name='nombre del tutor')
-    tutor_apellidos = models.CharField(max_length=50, verbose_name='apellidos del tutor')
+    niu = models.CharField(max_length=10, verbose_name=u"NIU", validators=[validators.NIUValidator])
+    titulacion = models.ForeignKey(Titulacion, verbose_name=u"titulación")
+    tutor_nombre = models.CharField(max_length=50, verbose_name=u'nombre del tutor')
+    tutor_apellidos = models.CharField(max_length=50, verbose_name=u'apellidos del tutor')
     tutor_email = models.EmailField(max_length=50,
-                                    verbose_name='correo electrónico del tutor',
+                                    verbose_name=u'correo electrónico del tutor',
                                     validators=[validators.EmailTutorValidator],
                                     db_index=True)
     director_nombre = models.CharField(max_length=50, blank=True, null=True,
-                                       verbose_name='nombre del director')
+                                       verbose_name=u'nombre del director')
     director_apellidos = models.CharField(max_length=50, blank=True, null=True,
-                                          verbose_name='apellidos del director')
+                                          verbose_name=u'apellidos del director')
  
     #calificado
-    fecha_defensa = models.DateField(default=date.today(), verbose_name="fecha defensa", blank=True, null=True)
-    calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="calificación numérica", blank=True, null=True)
-    calificacion = models.CharField(max_length=30, choices=settings.CALIFICACION_SELECCION, verbose_name="calificación", blank=True, null=True)
+    fecha_defensa = models.DateField(default=date.today(), verbose_name=u"fecha defensa", blank=True, null=True)
+    calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name=u"calificación numérica", blank=True, null=True)
+    calificacion = models.CharField(max_length=30, choices=settings.CALIFICACION_SELECCION, verbose_name=u"calificación", blank=True, null=True)
     modalidad = models.CharField(max_length=30, blank=True, null=True) # TODO: Añadir selector de modalidad
     tribunal_presidente_nombre = models.CharField(max_length=50, blank=True, null=True)
     tribunal_presidente_apellidos = models.CharField(max_length=50, blank=True, null=True)
@@ -179,9 +179,9 @@ class Proyecto(Contenido):
     tribunal_secretario_apellidos = models.CharField(max_length=50, blank=True, null=True)  
  
     #archivado
-    subject = models.CharField(max_length=30, verbose_name="tema", blank=True, null=True)
-    rights = models.CharField(max_length=200, choices=settings.DERECHOS_SELECCION, verbose_name="derechos", blank=True, null=True)
-    coverage = models.CharField(max_length=200, verbose_name="cobertura", blank=True, null=True)    
+    subject = models.CharField(max_length=30, verbose_name=u"tema", blank=True, null=True)
+    rights = models.CharField(max_length=200, choices=settings.DERECHOS_SELECCION, verbose_name=u"derechos", blank=True, null=True)
+    coverage = models.CharField(max_length=200, verbose_name=u"cobertura", blank=True, null=True)    
 
     # internos
     fecha_subido = models.DateField(auto_now_add = True)
@@ -243,8 +243,8 @@ class Proyecto(Contenido):
 
 class TribunalVocal(models.Model):
     proyecto_calificado = models.ForeignKey(Proyecto)
-    nombre = models.CharField(max_length=50, verbose_name="nombre vocal (*)")
-    apellidos = models.CharField(max_length=50, verbose_name="apellidos vocal (*)")
+    nombre = models.CharField(max_length=50, verbose_name=u"nombre vocal (*)")
+    apellidos = models.CharField(max_length=50, verbose_name=u"apellidos vocal (*)")
 
     def nombre_completo(self):
         return settings.PLANTILLA_NOMBRE_COMPLETO % {

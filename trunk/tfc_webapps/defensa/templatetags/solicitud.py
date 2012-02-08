@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #  Gestión de Proyectos Fin de Carrera de la Universidad de La Laguna
 #
 #    Copyright (C) 2011-2012 Pedro Cabrera <pdrcabrod@gmail.com>
