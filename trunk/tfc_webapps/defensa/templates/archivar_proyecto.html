@@ -32,11 +32,11 @@
     <h3>Proyecto</h3>
     <table>
 	<tr>
-	    <th><label for="id_title">Nombre:</label></th>
+	    <th><label for="id_title">Titulo:</label></th>
             <td>{{ f.title.errors }}{{ f.title }}</td>
 	</tr>
         <tr>
-	    <th><label for="id_language">Apellidos:</label></th>
+	    <th><label for="id_language">Idioma:</label></th>
             <td>{{ f.language.errors }}{{ f.language }}</td>
         </tr>
         <tr>
@@ -57,6 +57,34 @@
         </tr>
     </table>
 </div>
+
+<div class="item">
+    {{ a.management_form }}
+    {% for form in a.forms %}
+	<h3>Anexo {{ forloop.counter }}<h3>
+	<div class='table'>
+	<table class='no_error'>
+	    {{ form.as_table }}
+	</table>
+	</div>
+     {%endfor%}
+</div>
+
+<!--        <h3>Anexo {{ forloop.counter }}</h3>
+	<table>
+	<tr>
+	    <th><label for="id_title">Titulo:</label></th>
+            <td>{{anexo.title.errors }}{{ anexo.title }}</td>
+	</tr>
+        <tr>
+	    <th><label for="id_language">Idioma:</label></th>
+            <td>{{ anexo.language.errors }}{{ anexo.language }}</td>
+        </tr>
+        <tr>
+	    <th><label for="id_description">Descripcion:</label></th>
+            <td>{{ anexo.description.errors }}{{ anexo.description }}</td>
+        </tr>-->
+
 
 <div class="item">
     <div class="messages">

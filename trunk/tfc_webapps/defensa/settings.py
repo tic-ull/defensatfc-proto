@@ -25,6 +25,12 @@ FORMATO_SELECCION = (
     ('application/pdf', 'PDF'),
 )
 
+MODALIDAD_DEFECTO = 'proyecto fin de carrera'
+
+MODALIDAD_SELECCION = (
+    ('proyecto fin de carrera', u'Proyecto fin de carrera'),
+)
+
 
 DERECHOS_SELECCION = (
     ('CC-BY', u'Creative Commons Reconocimiento 3.0 España'),

@@ -20,6 +20,7 @@
 
 from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
+from django.forms.models import modelformset_factory
 
 from defensa import settings, models, validators
 
@@ -142,7 +143,7 @@ class FormularioProyectoCalificado(FormularioProyectoBase):
     def clean(self):
         data = self.cleaned_data
 
-        if not calificacion_valida(data['calificacion_numerica'], data['calificacion']):
+        if not validar_calificacion(data['calificacion_numerica'], data['calificacion']):
             self.append_field_error('calificacion',
                 u"La calificación y la nota numérica no coinciden")
 
@@ -163,4 +164,14 @@ class FormularioProyectoArchivado(forms.ModelForm):
 	model = models.Proyecto
 	fields = ('title', 'creator_nombre', 'creator_apellidos',
             'description', 'language', 'subject',  'rights', 'coverage')
+
+#class FormularioAnexo(forms.ModelForm):
+    #model = models.Anexo
+    #fields = ('title', 'languaje', 'description')
+
+AnexoModelFormset = modelformset_factory(
+    models.Anexo,
+    extra=0,
+    fields=('title', 'language', 'description')
+)
 

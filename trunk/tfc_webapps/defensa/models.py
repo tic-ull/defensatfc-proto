@@ -172,7 +172,7 @@ class Proyecto(Contenido):
     fecha_defensa = models.DateField(default=date.today(), verbose_name=u"fecha defensa", blank=True, null=True)
     calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name=u"calificación numérica", blank=True, null=True)
     calificacion = models.CharField(max_length=30, choices=settings.CALIFICACION_SELECCION, verbose_name=u"calificación", blank=True, null=True)
-    modalidad = models.CharField(max_length=30, blank=True, null=True) # TODO: Añadir selector de modalidad
+    modalidad = models.CharField(max_length=50, choices=settings.MODALIDAD_SELECCION, default=settings.MODALIDAD_DEFECTO, blank=True, null=True) # TODO: Añadir selector de modalidad
     tribunal_presidente_nombre = models.CharField(max_length=50, blank=True, null=True)
     tribunal_presidente_apellidos = models.CharField(max_length=50, blank=True, null=True)
     tribunal_secretario_nombre = models.CharField(max_length=50, blank=True, null=True)
@@ -327,7 +327,7 @@ def user_is_tutor(self):
 
 def user_can_view_proyecto(self, proyecto):
     return (proyecto.creator_email == self.email or
-            proyecto.tutor_email == self.email)
+            proyecto.tutor_email == self.email or self.has_perm("defensa.puede_archivar"))
 
 def user_can_autorizar_proyecto(self, proyecto):
     return (proyecto.tutor_email == self.email)

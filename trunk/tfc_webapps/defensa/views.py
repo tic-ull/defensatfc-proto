@@ -77,11 +77,11 @@ def solicitar_defensa(request):
 	anexo_formset = AnexoFormSet (request.POST, request.FILES)
 
 	if proyecto_form.is_valid():
-	    proyecto = proyecto_form.save(commit=False)
+	    proyecto = proyecto_form.save(commit=True)
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
 
-	if anexo_formset.is_valid():
-	    anexos = anexo_formset.save(commit=False)
+	    if anexo_formset.is_valid():
+		anexos = anexo_formset.save(commit=False)
 
 	if proyecto_form.is_valid() and anexo_formset.is_valid():
 	    proyecto.estado = 'solicitado'
@@ -126,8 +126,8 @@ def solicitar_defensa(request):
         initial = { 'niu': request.user.niu() }
         proyecto_form = FormularioProyecto(initial=initial)
         anexo_formset = AnexoFormSet()
-    if request.user.niu() is not None:
-        proyecto_form.fields['niu'].widget.attrs['disabled'] = True
+	if request.user.niu() is not None:
+	    proyecto_form.fields['niu'].widget.attrs['disabled'] = True
     return render_to_response('solicitar_defensa.html', {
                         'f': proyecto_form,
                         'a': anexo_formset,
@@ -183,9 +183,11 @@ def solicitud_mostrar(request, id):
         return HttpResponseForbidden()
     
     anexos = proyecto.anexo_set.all()
+    vocales = proyecto.tribunalvocal_set.all()
     return render_to_response('solicitud_mostrar.html', {
                                 'proyecto': proyecto,
                                 'anexos': anexos,
+                                'vocales': vocales,
                                 },
                                 context_instance=RequestContext(request))
 
@@ -193,7 +195,7 @@ def solicitud_mostrar(request, id):
 @login_required
 def autorizar_defensa(request, id):
     proyecto = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_autorizar_proyecto(proyecto): # TODO: Y no estado solicitado
+    if not request.user.can_autorizar_proyecto(proyecto) or not proyecto.estado == 'solicitado':
         return HttpResponseForbidden()
 
     anexos = proyecto.anexo_set.all()
@@ -277,7 +279,7 @@ def autorizar_defensa(request, id):
 @login_required  
 def calificar_proyecto(request, id):
     p = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_calificar_proyecto(p): # TODO: Y no estado autorizado
+    if not request.user.can_calificar_proyecto(p) or not p.estado == 'autorizado':
         return HttpResponseForbidden()
 
     anexos = p.anexo_set.all()
@@ -292,7 +294,7 @@ def calificar_proyecto(request, id):
 		p.estado = 'calificado'
 		# hacemos update
 		save_proyect_to_alfresco(p, [], update_db=True)
-
+		vocales_formset.save() #TODO llevar a models?
                 # enviar correo al alumno
                 plaintext = get_template('calificar_proyecto_email_alumno.txt')
                 subject = settings.ASUNTO_PROYECTO_CALIFICADO
@@ -340,28 +342,70 @@ def calificar_proyecto(request, id):
                                 context_instance=RequestContext(request))
 
 
+#@permission_required('defensa.puede_archivar')
+#def archivar_proyecto(request, id):
+    #p = get_object_or_404(Proyecto, id=id) 
+    #if not p.estado == 'calificado':
+        #return HttpResponseForbidden()    
+    #anexos = p.anexo_set.all()
+    #print len(anexos)    
+    #vocales = p.tribunalvocal_set.all()
+    #if request.method == 'POST':
+	#proyecto_form = FormularioProyectoArchivado(request.POST, instance = p)
+	#anexo_forms = [FormularioAnexo(request.POST, prefix=str(x), instance=anexos[x]) for x in range(0,len(anexos))]
+	##cforms = [ChoiceForm(request.POST, prefix=str(x), instance=Choice()) for x in range(0,3)]
+	#if proyecto_form.is_valid() and all([anexo.is_valid() for anexo in anexo_forms]):
+	##  if pform.is_valid() and all([cf.is_valid() for cf in cforms]):
+            #p.estado = 'archivado'
+            #save_proyect_to_alfresco(p, [], update_db=True)
+            #messages.add_message(request, messages.SUCCESS, """
+		#<strong>El proyecto se ha archivado con éxito.</strong> 
+                #""")
+	    #return redirect(lista_archivar)
+    #else:
+	#proyecto_form = FormularioProyectoArchivado(instance=p)
+	#anexo_forms = [FormularioAnexo(prefix=str(x), instance=anexos[x]) for x in range(0,len(anexos))]
+    #return render_to_response('archivar_proyecto.html', {
+                                #'f': proyecto_form,
+                                #'fa' : anexo_forms,
+                                #'proyecto': p,
+                                #'anexos' : anexos,
+                                #'vocales' : vocales,
+                                #},
+                                #context_instance=RequestContext(request))
+
 @permission_required('defensa.puede_archivar')
 def archivar_proyecto(request, id):
-    p = get_object_or_404(Proyecto, id=id) # TODO: Forbidden if no estado calificado
-    anexos = p.anexo_set.all()
+    p = get_object_or_404(Proyecto, id=id) 
+    if not p.estado == 'calificado':
+        return HttpResponseForbidden()    
+    anexos = p.anexo_set.all() 
+    vocales = p.tribunalvocal_set.all()
     if request.method == 'POST':
 	proyecto_form = FormularioProyectoArchivado(request.POST, instance = p)
+	anexo_formset = AnexoModelFormset(request.POST, queryset = anexos)
 	if proyecto_form.is_valid():
-            p.estado = 'archivado'
-            save_proyect_to_alfresco(p, [], update_db=True)
-            messages.add_message(request, messages.SUCCESS, """
-		<strong>El proyecto se ha archivado con éxito.</strong> 
-                """)
-	    return redirect(lista_archivar)
+	    if anexo_formset.is_valid():
+	        anexos = anexo_formset.save(commit=False)
+		p.estado = 'archivado'
+		save_proyect_to_alfresco(p, anexos, update_db=True)
+		messages.add_message(request, messages.SUCCESS, """
+		    <strong>El proyecto se ha archivado con éxito.</strong> 
+		    """)
+		return redirect(lista_archivar)
     else:
 	proyecto_form = FormularioProyectoArchivado(instance=p)
-
+	anexo_formset = AnexoModelFormset (queryset = anexos)
     return render_to_response('archivar_proyecto.html', {
                                 'f': proyecto_form,
+                                'a' : anexo_formset,
                                 'proyecto': p,
-                                'anexos' : anexos
+                                'anexos' : anexos,
+                                'vocales' : vocales,
                                 },
                                 context_instance=RequestContext(request))
+
+
 
 
 def buscar_proyectos(request, proyectos):

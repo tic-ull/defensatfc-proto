@@ -5,18 +5,23 @@
 <script type="text/javascript">
 function cloneMore(selector, type) {
     var newElement = $(selector).clone(true);
-    var total = $('#id_' + type + '-TOTAL_FORMS').val();
+    var total = $('#id_' + type + '_set-TOTAL_FORMS').val();
+    alert('#id_' + type + '-TOTAL_FORMS' + ' ' + total)
     newElement.find(':input').each(function() {
         var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
         var id = 'id_' + name;
-        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+
+        if ($(this).attr('type') != 'hidden') {
+            $(this).val('');
+        }
+        $(this).attr({'name': name, 'id': id}).removeAttr('checked');
     });
     newElement.find('label').each(function() {
         var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
         $(this).attr('for', newFor);
     });
     total++;
-    $('#id_' + type + '-TOTAL_FORMS').val(total);
+    $('#id_' + type + '_set-TOTAL_FORMS').val(total);
     $(selector).after(newElement);
 }
 
@@ -103,7 +108,7 @@ function cloneMore(selector, type) {
     <input type="button" value="Añadir vocal" id="add_more">
     <script>
 	$('#add_more').click(function() {
-	    cloneMore('div.table:last', 'service');
+	    cloneMore('div.table:last', 'tribunalvocal');
 	});
     </script>
 </div>

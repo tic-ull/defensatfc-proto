@@ -4,10 +4,20 @@
 {% block menu %}
 <h2>Acciones:</h2>
 <ul>
-    {%if user.email = proyecto.tutor_email and proyecto.estado == 'SOL' %}
+    {%if user.email == proyecto.tutor_email and proyecto.estado == 'solicitado' %}
     <li><a href="{{ proyecto.get_absolute_url }}autorizar/">Autorizar defensa</a></li>
     {% else %}
     <li>Autorizar defensa</li>
+    {% endif %}
+    {%if user.email == proyecto.tutor_email and proyecto.estado == 'autorizado' %}
+    <li><a href="{{ proyecto.get_absolute_url }}calificar/">Calificar proyecto</a></li>
+    {% else %}
+    <li>Calificar proyecto</li>
+    {% endif %}
+    {%if perms.defensa.puede_archivar and proyecto.estado == 'calificado' %}
+    <li><a href="{{ proyecto.get_absolute_url }}archivar/">Archivar proyecto</a></li>
+    {% else %}
+    <li>Archivar proyecto</li>
     {% endif %}
 </ul>
 {% endblock %}
@@ -65,6 +75,56 @@
 
 {% block accion_workflow %}
 {% endblock %}
+
+{%if proyecto.estado == 'calificado'%}
+<div class="item">
+    <h3>Datos calificación</h3>
+    <table>
+      <tr>
+	  <th>Calificacion:</th>
+	  <td>{{ proyecto.calificacion }}, ({{proyecto.calificacion_numerica}})</td>
+      </tr>
+      <tr>
+	  <th>Fecha defensa:</th>
+	  <td>{{ proyecto.fecha_defensa }}</td>
+      </tr>
+      <tr>
+	  <th>Presidente del tribunal:</th>
+	  <td>{{ proyecto.tribunal_presidente_nombre_completo }}</td>
+      </tr>
+      <tr>
+	  <th>Secretario del tribunal:</th>
+	  <td>{{ proyecto.tribunal_secretario_nombre_completo }}</td>
+      </tr>
+      {% if vocales %}
+	  {% for vocal in vocales %}
+	      <tr>
+		  <th>Vocal:</th>
+		  <td>{{vocal.apellidos}}, {{ vocal.nombre }}</td>
+	      </tr>
+	  {% endfor %}
+      {%endif%}
+     </table>
+</div>
+
+{%endif%}
+
+{%if proyecto.estado == 'archivado'%}
+<div class="item">
+    <h3>Datos de archivado</h3>
+    <table>
+      <tr>
+	  <th>Derechos:</th>
+	  <td>{{ proyecto.rights }}</td>
+      </tr>
+      <tr>
+	  <th>Idioma:</th>
+	  <td>{{ proyecto.language }}</td>
+      </tr>
+     </table>
+</div>
+
+{%endif%}
 
 {% if anexos %}
 <div class="item">
