@@ -25,7 +25,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Permission, User, Group
-from django.db.models import Q
+from django.db.models import Q, F
 from django.forms.models import inlineformset_factory, formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden
@@ -283,7 +283,7 @@ def calificar_proyecto(request, id):
         return HttpResponseForbidden()
 
     anexos = p.anexo_set.all()
-
+    print users
     if request.method == 'POST':
         proyecto_form = FormularioProyectoCalificado(request.POST, instance=p)
 
@@ -294,7 +294,7 @@ def calificar_proyecto(request, id):
 		p.estado = 'calificado'
 		# hacemos update
 		save_proyect_to_alfresco(p, [], update_db=True)
-		vocales_formset.save() #TODO llevar a models?
+		vocales_formset.save() 
                 # enviar correo al alumno
                 plaintext = get_template('calificar_proyecto_email_alumno.txt')
                 subject = settings.ASUNTO_PROYECTO_CALIFICADO
@@ -309,10 +309,9 @@ def calificar_proyecto(request, id):
                 email.send()
 
                 # enviar correo a los bibliotecarios
-                plaintext = get_template('calificar_proyecto_email_biblioteca.txt')
-		# TODO: Revisar esto. Creo que debería ser como antes
-                users = User.objects.filter(groups__name='bibliotecarios')
-                to_email = [user.email for user in users]                
+                plaintext = get_template('calificar_proyecto_email_biblioteca.txt') 
+		users = AdscripcionUsuarioCentro.objects.filter(centro=p.titulacion.centro, user__groups__name = settings.PUEDEN_ARCHIVAR)
+		to_email = [user.user.email for user in users]                
 		c = Context({
                     'proyecto': p.title,         
                     'url' : p.get_absolute_url()   
@@ -342,37 +341,6 @@ def calificar_proyecto(request, id):
                                 context_instance=RequestContext(request))
 
 
-#@permission_required('defensa.puede_archivar')
-#def archivar_proyecto(request, id):
-    #p = get_object_or_404(Proyecto, id=id) 
-    #if not p.estado == 'calificado':
-        #return HttpResponseForbidden()    
-    #anexos = p.anexo_set.all()
-    #print len(anexos)    
-    #vocales = p.tribunalvocal_set.all()
-    #if request.method == 'POST':
-	#proyecto_form = FormularioProyectoArchivado(request.POST, instance = p)
-	#anexo_forms = [FormularioAnexo(request.POST, prefix=str(x), instance=anexos[x]) for x in range(0,len(anexos))]
-	##cforms = [ChoiceForm(request.POST, prefix=str(x), instance=Choice()) for x in range(0,3)]
-	#if proyecto_form.is_valid() and all([anexo.is_valid() for anexo in anexo_forms]):
-	##  if pform.is_valid() and all([cf.is_valid() for cf in cforms]):
-            #p.estado = 'archivado'
-            #save_proyect_to_alfresco(p, [], update_db=True)
-            #messages.add_message(request, messages.SUCCESS, """
-		#<strong>El proyecto se ha archivado con éxito.</strong> 
-                #""")
-	    #return redirect(lista_archivar)
-    #else:
-	#proyecto_form = FormularioProyectoArchivado(instance=p)
-	#anexo_forms = [FormularioAnexo(prefix=str(x), instance=anexos[x]) for x in range(0,len(anexos))]
-    #return render_to_response('archivar_proyecto.html', {
-                                #'f': proyecto_form,
-                                #'fa' : anexo_forms,
-                                #'proyecto': p,
-                                #'anexos' : anexos,
-                                #'vocales' : vocales,
-                                #},
-                                #context_instance=RequestContext(request))
 
 @permission_required('defensa.puede_archivar')
 def archivar_proyecto(request, id):
