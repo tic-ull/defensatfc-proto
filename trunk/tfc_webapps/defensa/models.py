@@ -273,9 +273,16 @@ class Anexo(Contenido):
         return properties
 
 
-def save_proyect_to_alfresco(proyecto, anexos,
+def save_proyect_to_alfresco(proyecto, anexos, vocales = [],
                              update_relationship=True, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
+			       
+    if update_db:
+        proyecto.save()
+        for anexo in anexos:
+            anexo.save()
+        for vocal in vocales:    
+	  vocal.save()    
     """ Salvar toda la información relacionada con un proyecto en el gestor
     documental"""
 
@@ -305,10 +312,7 @@ def save_proyect_to_alfresco(proyecto, anexos,
             #})
         #cml.do()
 
-    if update_db:
-        proyecto.save()
-        for anexo in anexos:
-            anexo.save()
+
 
 
 #

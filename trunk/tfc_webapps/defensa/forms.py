@@ -155,7 +155,6 @@ VocalesFormSet = inlineformset_factory(models.Proyecto, models.TribunalVocal, ex
 class FormularioProyectoArchivado(forms.ModelForm):
     def __init__(self, *args, **kwargs):
 	super(FormularioProyectoArchivado, self).__init__(*args, **kwargs)
-	#duda, los que no son nullables?
         self.fields['rights'].required = True      
         self.fields['coverage'].required = True    
         self.fields['subject'].required = True               

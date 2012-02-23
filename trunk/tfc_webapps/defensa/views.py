@@ -283,7 +283,6 @@ def calificar_proyecto(request, id):
         return HttpResponseForbidden()
 
     anexos = p.anexo_set.all()
-    print users
     if request.method == 'POST':
         proyecto_form = FormularioProyectoCalificado(request.POST, instance=p)
 
@@ -293,8 +292,8 @@ def calificar_proyecto(request, id):
 	    if vocales_formset.is_valid():
 		p.estado = 'calificado'
 		# hacemos update
-		save_proyect_to_alfresco(p, [], update_db=True)
-		vocales_formset.save() 
+		vocales = vocales_formset.save(commit=False) 
+		save_proyect_to_alfresco(p, [], vocales=vocales, update_db=True)		
                 # enviar correo al alumno
                 plaintext = get_template('calificar_proyecto_email_alumno.txt')
                 subject = settings.ASUNTO_PROYECTO_CALIFICADO
