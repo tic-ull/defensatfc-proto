@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content_title %}Error en el acceso a la página{% endblock %}
+{% block content %}
+<div class="item">
+    <div class="messages">
+        <div class="error">
+            <h3>Pagina no encontrada</h3>
+            <p>
+            La página solicitada {{ request_path }} no pudo ser encontrada en este servidor.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

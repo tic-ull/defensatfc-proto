@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content_title %}Error en el acceso a la página{% endblock %}
+{% block content %}
+<div class="item">
+    <div class="messages">
+        <div class="error">
+            <h3>Prohibido</h3>
+            <p>
+            Lo lamentamos pero no tiene permiso para acceder a {{ request.path }} en este servidor.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
