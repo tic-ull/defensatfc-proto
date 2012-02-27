@@ -26,8 +26,6 @@ from django.utils import formats
 from defensa import settings, validators
 from defensa.alfresco import Alfresco
 
-from datetime import date
-
 import os
 import re
 
@@ -178,7 +176,7 @@ class Trabajo(Contenido):
                                           verbose_name=u'apellidos del director')
  
     #calificado
-    fecha_defensa = models.DateField(default=date.today(), verbose_name=u"fecha defensa", blank=True, null=True)
+    fecha_defensa = models.DateField(verbose_name=u"fecha defensa", blank=True, null=True)
     calificacion_numerica = models.DecimalField(max_digits=3, decimal_places=1, verbose_name=u"calificación numérica", blank=True, null=True)
     calificacion = models.CharField(max_length=30, choices=settings.CALIFICACION_SELECCION, verbose_name=u"calificación", blank=True, null=True)
     modalidad = models.CharField(max_length=50, choices=settings.MODALIDAD_SELECCION, default=settings.MODALIDAD_DEFECTO, blank=True, null=True)

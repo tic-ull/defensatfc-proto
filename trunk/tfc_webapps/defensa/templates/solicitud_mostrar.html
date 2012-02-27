@@ -1,9 +1,21 @@
 {% extends "base.html" %}
 {% load defensatags %}
 
+{% block extra_head %}
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/defensa.js"></script>
+{% endblock %}
+
 {% block content_title %}Trabajo Fin de Carrera{% endblock %}
 {% block content %}
 {% include "trabajo_mostrar.html" with trabajo=trabajo %}
+
+{% if editable %}
+<script type="text/javascript">
+    setupEditDialog("id_trabajo-{{ trabajo.id }}", "{{ trabajo.get_absolute_url }}editar/");
+</script>
+{% endif %}
 
 <div class="item">
 <table>
@@ -108,6 +120,9 @@
 <div class="item">
     {% for anexo in anexos %}
     {% include "anexo_mostrar.html" with counter=foorloop.counter anexo=anexo %}
+    <script type="text/javascript">
+        setupEditDialog("id_anexo-{{ anexo.id }}", "{{ anexo.get_absolute_url }}editar/");
+    </script>
     {% endfor %}
 </div>
 {% endif %}

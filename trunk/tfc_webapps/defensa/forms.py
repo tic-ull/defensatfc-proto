@@ -19,6 +19,7 @@
 #
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.forms.models import modelformset_factory
 
@@ -51,16 +52,12 @@ def validar_calificacion(calificacion_numerica, calificacion):
 
 
 class FormularioTrabajoBase(forms.ModelForm):
-    """Clase base para los formularios de solicitud de defensa de TFC.
+    """Clase base para los formularios de trabajos fin de carrera.
 
-    Esta clase base incluye elementos compartidos tanto por el
-    FormularioSolicitud utilizado en la vista de las solicitudes de TFC
-    como en el formulario TrabajoAdminForm, vinculado al modelo Trabajo,
-    de la interfaz administrativa .
+    Esta clase base incluye elementos compartidos tanto por FormularioSolicitud
+    utilizado en las vistas como en el formulario TrabajoAdminForm vinculado
+    al modelo Trabajo de la interfaz administrativa .
     """
-    
-    class Meta:
-        model = models.Trabajo
 
     def append_field_error(self, field, error):
         if field not in self._errors:
@@ -104,7 +101,7 @@ class FormularioSolicitud(FormularioTrabajoBase):
 
     class Meta:
         model = models.Trabajo
-	fields = ('title', 'description', 'language', 'file', 'creator_nombre',
+        fields = ('title', 'description', 'language', 'file', 'creator_nombre',
             'creator_apellidos', 'niu', 'centro', 'titulacion', 'tutor_nombre',
             'tutor_apellidos', 'tutor_email', 'director_nombre', 'director_apellidos')
         widgets = {
@@ -123,25 +120,60 @@ class FormularioSolicitud(FormularioTrabajoBase):
         return data
 
 
-class FormularioAnexoFormset(BaseInlineFormSet):
-    """Formset de anexos adjuntos durante la solicitud de defensa del TFC."""
+class FormularioTrabajo(forms.ModelForm):
+    """Formulario para editar los metadatos del trabajo fin de carrera."""
 
-    def add_fields(self, form, index):
-	super(FormularioAnexoFormset, self).add_fields(form, index)
-	form.fields["file"] = forms.FileField()
-        form.fields['title'].widget = forms.Textarea(attrs={'cols': 40, 'rows': 3})
+    class Meta:
+        model = models.Trabajo
+        fields = ('title', 'description', 'language')
+        widgets = {
+            'title': forms.Textarea(attrs={'cols': 40, 'rows': 3}),
+        }
+
+
+class FormularioAnexo(forms.ModelForm):
+    """Formulario para editar los metadatos del anexo."""
+
+    title = forms.CharField(label=u"Título",
+        widget=forms.Textarea(attrs={'cols': 40, 'rows': 3}))
+
+    class Meta:
+        model = models.Anexo
+        fields = ('title', 'description', 'language', 'type')
 
     def clean(self):
         data = self.cleaned_data
 
         formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[data['type']]
-        FileFormatValidator(data['file'], formatos)
-        
+        if self.instance.format not in formatos:
+            raise ValidationError(u'Formato de fichero no admitido para el tipo de documento.')
+            
         return data
 
+
+class FormularioSolicitudAnexo(FormularioAnexo):
+    """Formulario de anexo adjunto durante la solicitud de defensa del TFC."""
+
+    file  = forms.FileField(label=u"Documento del anexo")
+    title = forms.CharField(label=u"Título",
+        widget=forms.Textarea(attrs={'cols': 40, 'rows': 3}))
+
+    class Meta:
+        model = models.Anexo
+        fields = ('title', 'description', 'language', 'type')
+
+    def clean(self):
+        data = self.cleaned_data
+
+        if 'type' in data and 'file' in data:
+            formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[data['type']]
+            FileFormatValidator(data['file'], formatos)
+
+        return data
+
+
 AnexoFormSet = inlineformset_factory(models.Trabajo, models.Anexo,
-	formset = FormularioAnexoFormset,
-        fields = ('title', 'description', 'language', 'type' ),
+	form = FormularioSolicitudAnexo,
 	extra = 0)
 
 

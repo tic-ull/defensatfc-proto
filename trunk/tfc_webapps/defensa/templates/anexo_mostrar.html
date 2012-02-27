@@ -1,16 +1,21 @@
 {% load defensatags %}
 
-<h3>Anexo {{ counter }}: {{ anexo.title }}</h3>
-<p>{{ anexo.description }}</p><br/>
-<table>
-    <tr>
-        <th>Tipo de documento:</th>
-        <td>{{ anexo.pretty_type }}</td>
-    </tr>
-</table>
-
-<p style="text-align: right;">
-    {% if trabajo.estado == 'archivado' %}{{ trabajo.rights|licencia }}  &#8211;{% endif %}
-    <a href="{{ anexo.get_absolute_url }}/contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
-        en {{ anexo.pretty_language }} &#8211;
-</p>
+<div id="id_anexo-{{ anexo.id }}-wrapper">
+    <h3>Anexo {{ counter }}: {{ anexo.title }}</h3>
+    <p>{{ anexo.description }}</p><br/>
+    <table>
+        <tr>
+            <th>Tipo de documento:</th>
+            <td>{{ anexo.pretty_type }}</td>
+        </tr>
+    </table>
+    {% if editable %}
+    <p style="float: left;"><a href="#" id="id_anexo-{{ anexo.id }}-editar"><span class="icon-write-small" style=""></span>Editar</a></p>
+    {% endif %}
+    <p style="float: right;">
+        {% if trabajo.estado == 'archivado' %}{{ trabajo.rights|licencia }}  &#8211;{% endif %}
+        <a href="{{ anexo.get_absolute_url }}/contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
+            en {{ anexo.pretty_language }} &#8211;
+    </p>
+    <p>&nbsp;</p>
+</div>

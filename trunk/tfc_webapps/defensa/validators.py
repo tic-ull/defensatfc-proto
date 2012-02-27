@@ -30,7 +30,7 @@ from defensa import settings
 def FileFormatValidator(value, choices):
     (format, encoding) = mimetypes.guess_type(value.name)
     if format not in choices:
-        raise ValidationError(u'Formato de fichero no admitido para el tipo de documento')
+        raise ValidationError(u'Formato de fichero no admitido para el tipo de documento.')
 
       
 NIUValidator = RegexValidator(regex ='^\d{10}$', message='Ej: 0100353303')

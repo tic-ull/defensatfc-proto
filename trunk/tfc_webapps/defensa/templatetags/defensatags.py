@@ -35,6 +35,18 @@ def licencia(value):
         'license_image': settings.DERECHOS[value]['imagen'],
     })
 
+
+@register.filter
+def siguiente(estado):
+    if estado == 'solicitado':
+        return 'autorizado'
+    if estado == 'autoriado':
+        return 'calificado'
+    if estado == 'calificado':
+        return 'archivado'
+    return None
+
+    
 @register.filter
 def can_autorizar_trabajo(user, trabajo):
     return user.can_autorizar_trabajo(trabajo)

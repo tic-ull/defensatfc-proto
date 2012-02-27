@@ -1,14 +1,15 @@
 {% extends "base.html" %}
+{% load defensatags %}
 
 {% block extra_head %}
 <script language="javascript" src="{{ STATIC_URL }}js/jquery-1.6.3.min.js"></script>
 <script language="javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
 <script language="javascript" src="{{ STATIC_URL }}js/jquery.pageless.min.js"></script>
 <script language="javascript" src="{{ STATIC_URL }}js/jquery-scrolltofixed-min.js"></script>
-<script language="javascript" src="{{ STATIC_URL }}js/listado.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/defensa.js"></script>
 <script type="text/javascript">
     $(function() {
-        listado.init("#results", "#busqueda", {{ total_paginas }}, {
+        listado("#results", "#busqueda", {{ total_paginas }}, {
             pagelessLoaderMsg: 'Cargando más resultados',
             pagelessLoaderImage: '{{ STATIC_URL }}images/busy.gif'
         });
@@ -29,10 +30,10 @@
 
 <div class="item">
 {% if total_trabajos > 1 %}
-<p>Hay un total de {{ total_trabajos }} trabajos pendientes de ser {{ estado }}s.</p>
+<p>Hay un total de {{ total_trabajos }} trabajos pendientes de ser {{ estado|siguiente }}s.</p>
 {% endif %}
 {% if total_trabajos == 1 %}
-<p>Hay un trabajo pendiente de ser {{ estado }}.</p>
+<p>Hay un trabajo pendiente de ser {{ estado|siguiente }}.</p>
 {% endif %}
 <table id="results" class="listado">
     <tr>
@@ -44,7 +45,7 @@
 </div>
 {% else %}
 <div class="item">
-    <p>No hay trabajos pendientes de ser {{ estado }}s.</p>
+    <p>No hay trabajos pendientes de ser {{ estado|siguiente }}s.</p>
 </div>
 {% endif %}
 {% endblock %}

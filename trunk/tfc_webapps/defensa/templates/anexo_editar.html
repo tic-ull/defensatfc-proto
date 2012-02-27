@@ -1,0 +1,26 @@
+<div class="item">
+    <form action="." enctype="multipart/form-data" method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <table>
+            <tr>
+                <th><label for="id_title">Título (*):</label><br/>
+                    <small>(máx. 200 caracteres)</small></th>
+                <td>{{ form.title.errors }}{{ form.title }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_description">Descripción (*):</label><br/>
+                    <small>(máx. 1000 caracteres)</small></th>
+                <td>{{ form.description.errors }}{{ form.description }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_language">Idioma (*):</label></th>
+                <td>{{ form.language.errors }}{{ form.language }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_type">Tipo (*):</label></th>
+                <td>{{ form.type.errors }}{{ form.type }}</td>
+            </tr>
+        </table>
+</form>
+</div>

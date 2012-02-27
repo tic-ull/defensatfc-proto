@@ -17,7 +17,11 @@
       </tr>
     </table>
     <input type="submit" class="button" value="Acceder" />
+    {% if next %}
     <input type="hidden" name="next" value="{{ next }}" />
+    {% else %}
+    <input type="hidden" name="next" value="/" />
+    {% endif %}
   </form>
 </div>
 {% endblock %}

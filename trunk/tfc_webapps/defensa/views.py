@@ -42,6 +42,8 @@ from defensa.models import Trabajo, Anexo
 from defensa.models import AdscripcionUsuarioCentro
 from defensa.models import save_proyect_to_alfresco
 
+from datetime import date
+
 import mimetypes
 import operator
 import os.path
@@ -99,7 +101,7 @@ def solicitar_defensa(request):
 
 	    anexos_files = []
             for anexo, form in zip(anexos, anexo_formset.forms):
-	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
+	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)[0]
 		anexos_files.append (form.cleaned_data['file'])
 	    save_proyect_to_alfresco(trabajo, anexos,
 				     update_db=True,
@@ -141,6 +143,71 @@ def solicitar_defensa(request):
                         'a': anexo_formset,
                         'dominio_correo_tutor': settings.DOMINIO_CORREO_TUTOR,
                     })
+
+
+#
+# Vistas para editar trabajos y anexos
+#
+
+def editar_trabajo(request, id):
+    """Vista para editar los metadatos de un trabajo durante la revisión."""
+
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden()
+
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not ((request.user.can_autorizar_trabajo(trabajo) and
+            trabajo.estado == 'solicitado') or
+            (request.user.can_archivar_trabajo(trabajo) and
+            trabajo.estado == 'calificado')):
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        form = FormularioTrabajo(request.POST, instance=trabajo)
+
+        if form.is_valid():
+            form.save()
+
+            # if request.is_ajax():
+            return render(request, 'trabajo_mostrar.html', {
+                                'trabajo': trabajo,
+                                'editable': True,
+                            })
+    else:
+        form = FormularioTrabajo(instance=trabajo)
+
+    return render(request, 'trabajo_editar.html', {'form':form})
+
+
+def editar_anexo(request, id, anexo_id):
+    """Vista para editar los metadatos de un anexo durante la revisión."""
+
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden()
+
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not ((request.user.can_autorizar_trabajo(trabajo) and
+            trabajo.estado == 'solicitado') or
+            (request.user.can_archivar_trabajo(trabajo) and
+            trabajo.estado == 'calificado')):
+        return HttpResponseForbidden()
+
+    anexo = get_object_or_404(trabajo.anexo_set, id=anexo_id)
+    if request.method == 'POST':
+        form = FormularioAnexo(request.POST, instance=anexo)
+
+        if form.is_valid():
+            form.save()
+
+            # if request.is_ajax():
+            return render(request, 'anexo_mostrar.html', {
+                                'anexo': anexo,
+                                'editable': True,
+                            })
+    else:
+        form = FormularioAnexo(instance=anexo)
+
+    return render(request, 'anexo_editar.html', {'form':form})
 
 
 #
@@ -241,7 +308,7 @@ def autorizar_defensa(request, id):
         if trabajo_form.is_valid():
             if "Autorizar" in request.POST:
                 trabajo.estado = 'autorizado'
-                save_proyect_to_alfresco(trabajo, [], update_db=True)
+                save_proyect_to_alfresco(trabajo, anexos, update_db=True)
 
                 # enviar correo al alumno
                 plaintext = get_template('autorizar_defensa_email_alumno.txt')
@@ -307,6 +374,7 @@ def autorizar_defensa(request, id):
                                 'form': trabajo_form,
                                 'trabajo': trabajo,
                                 'anexos': anexos,
+                                'editable': True, # Para que se puedan editar los metados
                             })
 
 
@@ -369,7 +437,8 @@ def calificar_trabajo(request, id):
         vocales_formset = VocalesFormSet(request.POST)
 
     else:
-        trabajo_form = FormularioCalificar()
+        initial = {'fecha_defensa': date.today()}
+        trabajo_form = FormularioCalificar(initial=initial)
         vocales_formset = VocalesFormSet()
 
     return render(request, 'calificar_trabajo.html', {
@@ -411,6 +480,7 @@ def archivar_trabajo(request, id):
                                 'trabajo': trabajo,
                                 'anexos' : anexos,
                                 'vocales' : vocales,
+                                'editable': True,
                             })
 
 

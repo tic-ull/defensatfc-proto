@@ -85,7 +85,7 @@ TIPO_DOCUMENTO_TO_FORMATO = {
 
 FORMATO_SELECCION = [
     (k, k) for k, g in groupby(
-        sorted(chain(TIPO_DOCUMENTO_TO_FORMATO.values()))
+        sorted(chain(TIPO_DOCUMENTO_TO_FORMATO.itervalues()))
     ) if k]
 
 

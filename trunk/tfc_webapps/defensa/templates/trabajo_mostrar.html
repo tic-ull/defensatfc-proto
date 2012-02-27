@@ -1,11 +1,17 @@
 {% load defensatags %}
 
-<h3>{{ trabajo.title }}</h3>
-<div class="item">
-<p>{{ trabajo.description }}</p><br/>
-<p style="text-align: right;">
-    {% if trabajo.estado == 'archivado' %}{{ trabajo.rights|licencia }}  &#8211;{% endif %}
-    <a href="{{ trabajo.get_absolute_url }}contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
-        en {{ trabajo.pretty_language }} &#8211;
-</p>
+<div id="id_trabajo-{{ trabajo.id }}-wrapper">
+    <h3>{{ trabajo.title }}</h3>
+    <div class="item">
+    <p>{{ trabajo.description }}</p><br/>
+    {% if editable %}
+    <p style="float: left;"><a href="#" id="id_trabajo-{{ trabajo.id }}-editar"><span class="icon-write-small" style=""></span>Editar</a></p>
+    {% endif %}
+    <p style="float: right;">
+        {% if trabajo.estado == 'archivado' %}{{ trabajo.rights|licencia }}  &#8211;{% endif %}
+        <a href="{{ trabajo.get_absolute_url }}contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
+            en {{ trabajo.pretty_language }} &#8211;
+    </p>
+    <p>&nbsp;</p>
+    </div>
 </div>

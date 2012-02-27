@@ -445,6 +445,7 @@ height: 32px;
 margin: 0 .5em 0 0;
 }
 
+.icon-write-small,
 .icon-download-small {
 display: inline-block;
 vertical-align: middle;
@@ -473,8 +474,17 @@ background-image: url("/static/images/error.png") !important;
 background-image: url("/static/images/download.png") !important;
 }
 
+.icon-write-small {
+background-image: url("/static/images/write.png") !important;
+}
+
 .icon-download-small {
 background-image: url("/static/images/download-small.png") !important;
+}
+
+.loading {
+background: url("/static/images/spinner.gif")
+center no-repeat !important
 }
 
 /*para los menus de buscar y añadir usuarios */
