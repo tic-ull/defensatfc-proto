@@ -52,6 +52,8 @@ BUSQUEDA_RESULTADOS_POR_PAGINA = 30
 
 
 def filter(request, model_class, field_name):
+    """Vista genérica para facilitar las consultas por AJAX a los modelos."""
+    
     query_test = 'q' in request.GET and request.GET['q']
     if not request.user.is_authenticated() or not query_test:
         return HttpResponseNotFound()
@@ -66,11 +68,15 @@ def filter(request, model_class, field_name):
 
 @login_required
 def index(request):
+    """Página de inicio."""
+    
     return render(request, 'index.html')
 
 
 @login_required
 def solicitar_defensa(request):
+    """Formulario de solicitud de defensa de un trabajo fin de carrera."""
+    
     if request.method == 'POST':
         request.POST['niu'] = request.user.niu()
         proyecto_form = FormularioProyecto(request.POST, request.FILES)
@@ -140,7 +146,9 @@ def solicitar_defensa(request):
 #
 
 @login_required
-def descargar_contenido(request, id):
+def descargar_proyecto(request, id):
+    """Vista para descarga la memoria del proyecto."""
+    
     proyecto = get_object_or_404(Proyecto, id=id)
     if not request.user.can_view_proyecto(proyecto):
         return HttpResponseForbidden()
@@ -156,6 +164,8 @@ def descargar_contenido(request, id):
 
 @login_required
 def descargar_anexo(request, id, anexo_id):
+    """Vista para descarga un anexo de un proyecto."""
+    
     proyecto = get_object_or_404(Proyecto, id=id)
     if not request.user.can_view_proyecto(proyecto):
         return HttpResponseForbidden()
@@ -172,6 +182,8 @@ def descargar_anexo(request, id, anexo_id):
 
 @login_required
 def descargar_autorizacion(request, id):
+    """Vista para descarga el documento de autorización de la defensa del proyecto."""
+    
     proyecto = get_object_or_404(Proyecto, id=id)
     if not (request.user.can_view_proyecto(proyecto) or
             proyecto.estado == 'autorizado'):
@@ -188,9 +200,15 @@ def descargar_autorizacion(request, id):
         (settings.DESCARGAR_AUTORIZACION_FILENAME % proyecto.niu))
     return response
 
+    
+#
+# Vistas para las acciones sobre cada proyecto
+#
 
 @login_required  
 def solicitud_mostrar(request, id):
+    """Mostrar toda la información acerca del proyecto cuya defensa se ha solicitado."""
+    
     proyecto = get_object_or_404(Proyecto, id=id)
     if not request.user.can_view_proyecto(proyecto):
         return HttpResponseForbidden()
@@ -206,6 +224,8 @@ def solicitud_mostrar(request, id):
 
 @login_required
 def autorizar_defensa(request, id):
+    """Vista para autorizar la defensa de un proyecto solicitado."""
+    
     proyecto = get_object_or_404(Proyecto, id=id)
     if not request.user.can_autorizar_proyecto(proyecto) or not proyecto.estado == 'solicitado':
         return HttpResponseForbidden()
@@ -289,6 +309,8 @@ def autorizar_defensa(request, id):
 
 @login_required  
 def calificar_proyecto(request, id):
+    """Vista para calificar un proyecto defendido."""
+    
     p = get_object_or_404(Proyecto, id=id)
     if not request.user.can_calificar_proyecto(p) or not p.estado == 'autorizado':
         return HttpResponseForbidden()
@@ -353,6 +375,8 @@ def calificar_proyecto(request, id):
 
 @permission_required('defensa.puede_archivar')
 def archivar_proyecto(request, id):
+    """Vista para archivar un proyecto calificado."""
+    
     p = get_object_or_404(Proyecto, id=id) 
     if not p.estado == 'calificado':
         return HttpResponseForbidden()    
@@ -382,7 +406,9 @@ def archivar_proyecto(request, id):
                             })
 
 
-
+#
+# Vistas para listar los proyectos en sus diferentes estados.
+#
 
 def buscar_proyectos(request, proyectos):
     if 'q' in request.GET and request.GET['q']:

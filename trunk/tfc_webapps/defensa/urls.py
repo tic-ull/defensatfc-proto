@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
+form django.views.defaults import page_not_found
 
 from defensa import models
 
@@ -15,10 +16,11 @@ urlpatterns = patterns('defensa.views',
     }),
     url(r'^/solicitar/$', 'solicitar_defensa'),
     url(r'^/(?P<id>\d+)/$', 'solicitud_mostrar', name='proyecto_view'),
-    url(r'^/(?P<id>\d+)/contenido/$', 'descargar_contenido'),
-    url(r'^/(?P<id>\d+)/anexo/(?P<anexo_id>\d+)/$', 'descargar_anexo', name='anexo_view'),
-    url(r'^/(?P<id>\d+)/autorizacion/$', 'descargar_autorizacion'),
+    url(r'^/(?P<id>\d+)/contenido/$', 'descargar_proyecto'),
+    url(r'^/(?P<id>\d+)/anexo/(?P<anexo_id>\d+)/', page_not_found, name='anexo_view'),
+    url(r'^/(?P<id>\d+)/anexo/(?P<anexo_id>\d+)/contenido/$', 'descargar_anexo'),
     url(r'^/(?P<id>\d+)/autorizar/$', 'autorizar_defensa'),
+    url(r'^/(?P<id>\d+)/autorizacion/$', 'descargar_autorizacion'),
     url(r'^/(?P<id>\d+)/calificar/$', 'calificar_proyecto'),
     url(r'^/(?P<id>\d+)/archivar/$', 'archivar_proyecto'),
     url(r'^/autorizar/$', 'lista_autorizar'),
