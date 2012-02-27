@@ -34,6 +34,10 @@ color: #666;
 line-height: 17px;
 }
 
+.jsOff .jsOnly {
+display: none;
+}
+
 select { width: 250px; }
 img { border: none; }
 a { color: #04689B; }

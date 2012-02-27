@@ -18,7 +18,10 @@
   {% block extra_head %}
   {% endblock %}
 </head>
-<body>
+<body class="jsOff">
+<script type="text/javascript">
+  document.body.className = document.body.className.replace('jsOff ','');
+</script>
 <div id="wrap">
 
 <div id="header">
@@ -83,6 +86,11 @@
 <div id="content">
   <div class="right">
     <div class="messages">
+      <noscript>
+        <div class="error">Este sitio web necesita JavaScript para funcionar.
+          Por favor, actívelo en su navegador y cargue la página de nuevo.
+        </div>
+      </noscript>
     {% if messages %}
       {% for message in messages %}
       <div class="{{ message.tags }}">{{ message|safe }}</div>
