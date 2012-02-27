@@ -140,7 +140,7 @@
 - model: defensa.Titulacion
   pk: 1
   fields:
-    nombre: P082 Ingeniero Técnico Industrial, Especialidad en Mecánica
+    nombre: Ingeniero Técnico Industrial, Especialidad en Mecánica
     centro: 4
     codigo_plan: P082
     anyo_comienzo_plan: 2002
@@ -149,7 +149,7 @@
 - model: defensa.Titulacion
   pk: 2
   fields:
-    nombre: P108 Ingeniero en Automática y Electrónica Industrial
+    nombre: Ingeniero en Automática y Electrónica Industrial
     centro: 4
     codigo_plan: P108
     anyo_comienzo_plan: 2003
@@ -158,7 +158,7 @@
 - model: defensa.Titulacion
   pk: 3
   fields:
-    nombre: P092 Ingeniero Técnico de Obras Públicas, Especialidad en Hidrología
+    nombre: Ingeniero Técnico de Obras Públicas, Especialidad en Hidrología
     centro: 4
     codigo_plan: P092
     anyo_comienzo_plan: 2001
@@ -167,7 +167,7 @@
 - model: defensa.Titulacion
   pk: 3
   fields:
-    nombre: P083 Ingeniero Técnico Industrial, Especialidad en Electrónica Industrial
+    nombre: Ingeniero Técnico Industrial, Especialidad en Electrónica Industrial
     centro: 4
     codigo_plan: P083
     anyo_comienzo_plan: 2000
@@ -176,7 +176,7 @@
 - model: defensa.Titulacion
   pk: 4
   fields:
-    nombre: M521 Máster en Ingeniería Informática Aplicada a la Industrria, a la Ingeniería del Software y a los Sistemas y Tecnologías de la Información
+    nombre: Máster en Ingeniería Informática Aplicada a la Industria, a la Ingeniería del Software y a los Sistemas y Tecnologías de la Información
     centro: 5
     codigo_plan: M521
     anyo_comienzo_plan: 2008
@@ -185,7 +185,7 @@
 - model: defensa.Titulacion
   pk: 5
   fields:
-    nombre: P106 Ingeniero Técnico en Informática de Gestión
+    nombre: Ingeniero Técnico en Informática de Gestión
     centro: 5
     codigo_plan: P106
     anyo_comienzo_plan: 2003
@@ -194,7 +194,7 @@
 - model: defensa.Titulacion
   pk: 6
   fields:
-    nombre: P105 Ingeniero Técnico en Informática de Sistemas
+    nombre: Ingeniero Técnico en Informática de Sistemas
     centro: 5
     codigo_plan: P105
     anyo_comienzo_plan: 2003
@@ -203,7 +203,7 @@
 - model: defensa.Titulacion
   pk: 7
   fields:
-    nombre: P080 Ingeniero en Informática
+    nombre: Ingeniero en Informática
     centro: 5
     codigo_plan: P80
     anyo_comienzo_plan: 1999
@@ -212,7 +212,7 @@
 - model: defensa.Titulacion
   pk: 8
   fields:
-    nombre: P064 Ingeniero Técnico en Informática de Gestión
+    nombre: Ingeniero Técnico en Informática de Gestión
     centro: 5
     codigo_plan: P064
     anyo_comienzo_plan: 1996
@@ -221,7 +221,7 @@
 - model: defensa.Titulacion
   pk: 9
   fields:
-    nombre: P065 Ingeniero Técnico en Informática de Sistemas
+    nombre: Ingeniero Técnico en Informática de Sistemas
     centro: 5
     codigo_plan: P065
     anyo_comienzo_plan: 1996
@@ -230,7 +230,7 @@
 - model: defensa.Titulacion
   pk: 10
   fields:
-    nombre: P049 Ingeniero en Informática
+    nombre: Ingeniero en Informática
     centro: 5
     codigo_plan: P049
     anyo_comienzo_plan: 1993
@@ -239,7 +239,7 @@
 - model: defensa.Titulacion
   pk: 11
   fields:
-    nombre: P034 Ingeniero Técnico en Informática de Gestión
+    nombre: Ingeniero Técnico en Informática de Gestión
     centro: 5
     codigo_plan: P034
     anyo_comienzo_plan: 1990
@@ -248,7 +248,7 @@
 - model: defensa.Titulacion
   pk: 11
   fields:
-    nombre: P035 Ingeniero Técnico en Informática de Sistemas
+    nombre: Ingeniero Técnico en Informática de Sistemas
     centro: 5
     codigo_plan: P035
     anyo_comienzo_plan: 1990
@@ -257,7 +257,7 @@
 - model: defensa.Titulacion
   pk: 11
   fields:
-    nombre: P017 Diplomado en Informática
+    nombre: Diplomado en Informática
     centro: 5
     codigo_plan: P017
     anyo_comienzo_plan: 1987

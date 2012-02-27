@@ -51,7 +51,7 @@ BUSQUEDA_CAMPOS = ('title', 'creator_nombre', 'creator_apellidos', 'niu',)
 BUSQUEDA_RESULTADOS_POR_PAGINA = 30
 
 
-def filter(request, model_class, field_name):
+def filter(request, model_class, field_name, order_by=None):
     """Vista genérica para facilitar las consultas por AJAX a los modelos."""
     
     query_test = 'q' in request.GET and request.GET['q']
@@ -59,11 +59,14 @@ def filter(request, model_class, field_name):
         return HttpResponseNotFound()
 
     kwargs = {field_name: request.GET['q']}
-    search = list(model_class.objects.filter(**kwargs).values('id', 'nombre'))
-    if not search:
+    query = model_class.objects.filter(**kwargs)
+    if order_by is not None:
+        query = query.order_by(*order_by)
+    results = [{'id': o.id, 'nombre': str(o)} for o in query]
+    if not results:
         return HttpResponseNotFound()
 
-    return HttpResponse(content=dumps(search), mimetype='application/json')
+    return HttpResponse(content=dumps(results), mimetype='application/json')
 
 
 def index(request):

@@ -82,7 +82,7 @@ class Titulacion(AlfrescoPFCModel):
     alfresco_uuid = models.CharField(max_length=36, blank = 'true', null = 'true', validators=[validators.UUIDValidator])
 
     def __unicode__(self):
-        return self.nombre
+        return "%s (Plan %4d)" % (self.nombre, self.anyo_comienzo_plan)
 
     def _get_alfresco_properties(self):
         return {
@@ -247,7 +247,7 @@ class Trabajo(Contenido):
         properties['cm:creator'] = self.creator_nombre_completo()
         properties['pfc:niu'] = self.niu
         properties['pfc:centro'] = self.centro().nombre
-        properties['pfc:titulacion'] = self.titulacion.nombre
+        properties['pfc:titulacion'] = str(self.titulacion)
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()
         properties['pfc:fechaDefensa'] = self.fecha_defensa.isoformat()

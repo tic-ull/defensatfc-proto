@@ -13,6 +13,7 @@ urlpatterns = patterns('defensa.views',
     url(r'^/titulacion/find-by-centro/$', 'filter', {
         'model_class': models.Titulacion,
         'field_name': 'centro',
+        'order_by': ('nombre', '-anyo_comienzo_plan'),
     }),
     url(r'^/solicitar/$', 'solicitar_defensa'),
     url(r'^/(?P<id>\d+)/$', 'solicitud_mostrar', name='trabajo_view'),

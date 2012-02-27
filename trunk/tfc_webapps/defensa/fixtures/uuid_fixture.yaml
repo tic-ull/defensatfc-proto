@@ -84,57 +84,57 @@
     model: defensa.centro
     pk: 22
 -   fields: {alfresco_uuid: 59d5147e-72e2-4bc8-9121-7588ea865823, anyo_comienzo_plan: 2002,
-        centro: 4, codigo_plan: P082, nombre: "P082 Ingeniero T\xE9cnico Industrial,\
+        centro: 4, codigo_plan: P082, nombre: "Ingeniero T\xE9cnico Industrial,\
             \ Especialidad en Mec\xE1nica", titulacion_vigente: true}
     model: defensa.titulacion
     pk: 1
 -   fields: {alfresco_uuid: 173c80a4-82c8-40c4-a2f0-306f2beccfb3, anyo_comienzo_plan: 2003,
-        centro: 4, codigo_plan: P108, nombre: "P108 Ingeniero en Autom\xE1tica y Electr\xF3\
+        centro: 4, codigo_plan: P108, nombre: "Ingeniero en Autom\xE1tica y Electr\xF3\
             nica Industrial", titulacion_vigente: true}
     model: defensa.titulacion
     pk: 2
 -   fields: {alfresco_uuid: 43cc08bc-45bc-4b4b-910b-95654a6f4bc3, anyo_comienzo_plan: 2000,
-        centro: 4, codigo_plan: P083, nombre: "P083 Ingeniero T\xE9cnico Industrial,\
+        centro: 4, codigo_plan: P083, nombre: "Ingeniero T\xE9cnico Industrial,\
             \ Especialidad en Electr\xF3nica Industrial", titulacion_vigente: true}
     model: defensa.titulacion
     pk: 3
 -   fields: {alfresco_uuid: 7568ba71-d6c5-4773-bb34-f0b699e23741, anyo_comienzo_plan: 2008,
-        centro: 5, codigo_plan: M521, nombre: "M521 M\xE1ster en Ingenier\xEDa Inform\xE1\
-            tica Aplicada a la Industrria, a la Ingenier\xEDa del Software y a los\
+        centro: 5, codigo_plan: M521, nombre: "M\xE1ster en Ingenier\xEDa Inform\xE1\
+            tica Aplicada a la Industria, a la Ingenier\xEDa del Software y a los\
             \ Sistemas y Tecnolog\xEDas de la Informaci\xF3n", titulacion_vigente: true}
     model: defensa.titulacion
     pk: 4
 -   fields: {alfresco_uuid: 86879674-7acc-47a0-a228-f1ee39fd07ab, anyo_comienzo_plan: 2003,
-        centro: 5, codigo_plan: P106, nombre: "P106 Ingeniero T\xE9cnico en Inform\xE1\
+        centro: 5, codigo_plan: P106, nombre: "Ingeniero T\xE9cnico en Inform\xE1\
             tica de Gesti\xF3n", titulacion_vigente: true}
     model: defensa.titulacion
     pk: 5
 -   fields: {alfresco_uuid: 0596ff53-4491-42e0-ba5e-86b976db0242, anyo_comienzo_plan: 2003,
-        centro: 5, codigo_plan: P105, nombre: "P105 Ingeniero T\xE9cnico en Inform\xE1\
+        centro: 5, codigo_plan: P105, nombre: "Ingeniero T\xE9cnico en Inform\xE1\
             tica de Sistemas", titulacion_vigente: true}
     model: defensa.titulacion
     pk: 6
 -   fields: {alfresco_uuid: 947b5116-4dbf-462f-a5fa-483805a49a2f, anyo_comienzo_plan: 1999,
-        centro: 5, codigo_plan: P80, nombre: "P080 Ingeniero en Inform\xE1tica", titulacion_vigente: true}
+        centro: 5, codigo_plan: P80, nombre: "Ingeniero en Inform\xE1tica", titulacion_vigente: true}
     model: defensa.titulacion
     pk: 7
 -   fields: {alfresco_uuid: 38f943ba-77cd-4558-8884-469668d740a0, anyo_comienzo_plan: 1996,
-        centro: 5, codigo_plan: P064, nombre: "P064 Ingeniero T\xE9cnico en Inform\xE1\
+        centro: 5, codigo_plan: P064, nombre: "Ingeniero T\xE9cnico en Inform\xE1\
             tica de Gesti\xF3n", titulacion_vigente: false}
     model: defensa.titulacion
     pk: 8
 -   fields: {alfresco_uuid: cbfe110a-22b8-4057-bdb9-ff67a2792c9d, anyo_comienzo_plan: 1996,
-        centro: 5, codigo_plan: P065, nombre: "P065 Ingeniero T\xE9cnico en Inform\xE1\
+        centro: 5, codigo_plan: P065, nombre: "Ingeniero T\xE9cnico en Inform\xE1\
             tica de Sistemas", titulacion_vigente: false}
     model: defensa.titulacion
     pk: 9
 -   fields: {alfresco_uuid: d7bf9b1d-80fa-4dd9-8f82-9e40063c96e6, anyo_comienzo_plan: 1993,
-        centro: 5, codigo_plan: P049, nombre: "P049 Ingeniero en Inform\xE1tica",
+        centro: 5, codigo_plan: P049, nombre: "Ingeniero en Inform\xE1tica",
         titulacion_vigente: false}
     model: defensa.titulacion
     pk: 10
 -   fields: {alfresco_uuid: e4caa0c0-7d2c-4af9-9131-cdaae9aead7f, anyo_comienzo_plan: 1987,
-        centro: 5, codigo_plan: P017, nombre: "P017 Diplomado en Inform\xE1tica",
+        centro: 5, codigo_plan: P017, nombre: "Diplomado en Inform\xE1tica",
         titulacion_vigente: false}
     model: defensa.titulacion
     pk: 11
