@@ -29,11 +29,11 @@ FORMATO_SELECCION = (
     ('application/pdf', 'PDF'),
 )
 
-MODALIDAD_DEFECTO = 'proyecto fin de carrera'
 
 MODALIDAD_SELECCION = (
-    ('proyecto fin de carrera', u'Proyecto fin de carrera'),
+    ('tfc', u'Trabajo fin de carrera'),
 )
+MODALIDAD_DEFECTO = 'tfc'
 
 
 DERECHOS_SELECCION = (
