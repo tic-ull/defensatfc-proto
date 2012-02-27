@@ -106,6 +106,7 @@ ASUNTO_PROYECTO_CALIFICADO = u"Trabajo fin de carrera calificado pendiente de ar
 
 
 # Configuración de alfresco
+ALFRESCO_ENABLED = False
 ALFRESCO_PROXY_SERVER = {
     'http': 'localhost:1080'
 }

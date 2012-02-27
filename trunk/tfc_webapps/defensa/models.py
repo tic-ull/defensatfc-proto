@@ -299,31 +299,32 @@ def save_proyect_to_alfresco(proyecto, anexos, vocales = [],
         for vocal in vocales:    
 	  vocal.save()    
 
-    #cml = Alfresco().cml()
+    if settings.ALFRESCO_ENABLED:
+        cml = Alfresco().cml()
 
-    #proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
-    #for anexo in anexos:
-        #anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
-    #cml.do()
+        proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
+        for anexo in anexos:
+            anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
+        cml.do()
 
-    #if proyecto_contenido is not None:
-        #Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
-    #for anexo, contenido in zip(anexos, anexos_contenidos):
-        #Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+        if proyecto_contenido is not None:
+            Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
+        for anexo, contenido in zip(anexos, anexos_contenidos):
+            Alfresco().upload_content(anexo.alfresco_uuid, contenido)
 
-    #if update_relationship and anexos:
-        ### Si es necesario, hay que salvar la relacion entre los documentos
-        #cml = Alfresco().cml()
-        #relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
-        #proyecto_relaciones = ['hastPart %s' % anexo.alfreso_uuid for anexo in anexos]
-        #cml.update(proyecto.alfresco_uuid, {
-            #relation_propname: proyecto_relaciones
-        #})
-        #for anexo in anexos:
-            #cml.update(anexo.alfresco_uuid, {
-                #property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
-            #})
-        #cml.do()
+        if update_relationship and anexos:
+            # Si es necesario, hay que salvar la relacion entre los documentos
+            cml = Alfresco().cml()
+            relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
+            proyecto_relaciones = ['hasPart %s' % anexo.alfreso_uuid for anexo in anexos]
+            cml.update(proyecto.alfresco_uuid, {
+                relation_propname: proyecto_relaciones
+            })
+            for anexo in anexos:
+                cml.update(anexo.alfresco_uuid, {
+                    property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
+                })
+            cml.do()
 
 
 #
