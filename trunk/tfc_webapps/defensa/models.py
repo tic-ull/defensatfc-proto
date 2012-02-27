@@ -32,6 +32,8 @@ import re
 
 
 class AlfrescoPFCModel(models.Model):
+    """Modelo abstracto base de todos los modelos cuyos datos se exportal a Alfresco."""
+    
     NAMESPACES = Alfresco.NAMESPACES
     NAMESPACES['pfc'] = settings.ALFRESCO_PFC_MODEL_NAMESPACE 
 
@@ -52,6 +54,8 @@ class AlfrescoPFCModel(models.Model):
 
 
 class Centro(AlfrescoPFCModel):
+    """Modelo de los centros."""
+    
     nombre = models.CharField(max_length=200)
     codigo_centro = models.CharField(max_length=200)
     alfresco_uuid = models.CharField(max_length=36, blank = 'true', null = 'true', validators=[validators.UUIDValidator])
@@ -67,6 +71,8 @@ class Centro(AlfrescoPFCModel):
 
 
 class Titulacion(AlfrescoPFCModel):
+    """Modelo de las titulaciones."""
+
     nombre = models.CharField(max_length=200)
     centro = models.ForeignKey(Centro)
     codigo_plan = models.CharField(max_length=200)
@@ -87,7 +93,9 @@ class Titulacion(AlfrescoPFCModel):
 
 
 class Contenido(AlfrescoPFCModel):
-    # dublin core
+    """Modelo base para todos los tipos de contenidos almacenados en el repositorio."""
+    
+    # campos dublin core
     title = models.CharField(max_length=200, verbose_name="título")
     format = models.CharField(max_length=30, choices=settings.FORMATO_SELECCION)
     description = models.TextField(verbose_name="descripción", validators=[MaxLengthValidator(1000)])
@@ -96,7 +104,7 @@ class Contenido(AlfrescoPFCModel):
     # relation: sólo se incluirá en los metados del documento en el repositorio
     # TODO: Consultar sobre publisher, identifier, URI
 
-    # internos
+    # campos internos
     alfresco_uuid = models.CharField(max_length=36, validators=[validators.UUIDValidator])
 
     class Meta:
@@ -140,6 +148,8 @@ class Contenido(AlfrescoPFCModel):
 
 
 class Proyecto(Contenido):
+    """Modelo principal de un proyecto."""
+    
     ESTADO_SELECCION = (
         ('solicitado', u'Solicitada la defensa'),
         ('rechazado',  u'Rechazado'),
@@ -242,6 +252,8 @@ class Proyecto(Contenido):
 
 
 class TribunalVocal(models.Model):
+    """Modelo para almacenar los vocales del tribunal de defensa de un proyecto."""
+    
     proyecto_calificado = models.ForeignKey(Proyecto)
     nombre = models.CharField(max_length=50, verbose_name=u"nombre vocal (*)")
     apellidos = models.CharField(max_length=50, verbose_name=u"apellidos vocal (*)")
@@ -257,6 +269,8 @@ class TribunalVocal(models.Model):
 
 
 class Anexo(Contenido):
+    """Modelo de los documentos anexos a la memoria del proyecto."""
+    
     proyecto = models.ForeignKey(Proyecto)
 
     @models.permalink
@@ -276,15 +290,14 @@ class Anexo(Contenido):
 def save_proyect_to_alfresco(proyecto, anexos, vocales = [],
                              update_relationship=True, update_db=False,
                              proyecto_contenido=None, anexos_contenidos=()):
-			       
+    """ Salvar toda la información relacionada con un proyecto en el gestor documental."""
+
     if update_db:
         proyecto.save()
         for anexo in anexos:
             anexo.save()
         for vocal in vocales:    
 	  vocal.save()    
-    """ Salvar toda la información relacionada con un proyecto en el gestor
-    documental"""
 
     #cml = Alfresco().cml()
 
@@ -311,8 +324,6 @@ def save_proyect_to_alfresco(proyecto, anexos, vocales = [],
                 #property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
             #})
         #cml.do()
-
-
 
 
 #
@@ -348,6 +359,8 @@ auth.models.User.add_to_class('can_calificar_proyecto', user_can_calificar_proye
 
 
 class AdscripcionUsuarioCentro(models.Model):
+    """Modelo que vincula el personal de la universidad a los centros."""
+    
     user = models.ForeignKey(auth.models.User, db_index=True)
     centro = models.ForeignKey(Centro, db_index=True)
     notificar_correo = models.BooleanField(default=False)
