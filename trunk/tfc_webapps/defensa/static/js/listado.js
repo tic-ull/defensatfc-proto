@@ -44,10 +44,10 @@ var listado = {
         $(searchBox).scrollToFixed({
             marginTop: -10,
             preFixed: function() {
-                $(this).toggleClass('floating');
+                $(this).animate({"background-color": "#969"});
             },
             preUnfixed: function() {
-                $(this).toggleClass('floating');
+                $(this).animate({"background-color": "#ffffff"});
             },
         });
 
