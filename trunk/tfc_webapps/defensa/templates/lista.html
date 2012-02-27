@@ -16,17 +16,7 @@
 </script>
 {% endblock %}
 
-{% block content_title %}Trabajos que esperan ser
-{% if estado == 'solicitado' %}
-autorizados
-{% endif %}
-{% if estado == 'autorizado' %}
-calificados
-{% endif %}
-{% if estado == 'calificado' %}
-archivados
-{% endif %}
-{% endblock %}
+{% block content_title %}Trabajos que esperan ser {{ estado }}s{% endblock %}
 
 {% block content %}
 {% if proyectos %}
@@ -39,10 +29,10 @@ archivados
 
 <div class="item">
 {% if total_proyectos > 1 %}
-<p>Hay un total de {{ total_proyectos }} trabajos pendientes de ser revisados.</p>
+<p>Hay un total de {{ total_proyectos }} trabajos pendientes de ser {{ estado }}s.</p>
 {% endif %}
 {% if total_proyectos == 1 %}
-<p>Hay un trabajo pendiente de ser revisado.</p>
+<p>Hay un trabajo pendiente de ser {{ estado }}.</p>
 {% endif %}
 <table id="results" class="listado">
     <tr>
@@ -54,7 +44,7 @@ archivados
 </div>
 {% else %}
 <div class="item">
-    <p>No hay proyectos pendientes de ser revisados.</p>
+    <p>No hay proyectos pendientes de ser {{ estado }}s.</p>
 </div>
 {% endif %}
 {% endblock %}
