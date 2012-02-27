@@ -316,6 +316,9 @@ margin: 5px auto 0 auto;
 .item input.button {float:right; width:9.0em; margin-right:20px; padding:1px !important /*Non-IE6*/; padding:0 /*IE6*/; background:rgb(230,230,230); border:solid 1px rgb(150,150,150); text-align:center; font-family:verdana,arial,sans-serif; color:rgb(150,150,150); font-size:110%;}
 .item input.button:hover {cursor: pointer; border:solid 1px rgb(80,80,80); background:rgb(220,220,220); color:rgb(80,80,80);}
 
+.item a.button {float:right; width:9.0em; margin-right:20px; padding:1px !important /*Non-IE6*/; padding:0 /*IE6*/; background:rgb(230,230,230); border:solid 1px rgb(150,150,150); text-align:center; font-family:verdana,arial,sans-serif; color:rgb(150,150,150); font-size:110%; text-decoration:none;}
+.item a.button:hover {cursor: pointer; border:solid 1px rgb(80,80,80); background:rgb(220,220,220); color:rgb(80,80,80); text-decoration:none;}
+
 .item .buscar { text-align: right; }
 .item .buscar input[type="text"] { width: 60%; }
 .item .buscar input.button { float: none; }
@@ -380,6 +383,10 @@ color: #F13232;
 /* Mensajes. Estilos tomados de:
  * http://mrben.co.uk/entry/a-nicer-way-of-using-the-Django-messages-framework/
  */
+
+.messages {
+    padding-bottom: 1em;
+}
 
 .messages .info,
 .messages .success,

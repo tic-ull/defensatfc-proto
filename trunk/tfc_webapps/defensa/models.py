@@ -21,6 +21,7 @@
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.contrib import auth
+from django.utils import formats
 
 from defensa import settings, validators
 from defensa.alfresco import Alfresco
@@ -99,10 +100,9 @@ class Contenido(AlfrescoPFCModel):
     title = models.CharField(max_length=200, verbose_name="título")
     format = models.CharField(max_length=30, choices=settings.FORMATO_SELECCION)
     description = models.TextField(verbose_name="descripción", validators=[MaxLengthValidator(1000)])
-    type = models.CharField(max_length=30, choices=settings.TIPO_DOCUMENTO_SELECCION, default=settings.TIPO_DOCUMENTO_DEFECTO)
     language = models.CharField(max_length=2, choices=settings.LENGUAJE_SELECCION, verbose_name="idioma", default=settings.LENGUAJE_DEFECTO)
     # relation: sólo se incluirá en los metados del documento en el repositorio
-    # TODO: Consultar sobre publisher, identifier, URI
+    # TODO: Consultar sobre identifier, URI
 
     # campos internos
     alfresco_uuid = models.CharField(max_length=36, validators=[validators.UUIDValidator])
@@ -116,10 +116,7 @@ class Contenido(AlfrescoPFCModel):
     def __unicode__(self):
         return self.title
 
-    def type_detallado(self):
-        return [value for key, value in settings.TIPO_DOCUMENTO_SELECCION if key == self.type][0]
-
-    def language_detallado(self):
+    def pretty_language(self):
         return [value for key, value in settings.LENGUAJE_SELECCION if key == self.language][0]
 
     def save_to_alfresco(self, parent_uuid, cml, force_insert=False, force_update=False):
@@ -142,8 +139,9 @@ class Contenido(AlfrescoPFCModel):
             'cm:title': self.title,
             'cm:format': self.format,
             'cm:description': self.description,
-            'cm:type': self.type,
+            'cm:type': settings.TIPO_DOCUMENTO_TO_DUBLIN_CORE[self.type],
             'cm:language': self.language,
+            'cm:publisher': settings.PUBLISHER_DEFECTO
         }
 
 
@@ -159,6 +157,7 @@ class Proyecto(Contenido):
     )
 
     # dublin core
+    type = models.CharField(max_length=30, choices=settings.TIPO_DOCUMENTO_PROYECTO_SELECCION)
     creator_nombre = models.CharField(max_length=50, verbose_name= u'nombre del autor')
     creator_apellidos = models.CharField(max_length=50, verbose_name= u'apellidos del autor')
     creator_email = models.EmailField(max_length=50,
@@ -207,7 +206,7 @@ class Proyecto(Contenido):
             if campo_nombre in self.__dict__ and campo_apellidos in self.__dict__:
                 if self.__dict__[campo_nombre] and self.__dict__[campo_apellidos]:
                     def nombre_completo():
-                        return settings.PLANTILLA_NOMBRE_COMPLETO % {
+                        return settings.NOMBRE_COMPLETO_PLANTILLA % {
                             'nombre': self.__dict__[campo_nombre],
                             'apellidos': self.__dict__[campo_apellidos],
                         }
@@ -219,8 +218,25 @@ class Proyecto(Contenido):
         raise AttributeError("%r object has no attribute %r" %
                              (type(self).__name__, name))
 
-    def estado_detallado(self):
+    def centro(self):
+        return self.titulacion.centro
+
+    def pretty_estado(self):
         return [value for key, value in self.ESTADO_SELECCION if key == self.estado][0]
+
+    def pretty_calificacion(self):
+        return [value for key, value in settings.CALIFICACION_SELECCION if key == self.calificacion][0]
+
+    def pretty_calificacion_numerica(self):
+        return formats.number_format(self.calificacion_numerica, 1)
+
+    def pretty_rights(self):
+        license = settings.DERECHOS[self.rights]
+        print license
+        if license.get('url', ''):
+            return "%(texto)s - %(url)s" % license
+        else:
+            return license['texto']
 
     @models.permalink
     def get_absolute_url(self):
@@ -230,25 +246,22 @@ class Proyecto(Contenido):
         properties = super(Proyecto, self)._get_alfresco_properties()
         properties['cm:creator'] = self.creator_nombre_completo()
         properties['pfc:niu'] = self.niu
-        properties['pfc:centro'] = self.titulacion.centro.nombre
+        properties['pfc:centro'] = self.centro().nombre
         properties['pfc:titulacion'] = self.titulacion.nombre
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()
         properties['pfc:fechaDefensa'] = self.fecha_defensa.isoformat()
-        properties['pfc:calificacion'] = self.calificacion
-        properties['pfc:calificacionNumerica'] = self.calificacion_numerica
+        properties['pfc:calificacion'] = self.pretty_calificacion()
+        properties['pfc:calificacionNumerica'] = self.pretty_calificacion_numerica()
         properties['pfc:modalidad'] = self.modalidad
         properties['pfc:presidenteTribunal'] = self.tutor_nombre_completo()
         properties['pfc:secretarioTribunal'] = self.director_nombre_completo()
-        properties['pfc:vocalesTribunal'] = self.tribunal_vocales()
+        properties['pfc:vocalesTribunal'] = [
+            vocal.nombre_completo() for vocal in self.tribunalvocal_set.all()]
         properties['cm:subject'] = self.subject
-        properties['cm:rights'] = settings.TEXTO_DERECHOS[self.rights]
+        properties['cm:rights'] = self.pretty_rights()
         properties['cm:coverage'] = self.coverage        
         return properties
-        
-    def tribunal_vocales(self):
-        return [vocal.nombre_completo() for vocal in
-            TribunalVocal.objects.filter(proyecto_calificado=self.pk).all()]
 
 
 class TribunalVocal(models.Model):
@@ -259,7 +272,7 @@ class TribunalVocal(models.Model):
     apellidos = models.CharField(max_length=50, verbose_name=u"apellidos vocal (*)")
 
     def nombre_completo(self):
-        return settings.PLANTILLA_NOMBRE_COMPLETO % {
+        return settings.NOMBRE_COMPLETO_PLANTILLA % {
             'nombre': self.nombre,
             'apellidos': self.apellidos,
         }
@@ -271,6 +284,7 @@ class TribunalVocal(models.Model):
 class Anexo(Contenido):
     """Modelo de los documentos anexos a la memoria del proyecto."""
     
+    type = models.CharField(max_length=30, choices=settings.TIPO_DOCUMENTO_ANEXO_SELECCION)
     proyecto = models.ForeignKey(Proyecto)
 
     @models.permalink
@@ -280,6 +294,9 @@ class Anexo(Contenido):
             'anexo_id': self.id,
         })
 
+    def pretty_type(self):
+        return [value for key, value in settings.TIPO_DOCUMENTO_ANEXO_SELECCION if key == self.type][0]
+        
     # Muchas de las propiedades de los anexos se heredan de las del proyecto
     def _get_alfresco_properties(self):
         properties = self.proyecto._get_alfresco_properties()
@@ -341,10 +358,15 @@ def user_niu(self):
 def user_is_tutor(self):
     return Proyecto.objects.filter(tutor_email=self.email).exists()
 
+def user_centros(self):
+    return AdscripcionUsuarioCentro.objects.filter(user=self).values('centro')
+
 def user_can_view_proyecto(self, proyecto):
-    return (proyecto.creator_email == self.email or
-            proyecto.tutor_email == self.email or
-            self.has_perm("defensa.puede_archivar"))
+    es_creador = proyecto.creator_email == self.email
+    es_tutor = proyecto.tutor_email == self.email
+    puede_archivar = self.has_perm("defensa.puede_archivar")
+    return es_creador or es_tutor or (
+        proyecto.estado in ('calificado', 'archivado') and puede_archivar)
 
 def user_can_autorizar_proyecto(self, proyecto):
     return (proyecto.tutor_email == self.email)
@@ -352,11 +374,21 @@ def user_can_autorizar_proyecto(self, proyecto):
 def user_can_calificar_proyecto(self, proyecto):
     return (proyecto.tutor_email == self.email)
 
+def user_can_archivar_proyecto(self, proyecto):
+    return (self.has_perm("defensa.puede_archivar") and
+        AdscripcionUsuarioCentro.objects.filter(
+            user=self,
+            centro=proyecto.centro()
+        ).exists()
+    )
+
 auth.models.User.add_to_class('niu', user_niu)
 auth.models.User.add_to_class('is_tutor', user_is_tutor)
+auth.models.User.add_to_class('centros', user_centros)
 auth.models.User.add_to_class('can_view_proyecto', user_can_view_proyecto)
 auth.models.User.add_to_class('can_autorizar_proyecto', user_can_autorizar_proyecto)
 auth.models.User.add_to_class('can_calificar_proyecto', user_can_calificar_proyecto)
+auth.models.User.add_to_class('can_archivar_proyecto', user_can_archivar_proyecto)
 
 
 class AdscripcionUsuarioCentro(models.Model):

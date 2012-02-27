@@ -1,0 +1,1 @@
+{% if license_url %}<a rel="license" href="{{ license_url }}" title="{{ license_text }}">{% endif %}{% if license_image %}<img title="{{ license_text }}" alt="{{ license_text }}" style="border-width:0; vertical-align:middle;" src="{{ license_image }}" />{% endif %}{% if not license_image %}{{ license_text }}{% endif %}{% if license_url %}</a>{% endif %}

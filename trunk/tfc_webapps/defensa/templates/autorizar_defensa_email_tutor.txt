@@ -8,7 +8,5 @@ Puede seguir consultando los datos del trabajo en la dirección:
 
 {{ url }}
 
-Recuerde que una vez haya sido defendido el trabajo deberá calificarlo a través del siguiente enlace:
-
-{{ url }}calificar/
+Recuerde que una vez haya sido defendido deberá calificarlo a través del enlace anterior.
 

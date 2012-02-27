@@ -1,0 +1,16 @@
+{% load defensatags %}
+
+<h3>Anexo {{ counter }}: {{ anexo.title }}</h3>
+<p>{{ anexo.description }}</p><br/>
+<table>
+    <tr>
+        <th>Tipo de documento:</th>
+        <td>{{ anexo.pretty_type }}</td>
+    </tr>
+</table>
+
+<p style="text-align: right;">
+    {% if proyecto.estado == 'archivado' %}{{ proyecto.rights|licencia }}  &#8211;{% endif %}
+    <a href="{{ anexo.get_absolute_url }}/contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
+        en {{ anexo.pretty_language }} &#8211;
+</p>

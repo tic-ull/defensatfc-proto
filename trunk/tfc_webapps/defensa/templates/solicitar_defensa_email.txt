@@ -4,9 +4,9 @@ El alumno "{{ creator_nombre }}" ({{ niu }}) ha solicitado la defensa del trabaj
 
 "{{ proyecto }}".
 
-Debe revisar el contenido de trabajo y autorizar o rechazar su defensa a través del siguiente enlace:
+Debe revisar el contenido del trabajo y autorizar o rechazar su defensa a través del siguiente enlace:
 
-{{ url }}autorizar/
+{{ url }}
 
 Puede ponerse en contacto con "{{ creator_nombre }}" a través de la dirección de correo: {{ creator_email }}
 

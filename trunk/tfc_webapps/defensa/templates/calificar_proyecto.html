@@ -2,58 +2,47 @@
 
 {% block extra_head %}
 <script language="javascript" src="{{ STATIC_URL }}js/jquery-1.6.3.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/jquery.ui.datepicker-es.js"></script>
 <script type="text/javascript">
-function cloneMore(selector, type) {
-    var newElement = $(selector).clone(true);
-    var total = $('#id_' + type + '_set-TOTAL_FORMS').val();
-    newElement.find(':input').each(function() {
-        var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
-        var id = 'id_' + name;
-
-        if ($(this).attr('type') != 'hidden') {
-            $(this).val('');
-        }
-        $(this).attr({'name': name, 'id': id}).removeAttr('checked');
-    });
-    newElement.find('label').each(function() {
-        var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
-        $(this).attr('for', newFor);
-    });
-    total++;
-    $('#id_' + type + '_set-TOTAL_FORMS').val(total);
-    $(selector).after(newElement);
-}
-
+    $(function() {
+        $.datepicker.setDefaults($.datepicker.regional["es"]);
+        $( "#id_fecha_defensa" ).datepicker({
+                showOn: "both",
+                buttonImage: "{{ STATIC_URL }}images/calendar.png",
+                buttonImageOnly: true
+            });
+        });
 </script>
-
 {% endblock %}
 
-{% block menu %}
+{% block estado_proxima_accion %}
 {% endblock %}
 
+{% block anexos %}
+{% endblock %}
 
 {% block content_title %}Calificar Trabajo Fin de Carrera{% endblock %}
-{% block accion_workflow %}
+
+{% block messages %}
+<div class="info">
+    <h3>Calificación</h3>
+    <p>
+    Por favor, rellene el formulario al final de la página con los  datos referentes
+    a la defensa del trabajo fin de carrera y haga <em>clic</em> en el botón
+    <em>Calificar</em> para remitir dicha información. Tenga en cuenta que este
+    procedimiento debe ser realizado una vez haya tenido lugar la defensa del proyecto
+    frente al tribunal.</p>
+</div>
+{% endblock %}
+
+{% block accion_formulario %}
 <form id="form" action="." enctype="multipart/form-data" method="POST">
 {% csrf_token %}
 <div class="item">
-    <div class="messages">
-        <div class="info">
-            <h3>Datos a rellenar</h3>
-            <p>
-            Por favor, rellene los siguientes datos referentes a la defensa del trabajo de fin de carrera. Tenga en cuenta
-            que estos datos han de ser completados una vez se haya producido la lectura del proyecto frente a un tribunal</p>
-        </div>
-    </div>
-    <br/>
-
-    <h3>Proyecto</h3>
+    <h3>Calificación</h3>
     {{ f.non_field_errors }}
     <table>
-        <tr>
-           <th><label for="id_fecha_defensa">Fecha defensa (*):</label></th>
-           <td>{{ f.fecha_defensa.errors }}{{ f.fecha_defensa }}</td>
-        </tr>
         <tr>
             <th><label for="id_calificacion_numerica">Calificacion numerica (*):</label></th>
             <td>{{ f.calificacion_numerica.errors }}{{ f.calificacion_numerica }}</td>
@@ -63,13 +52,13 @@ function cloneMore(selector, type) {
             <td>{{ f.calificacion.errors }}{{ f.calificacion }}</td>
         </tr>
         <tr>
-            <th><label for="id_modalidad">Modalidad (*):</label></th>
-            <td>{{ f.modalidad.errors }}{{ f.modalidad }}</td>
+           <th><label for="id_fecha_defensa">Fecha de la defensa (*):</label></th>
+           <td>{{ f.fecha_defensa.errors }}{{ f.fecha_defensa }}</td>
         </tr>
     </table>
 
     <h3>Presidente del tribunal</h3>
-    <p><small>Presidente del tribunal creado para la evalución del proyecto.</small></p>
+    <p><small>Presidente del tribunal encargado de la evaluación del proyecto.</small></p>
     <table>
         <tr>
            <th><label for="id_tribunal_presidente_nombre">Nombre (*):</label></th>
@@ -82,7 +71,7 @@ function cloneMore(selector, type) {
     </table>
 
     <h3>Secretario del tribunal</h3>
-    <p><small>Secretario del tribunal creado para la evalución del proyecto.</small></p>
+    <p><small>Secretario del tribunal encargado de la evaluación del proyecto.</small></p>
     <table>
         <tr>
            <th><label for="id_tribunal_secretario_nombre">Nombre (*):</label></th>
@@ -94,38 +83,29 @@ function cloneMore(selector, type) {
         </tr>
     </table>
 
-    <h3>Vocales del tribunal</h3>
-    <p><small>Vocales del tribunal creado para la evalución del proyecto.</small></p>
-    {{ v.management_form }}
     {% for form in v.forms %}
-	<div class='table'>
-	<table class='no_error'>
-	    {{ form.as_table }}
+    {% if v.forms|length == 1 %}
+    <h3>Vocal del tribunal</h3>
+    <p><small>Vocal del tribunal encargado de la evaluación del proyecto.</small></p>
+    {% else %}
+    <h3>Vocal {{ forloop.counter }} del tribunal</h3>
+    <p><small>Vocal {{ forloop.counter }} del tribunal encargado de la evaluación del proyecto.</small></p>
+    {% endif %}
+    {{ v.management_form }}
+    {{ form.non_field_errors }}
+	<table>
+            <tr>
+                <th><label for="id_tribunalvocal_set-{{ forloop.counter0 }}-nombre">Nombre (*):</label></th>
+                <td>{{ form.nombre.errors }}{{ form.nombre }}</td>
+            </tr>
+            <tr>
+                <th><label for="id_tribunalvocal_set-{{ forloop.counter0 }}-apellidos">Apellidos (*):</label></th>
+                <td>{{ form.apellidos.errors }}{{ form.apellidos }}</td>
+            </tr>
 	</table>
-	</div>
     {% endfor %}
-    <input type="button" value="Añadir vocal" id="add_more">
-    <script>
-	$('#add_more').click(function() {
-	    cloneMore('div.table:last', 'tribunalvocal');
-	});
-    </script>
-</div>
-    
-<div class="item">
-    <div class="messages">
-        <div class="warning">
-            <h3>Calificación</h3>
-            <p>Al pulsar sobre el botón <em>Calificar</em>  estará de acuerdo en enviar los datos ya rellenos sobre el proyecto 
-	    a ser calificado. Tenga en cuenta que una vez calificado no se podrá cambiar ningún dato relativo al proyecto, por lo que le recomendamos
-            que lo revise todo detenidamente.</p>
-        </div>
-    </div>
-
-
-    <br>
+    <br/>
     <input type="submit" class="button" value="Calificar" />
 </div>
 </form>
-
 {% endblock %}

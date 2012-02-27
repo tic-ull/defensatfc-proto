@@ -82,14 +82,15 @@
 
 <div id="content">
   <div class="right">
-    {% if messages %}
     <div class="messages">
+    {% if messages %}
       {% for message in messages %}
       <div class="{{ message.tags }}">{{ message|safe }}</div>
       {% endfor %}
-    </div>
-    <br />
     {% endif %}
+    {% block messages %}
+    {% endblock %}
+    </div>
 
     <h2>{% block content_title %}{% endblock %}</h2>
     {% block content %}

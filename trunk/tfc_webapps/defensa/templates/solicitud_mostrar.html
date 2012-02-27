@@ -1,36 +1,9 @@
 {% extends "base.html" %}
-{% load solicitud %}
-
-{% block menu %}
-<h2>Acciones:</h2>
-<ul>
-    {%if user.email == proyecto.tutor_email and proyecto.estado == 'solicitado' %}
-    <li><a href="{{ proyecto.get_absolute_url }}autorizar/">Autorizar defensa</a></li>
-    {% else %}
-    <li>Autorizar defensa</li>
-    {% endif %}
-    {%if user.email == proyecto.tutor_email and proyecto.estado == 'autorizado' %}
-    <li><a href="{{ proyecto.get_absolute_url }}calificar/">Calificar proyecto</a></li>
-    {% else %}
-    <li>Calificar proyecto</li>
-    {% endif %}
-    {%if perms.defensa.puede_archivar and proyecto.estado == 'calificado' %}
-    <li><a href="{{ proyecto.get_absolute_url }}archivar/">Archivar proyecto</a></li>
-    {% else %}
-    <li>Archivar proyecto</li>
-    {% endif %}
-</ul>
-{% endblock %}
+{% load defensatags %}
 
 {% block content_title %}Trabajo Fin de Carrera{% endblock %}
 {% block content %}
-<h3>{{ proyecto.title }}</h3>
-<div class="item">
-<p>{{ proyecto.description }}</p><br/>
-<p style="text-align: right;">
-    <a href="{{ proyecto.get_absolute_url }}contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211; en {{ proyecto.language_detallado }} &#8211;
-</p>
-</div>
+{% include "proyecto_mostrar.html" with proyecto=proyecto %}
 
 <div class="item">
 <table>
@@ -38,18 +11,41 @@
         <th>Estado:</th>
         <td class="estado">
             <span class="{{ proyecto.estado }}">
-                {{ proyecto.estado_detallado }}
+                {{ proyecto.pretty_estado }}
             </span>
+            {% block estado_proxima_accion %}
+            {%if user|can_autorizar_proyecto:proyecto and proyecto.estado == 'solicitado' %}
+            (<a href="{{ proyecto.get_absolute_url }}autorizar/">Autorizar defensa</a>)
+            {% endif %}
+            {%if user|can_calificar_proyecto:proyecto and proyecto.estado == 'autorizado' %}
+            (<a href="{{ proyecto.get_absolute_url }}calificar/">Calificar proyecto</a>)
+            {% endif %}
+            {%if user|can_archivar_proyecto:proyecto and proyecto.estado == 'calificado' %}
+            (<a href="{{ proyecto.get_absolute_url }}archivar/">Archivar proyecto</a>)
+            {% endif %}
+            {% endblock %}
         </td>
     </tr>
     <tr>
         <th>Centro:</th>
-        <td>{{ proyecto.titulacion.centro }}</td>
+        <td>{{ proyecto.centro }}</td>
     </tr>
     <tr>
         <th>Titulación:</th>
         <td>{{ proyecto.titulacion }}</td>
     </tr>
+
+{% if proyecto.estado == 'archivado' %}
+    <tr>
+        <th>Tema:</th>
+        <td>{{ proyecto.subject }}</td>
+    </tr>
+    <tr>
+        <th>Cobertura:</th>
+        <td>{{ proyecto.coverage }}</td>
+    </tr>
+{% endif %}
+
     <tr>
         <th>Autor:</th>
         <td>{{ proyecto.creator_nombre_completo }}
@@ -73,77 +69,51 @@
 </table>
 </div>
 
-{% block accion_workflow %}
-{% endblock %}
-
-{%if proyecto.estado == 'calificado'%}
+{%if proyecto.estado == 'calificado' or proyecto.estado == 'archivado' %}
 <div class="item">
-    <h3>Datos calificación</h3>
+    <h3>Calificación</h3>
     <table>
-      <tr>
-	  <th>Calificacion:</th>
-	  <td>{{ proyecto.calificacion }}, ({{proyecto.calificacion_numerica}})</td>
-      </tr>
-      <tr>
-	  <th>Fecha defensa:</th>
-	  <td>{{ proyecto.fecha_defensa }}</td>
-      </tr>
-      <tr>
-	  <th>Presidente del tribunal:</th>
-	  <td>{{ proyecto.tribunal_presidente_nombre_completo }}</td>
-      </tr>
-      <tr>
-	  <th>Secretario del tribunal:</th>
-	  <td>{{ proyecto.tribunal_secretario_nombre_completo }}</td>
-      </tr>
-      {% if vocales %}
-	  {% for vocal in vocales %}
-	      <tr>
-		  <th>Vocal:</th>
-		  <td>{{vocal.apellidos}}, {{ vocal.nombre }}</td>
-	      </tr>
-	  {% endfor %}
-      {%endif%}
+        <tr>
+            <th>Calificacion:</th>
+            <td>{{ proyecto.pretty_calificacion_numerica }} ({{ proyecto.pretty_calificacion|upper }})</td>
+        </tr>
+        <tr>
+            <th>Fecha de la defensa:</th>
+            <td>{{ proyecto.fecha_defensa }}</td>
+        </tr>
+        <tr>
+            <th>Presidente del tribunal:</th>
+            <td>{{ proyecto.tribunal_presidente_nombre_completo }}</td>
+        </tr>
+        <tr>
+            <th>Secretario del tribunal:</th>
+            <td>{{ proyecto.tribunal_secretario_nombre_completo }}</td>
+        </tr>
+        {% for vocal in vocales %}
+	<tr>
+            {% if vocales|length == 1 %}
+            <th>Vocal del tribunal:</th>
+            {% else %}
+            <th>Vocal {{ forloop.counter }} del tribunal:</th>
+            {% endif %}
+            <td>{{ vocal.nombre_completo }}</td>
+        </tr>
+	{% endfor %}
      </table>
 </div>
-
 {%endif%}
 
-{%if proyecto.estado == 'archivado'%}
-<div class="item">
-    <h3>Datos de archivado</h3>
-    <table>
-      <tr>
-	  <th>Derechos:</th>
-	  <td>{{ proyecto.rights }}</td>
-      </tr>
-      <tr>
-	  <th>Idioma:</th>
-	  <td>{{ proyecto.language }}</td>
-      </tr>
-     </table>
-</div>
-
-{%endif%}
-
+{% block anexos %}
 {% if anexos %}
 <div class="item">
     {% for anexo in anexos %}
-        <h3>Anexo {{ forloop.counter }}: {{ anexo.title }}</h3>
-        <p>{{ anexo.description }}</p><br/>
-        <table>
-            <tr>
-                <th>Tipo de documento:</br>
-                    <small>(Puede ser {% tipos_documentos %} )</small></th>
-                <td>{{ anexo.type_detallado }}</td>
-            </tr>
-        </table>
-
-        <p style="text-align: right;">
-            <a href="{{ anexo.get_absolute_url }}/contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
-            en {{ anexo.language_detallado }} &#8211;
-        </p>
+    {% include "anexo_mostrar.html" with counter=foorloop.counter anexo=anexo %}
     {% endfor %}
 </div>
 {% endif %}
+{% endblock %}
+
+{% block accion_formulario %}
+{% endblock %}
+
 {% endblock %}

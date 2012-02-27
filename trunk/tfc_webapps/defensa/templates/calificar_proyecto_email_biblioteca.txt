@@ -8,5 +8,5 @@ que ahora está pendiente de ser archivado.
 
 Puede archivar dicho trabajo a través del siguente enlace:
 
-{{ url }}archivar/
+{{ url }}
 

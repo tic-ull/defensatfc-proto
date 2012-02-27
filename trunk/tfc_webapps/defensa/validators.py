@@ -27,11 +27,10 @@ from django.core.exceptions import ValidationError
 from defensa import settings
 
  
-def file_format(value):
+def FileFormatValidator(value, choices):
     (format, encoding) = mimetypes.guess_type(value.name)
-    formats = [mimetype for mimetype, name in settings.FORMATO_SELECCION]
-    if format not in formats:
-        raise ValidationError('Formato de fichero no válido')
+    if format not in choices:
+        raise ValidationError(u'Formato de fichero no admitido para el tipo de documento')
 
       
 NIUValidator = RegexValidator(regex ='^\d{10}$', message='Ej: 0100353303')

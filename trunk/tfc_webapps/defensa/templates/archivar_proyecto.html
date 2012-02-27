@@ -1,116 +1,49 @@
 {% extends "solicitud_mostrar.html" %}
 
-{% block menu %}
+{% block estado_proxima_accion %}
 {% endblock %}
 
 {% block content_title %}Archivar Trabajo Fin de Carrera{% endblock %}
 
-{% block accion_workflow %}
+{% block messages %}
+<div class="info">
+    <h3>Revisión</h3>
+    <p>
+    Por favor, revise detenidamente toda la información referente a este proyecto y complete los
+    campos del formulario al final de la página para archivarlo de manera definitiva.</p>
+</div>
+{% endblock %}
+
+{% block accion_formulario %}
 <form id="form" action="." enctype="multipart/form-data" method="POST">
 {% csrf_token %}
 <div class="item">
     <div class="messages">
-        <div class="info">
-            <h3>Revisión</h3>
-            <p>
-            Por favor, revise con detalle toda la información  mostrada a continuación referente a este proyecto. 
-	    Si encotrase algún error puede modificarla. Complete los campos subject, rights y coverage.
+        <div class="warning">
+            <h3>Archivar</h3>
+            <p>Si desea archivar el proyecto, por favor haga <em>clic</em> en el botón <em>Archivar</em>
+            para proceder. Tenga en cuenta que con este paso se da por finalizado el procedimiento sobre este
+            proyecto, por lo que una vez realizado ya no se podrá cambiar ningún dato relativo al mismo.</p>
         </div>
     </div>
-    <br/>
-    <h3>Autor</h3>
+
+    {{ f.non_field_errors }}
     <table>
-      <tr>
-	  <th><label for="id_creator_nombre">Nombre:</label></th>
-          <td>{{ f.creator_nombre.errors }}{{ f.creator_nombre }}</td>
-      </tr>
-      <tr>
-	  <th><label for="id_creator_apellidos">Apellidos:</label></th>
-          <td>{{ f.creator_apellidos.errors }}{{ f.creator_apellidos }}</td>
-      </tr>
-    </table>
-    <h3>Proyecto</h3>
-    <table>
-	<tr>
-	    <th><label for="id_title">Titulo:</label></th>
-            <td>{{ f.title.errors }}{{ f.title }}</td>
-	</tr>
         <tr>
-	    <th><label for="id_language">Idioma:</label></th>
-            <td>{{ f.language.errors }}{{ f.language }}</td>
-        </tr>
-        <tr>
-	    <th><label for="id_description">Descripcion:</label></th>
-            <td>{{ f.description.errors }}{{ f.description }}</td>
-        </tr>
-        <tr>
-	    <th><label for="id_subject">Subject:</label></th>
+	    <th><label for="id_subject">Tema(*):</label></th>
             <td>{{ f.subject.errors }}{{ f.subject }}</td>
         </tr>
         <tr>
-	    <th><label for="id_rights">Rights:</label></th>
-            <td>{{ f.rights.errors }}{{ f.rights }}</td>
-        </tr>
-        <tr>
-	    <th><label for="id_coverage">Coverage:</label></th>
+	    <th><label for="id_coverage">Cobertura(*):</label></th>
             <td>{{ f.coverage.errors }}{{ f.coverage }}</td>
         </tr>
-    </table>
-</div>
-
-<div class="item">
-    {{ a.management_form }}
-    {% for form in a.forms %}
-	<h3>Anexo {{ forloop.counter }}<h3>
-	<div class='table'>
-	<table class='no_error'>
-	    {{ form.as_table }}
-	</table>
-	</div>
-     {%endfor%}
-</div>
-
-<!--        <h3>Anexo {{ forloop.counter }}</h3>
-	<table>
-	<tr>
-	    <th><label for="id_title">Titulo:</label></th>
-            <td>{{anexo.title.errors }}{{ anexo.title }}</td>
-	</tr>
         <tr>
-	    <th><label for="id_language">Idioma:</label></th>
-            <td>{{ anexo.language.errors }}{{ anexo.language }}</td>
+            <th><label for="id_rights">Derechos(*):</label></th>
+            <td>{{ f.rights.errors }}{{ f.rights }}</td>
         </tr>
-        <tr>
-	    <th><label for="id_description">Descripcion:</label></th>
-            <td>{{ anexo.description.errors }}{{ anexo.description }}</td>
-        </tr>-->
+    </table>
 
-
-<div class="item">
-    <div class="messages">
-        <div class="warning">
-            <h3>Autorización</h3>
-            <p>Si desea archivar el proyecto, por favor haga <em>clic</em> en el botón <em>Archivar</em>
-            para que se pueda proceder a realizar dichar acción. 
-            Tenga en cuenta que una vez archivado no se podrá cambiar ningún dato relativo al proyecto, por lo que le recomendamos
-            que lo revise todo detenidamente.</p>
-        </div>
-    </div>
     <input type="submit" class="button" value="Archivar" />
 </div>
 </form>
 {% endblock %}
-
-<!--<div class="item">
-    <form action="." enctype="multipart/form-data" method="POST"> 
-    {% csrf_token %}
-    <table id="proyecto">
-    {{ f.as_table }}
-    </table>
-    <input type="submit" class="button" value="Enviar" />
-    </form>
-</div>
-
-</body>
-
-</html>-->

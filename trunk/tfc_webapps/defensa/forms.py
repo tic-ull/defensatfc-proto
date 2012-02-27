@@ -22,28 +22,43 @@ from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.forms.models import modelformset_factory
 
-from defensa import settings, models, validators
+from defensa import settings, models
+from defensa.validators import FileFormatValidator
 
 
 def validar_calificacion(calificacion_numerica, calificacion):
-    # comprobar calificación y nota numérica
+    """Comprobar calificación y nota numérica.
+
+    Función para validar de forma conjunta la calificación y la nota numérica.
+    Está en una función a parte para utilizarla tanto desde las vistas como
+    desde la interfaz administrativa.
+    """
+    
     if float(calificacion_numerica) >= 0.0 and float(calificacion_numerica) <= 4.9:
-        if calificacion != 'suspenso':
+        if calificacion != 'SS':
             return False
     if float(calificacion_numerica) >= 5.0 and float(calificacion_numerica) <= 6.9:
-        if calificacion != 'aprobado':
+        if calificacion != 'AP':
             return False
     if float(calificacion_numerica) >= 7.0 and float(calificacion_numerica) <= 8.9:
-        if calificacion != 'notable':
+        if calificacion != 'NT':
             return False
     if float(calificacion_numerica) >= 9.0 and float(calificacion_numerica) <= 10.0:
-        if calificacion not in ('sobresaliente', 'matricula'):
+        if calificacion not in ('SB', 'MH'):
             return False
 
     return True
 
 
 class FormularioProyectoBase(forms.ModelForm):
+    """Clase base para los formularios de solicitud de defensa de TFC.
+
+    Esta clase base incluye elementos compartidos tanto por el
+    FormularioSolicitud utilizado en la vista de las solicitudes de TFC
+    como en el formulario ProyectoAdminForm, vinculado al modelo Proyecto,
+    de la interfaz administrativa .
+    """
+    
     class Meta:
         model = models.Proyecto
 
@@ -71,12 +86,14 @@ class FormularioProyectoBase(forms.ModelForm):
         return data
 
 
-class FormularioProyecto(FormularioProyectoBase):
+class FormularioSolicitud(FormularioProyectoBase):
+    """Formulario de solicitud de defensa de TFC."""
+    
     DOMINIO_CORREO_TUTOR = '@' + settings.DOMINIO_CORREO_TUTOR
 
     centro = forms.ModelChoiceField(label=u"Centro", queryset=models.Centro.objects)
     titulacion = forms.ModelChoiceField(label=u"Titulación", queryset=models.Titulacion.objects)
-    file = forms.FileField(label=u"Documento de la memoria", validators=[validators.file_format])
+    file = forms.FileField(label=u"Documento de la memoria")
 
     # Sobreescribimos el campo 'tutor_email' para que la comprobación de
     # correo electrónico valido no se haga en el campo del formulario (antes
@@ -97,13 +114,29 @@ class FormularioProyecto(FormularioProyectoBase):
     def clean_tutor_email(self):
         return self.cleaned_data['tutor_email'] + self.DOMINIO_CORREO_TUTOR
 
+    def clean_file(self):
+        data = self.cleaned_data['file']
+        
+        tipo = settings.MEMORIA_TFC_TIPO_DOCUMENTO
+        FileFormatValidator(data, settings.TIPO_DOCUMENTO_TO_FORMATO[tipo])
+
+        return data
+
 
 class FormularioAnexoFormset(BaseInlineFormSet):
+    """Formset de anexos adjuntos durante la solicitud de defensa del TFC."""
 
     def add_fields(self, form, index):
 	super(FormularioAnexoFormset, self).add_fields(form, index)
-	form.fields["file"] = forms.FileField(validators=[validators.file_format])
         form.fields['title'].widget = forms.Textarea(attrs={'cols': 40, 'rows': 3})
+
+    def clean(self):
+        data = self.cleaned_data
+
+        formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[data['type']]
+        FileFormatValidator(data['file'], formatos)
+        
+        return data
 
 AnexoFormSet = inlineformset_factory(models.Proyecto, models.Anexo,
 	formset = FormularioAnexoFormset,
@@ -112,6 +145,8 @@ AnexoFormSet = inlineformset_factory(models.Proyecto, models.Anexo,
 
 
 class FormularioAutorizar(forms.ModelForm):
+    """Formulario de autorización de la defensa de un TFC."""
+    
     comentario = forms.CharField(label="Comentario", max_length=500, required=False,
         widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
 
@@ -121,13 +156,14 @@ class FormularioAutorizar(forms.ModelForm):
             'director_apellidos')
 
 
-class FormularioProyectoCalificado(FormularioProyectoBase):
+class FormularioCalificar(forms.ModelForm):
+    """Formulario para calificar la defensa de un TFC."""
+    
     def __init__(self, *args, **kwargs):
-	super(FormularioProyectoCalificado, self).__init__(*args, **kwargs)
+	super(FormularioCalificar, self).__init__(*args, **kwargs)
         self.fields['fecha_defensa'].required = True
         self.fields['calificacion_numerica'].required = True
         self.fields['calificacion'].required = True
-        self.fields['modalidad'].required = True
         self.fields['tribunal_presidente_nombre'].required = True
         self.fields['tribunal_presidente_apellidos'].required = True
         self.fields['tribunal_secretario_nombre'].required = True
@@ -136,9 +172,8 @@ class FormularioProyectoCalificado(FormularioProyectoBase):
     class Meta:
 	model = models.Proyecto
 	fields = ('fecha_defensa', 'calificacion_numerica', 'calificacion',
-            'modalidad', 'tribunal_presidente_nombre',
-            'tribunal_presidente_apellidos', 'tribunal_secretario_nombre',
-            'tribunal_secretario_apellidos')
+            'tribunal_presidente_nombre', 'tribunal_presidente_apellidos',
+            'tribunal_secretario_nombre', 'tribunal_secretario_apellidos')
 
     def clean(self):
         data = self.cleaned_data
@@ -152,25 +187,26 @@ class FormularioProyectoCalificado(FormularioProyectoBase):
 VocalesFormSet = inlineformset_factory(models.Proyecto, models.TribunalVocal, extra=1)    
 
 
-class FormularioProyectoArchivado(forms.ModelForm):
+class FormularioArchivar(forms.ModelForm):
+    """Formulario para archivar un TFC."""
+    
     def __init__(self, *args, **kwargs):
-	super(FormularioProyectoArchivado, self).__init__(*args, **kwargs)
+	super(FormularioArchivar, self).__init__(*args, **kwargs)
         self.fields['rights'].required = True      
         self.fields['coverage'].required = True    
         self.fields['subject'].required = True               
 
     class Meta:
 	model = models.Proyecto
-	fields = ('title', 'creator_nombre', 'creator_apellidos',
-            'description', 'language', 'subject',  'rights', 'coverage')
+	fields = ('subject',  'rights', 'coverage')
 
 #class FormularioAnexo(forms.ModelForm):
     #model = models.Anexo
     #fields = ('title', 'languaje', 'description')
 
-AnexoModelFormset = modelformset_factory(
-    models.Anexo,
-    extra=0,
-    fields=('title', 'language', 'description')
-)
+#AnexoModelFormset = modelformset_factory(
+#    models.Anexo,
+#    extra=0,
+#    fields=('title', 'language', 'description')
+#)
 

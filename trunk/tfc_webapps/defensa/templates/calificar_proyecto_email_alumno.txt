@@ -1,6 +1,6 @@
 Hola,
 
-El tutor ha calificado la defensa de su trabajo fin de carrera titulado:
+El tutor ha calificado con nota de {{ calificacion_numerica }} ({{ calificacion }}) la defensa de su trabajo fin de carrera titulado:
 
 "{{ proyecto }}"
 

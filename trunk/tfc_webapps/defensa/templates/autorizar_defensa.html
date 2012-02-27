@@ -1,24 +1,25 @@
 {% extends "solicitud_mostrar.html" %}
 
-{% block menu %}
+{% block estado_proxima_accion %}
 {% endblock %}
 
 {% block content_title %}Autorizar defensa de Trabajo Fin de Carrera{% endblock %}
-{% block accion_workflow %}
+
+{% block messages %}
+<div class="info">
+    <h3>Revisión</h3>
+    <p>
+    Por favor, revise detenidamente toda la información referente a este proyecto, incluidos
+    los documentos adjuntos. Si lo desea puede utilizar el formulario al final de la página
+    para modificar tanto la información referente a usted (tutor académico) como al director
+    del proyecto, en el momento de autorizar la defensa del proyecto.</p>
+</div>
+{% endblock %}
+
+{% block accion_formulario %}
 <form id="form" action="." enctype="multipart/form-data" method="POST">
 {% csrf_token %}
 <div class="item">
-    <div class="messages">
-        <div class="info">
-            <h3>Revisión</h3>
-            <p>
-            Por favor, revise con detalle toda la información referente a este proyecto, incluidos
-            los documentos adjuntos. Si lo desea puede aprovechar para modificar tanto la información
-            referente a usted (tutor académico) como al director del proyecto.</p>
-        </div>
-    </div>
-    <br/>
-
     <h3>Tutor académico</h3>
     <p><small>Tutor académico del proyecto vinculado a la Universidad.</small></p>
     {{ form.non_field_errors }}
@@ -33,8 +34,6 @@
         </tr>
     </table>
 
-    <div class="line"></div>
-
     <h3>Director (opcional)</h3>
     <p><small>Director no académico del proyecto, generalmente externo a la Universidad
     y vinculado a una empresa.</small></P>
@@ -48,9 +47,7 @@
             <td>{{ form.director_apellidos.errors }}{{ form.director_apellidos }}</td>
         </tr>
     </table>
-</div>
 
-<div class="item">
     <div class="messages">
         <div class="warning">
             <h3>Autorización</h3>
@@ -61,7 +58,6 @@
         </div>
     </div>
 
-    <br/>
     <p>En ambos casos se le notificará al alumno por correo electrónico su decisión. Si desea que se incluya algún comentario
     en la notificación, puede utilizar el siguiente campo (máx. 500 caracteres):</p>
     <table>

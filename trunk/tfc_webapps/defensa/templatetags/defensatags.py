@@ -19,6 +19,7 @@
 #
 
 from django import template
+from django.template import RequestContext, loader
 
 from defensa import settings
 
@@ -26,12 +27,24 @@ from defensa import settings
 register = template.Library()
 
 
-class TiposDocumentosNode(template.Node):
+@register.filter
+def licencia(value):
+    return loader.render_to_string('licencia.html', {
+        'license_text': settings.DERECHOS[value]['texto'],
+        'license_url': settings.DERECHOS[value]['url'],
+        'license_image': settings.DERECHOS[value]['imagen'],
+    })
 
-    def render(self, context):
-        tipos = [tipo[1] for tipo in settings.TIPO_DOCUMENTO_SELECCION]
-        return '"' + '", "'.join(tipos[:-1]) + '" o "' + tipos[-1] + '"'
+@register.filter
+def can_autorizar_proyecto(user, proyecto):
+    return user.can_autorizar_proyecto(proyecto)
 
-@register.tag
-def tipos_documentos(parser, token):
-    return TiposDocumentosNode()
+    
+@register.filter
+def can_calificar_proyecto(user, proyecto):
+    return user.can_calificar_proyecto(proyecto)
+
+
+@register.filter
+def can_archivar_proyecto(user, proyecto):
+    return user.can_archivar_proyecto(proyecto)

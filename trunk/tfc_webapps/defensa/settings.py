@@ -2,38 +2,97 @@
 from django.conf import settings
 
 from iso639 import ISO639_1
+from itertools import chain, groupby
 
 import os
 
 
-PLANTILLA_NOMBRE_COMPLETO = '%(apellidos)s, %(nombre)s'
+NOMBRE_COMPLETO_PLANTILLA = '%(apellidos)s, %(nombre)s'
 
 
 DOMINIO_CORREO_ALUMNO = 'ull.edu.es'
 DOMINIO_CORREO_TUTOR = 'ull.es'
 
 
-TIPO_DOCUMENTO_SELECCION = (
-    ('anexo',   u'Anexo'),
-    ('memoria', u'Memoria'),
-    ('plano',   u'Plano'),
-)
-TIPO_DOCUMENTO_DEFECTO = 'anexo'
-
-
 LENGUAJE_SELECCION = sorted(ISO639_1, key=lambda lang: lang[1])
 LENGUAJE_DEFECTO = 'es'
 
 
-FORMATO_SELECCION = (
-    ('application/pdf', 'PDF'),
+PUBLISHER_DEFECTO = u"Universidad de La Laguna"
+
+
+TIPO_DOCUMENTO_PROYECTO_SELECCION = (
+    ('memoria_tfc',     u'Memoria de trabajo fin de carrera'),
 )
+MEMORIA_TFC_TIPO_DOCUMENTO = 'memoria_tfc'
+
+
+TIPO_DOCUMENTO_ANEXO_SELECCION = (
+    ('articulo',        u'Artículo'),
+    ('datos',           u'Conjunto de datos'),
+    ('dibujo',          u'Dibujo'),
+    ('diagrama',        u'Diagrama'),
+    ('diseño_grafico',  u'Diseño gráfico'),
+    ('documento',       u'Documento'),
+    ('informe',         u'Informe'),
+    ('mapa',            u'Mapa'),
+    ('memoria',         u'Memoria'),
+    ('pintura',         u'Pintura'),
+    ('plano',           u'Plano'),
+    ('software',        u'Software'),
+    ('sonido',          u'Sonido'),
+    ('video',           u'Vídeo'),
+)
+
+
+# Todos deben tener al menos un término de DCMI
+# http://dublincore.org/documents/dcmi-type-vocabulary/
+TIPO_DOCUMENTO_TO_DUBLIN_CORE = {
+    'articulo':        ('Text', u'Artículo'),
+    'datos':           ('Dataset', u'Conjunto de datos'),
+    'dibujo':          ('Image', 'StillImage', u'Dibujo'),
+    'diagrama':        ('Image', 'StillImage', u'Diagrama'),
+    'diseño_grafico':  ('Image', 'StillImage', u'Diseño gráfico'),
+    'documento':       ('Text', u'Documento'),
+    'informe':         ('Text', u'Informe'),
+    'mapa':            ('Image', 'StillImage', 'Text', u'Mapa'),
+    'memoria_tfc':     ('Text', u'Memoria TFC'),
+    'memoria':         ('Text', u'Memoria'),
+    'pintura':         ('Image', 'StillImage', u'Pintura'),
+    'plano':           ('Image', 'StillImage', 'Text', u'Plano'),
+    'software':        ('Software'),
+    'sonido':          ('Sound', u'Sonido'),
+    'video':           ('Image', 'MovingImage', u'Vídeo'),
+}
+
+TIPO_DOCUMENTO_TO_FORMATO = {
+    'articulo':        ('application/pdf'),
+    'datos':           (),
+    'dibujo':          (),
+    'diagrama':        (),
+    'diseño_grafico':  (),
+    'documento':       ('application/pdf'),
+    'informe':         ('application/pdf'),
+    'mapa':            (),
+    'memoria_tfc':     ('application/pdf'),
+    'memoria':         ('application/pdf'),
+    'pintura':         (),
+    'plano':           (),
+    'software':        ('application/x-zip-compressed'),
+    'sonido':          (),
+    'video':           (),
+}
+
+FORMATO_SELECCION = [
+    (k, k) for k, g in groupby(
+        sorted(chain(TIPO_DOCUMENTO_TO_FORMATO.values()))
+    ) if k]
 
 
 MODALIDAD_SELECCION = (
-    ('tfc', u'Trabajo fin de carrera'),
+    ('TFC', u'Trabajo fin de carrera'),
 )
-MODALIDAD_DEFECTO = 'tfc'
+MODALIDAD_DEFECTO = 'TFC'
 
 
 DERECHOS_SELECCION = (
@@ -46,37 +105,58 @@ DERECHOS_SELECCION = (
     ('COPYRIGHT', u'Todos los derechos reservados'),
 )
 
-
-TEXTO_DERECHOS = {
-    'CC-BY': u"Esta obra está bajo una licencia Creative Commons " +
-             u"Reconocimiento 3.0 España - " +
-             u"http://creativecommons.org/licenses/by/3.0/es/",
-    'CC-BY-SA': u"Esta obra está bajo una license Creative Commons " +
-                u"Reconocimiento-CompartirIgual 3.0 España - " +
-                u"http://creativecommons.org/licenses/by-sa/3.0/es/",
-    'CC-BY-ND': u"Esta obra está bajo una licencia Creative Commons " +
-                u"Reconocimiento-SinObraDerivada 3.0 España - " +
-                u"http://creativecommons.org/licenses/by-nd/3.0/es/",
-    'CC-BY-NC': u"Esta obra está bajo una licencia Creative Commons " +
-                u"Reconocimiento-NoComercial 3.0 España - " +
-                u"http://creativecommons.org/licenses/by-nc/3.0/es/",
-    'CC-BY-NC-SA': u"Esta obra está bajo una licencia Creative Commons " +
-                   u"Reconocimiento-NoComercial-CompartirIgual 3.0 España - "
-                   u"http://creativecommons.org/licenses/by-nc-sa/3.0/es/",
-    'CC-BY-NC-ND': u"Esta obra está bajo una licencia Creative Commons " +
-                   u"Reconocimiento-NoComercial-SinObraDerivada 3.0 España - " +
-                   u"http://creativecommons.org/licenses/by-nc-nd/3.0/es/",
-    'COPYRIGHT': u"Esta obra está protegida por derechos de autor. " +
-                 u"Todos los derechos reservados",
+DERECHOS = {
+    'CC-BY': {
+        'texto':  u"Esta obra está bajo una licencia Creative Commons " +
+                  u"Reconocimiento 3.0 España",
+        'url':    "http://creativecommons.org/licenses/by/3.0/es/",
+        'imagen': "http://i.creativecommons.org/l/by/3.0/80x15.png",
+    },
+    'CC-BY-SA': {
+        'texto':  u"Esta obra está bajo una licencia Creative Commons " +
+                  u"Reconocimiento-CompartirIgual 3.0 España",
+        'url':    "http://creativecommons.org/licenses/by-sa/3.0/es/",
+        'imagen': "http://i.creativecommons.org/l/by-sa/3.0/80x15.png",
+    },
+    'CC-BY-ND': {
+        'texto':  u"Esta obra está bajo una licencia Creative Commons " +
+                  u"Reconocimiento-SinObraDerivada 3.0 España",
+        'url':    "http://creativecommons.org/licenses/by-nd/3.0/es/",
+        'imagen': "http://i.creativecommons.org/l/by-nd/3.0/80x15.png",
+    },
+    'CC-BY-NC': {
+        'texto':  u"Esta obra está bajo una licencia Creative Commons " +
+                  u"Reconocimiento-NoComercial 3.0 España",
+        'url':    "http://creativecommons.org/licenses/by-nc/3.0/es/",
+        'imagen': "http://i.creativecommons.org/l/by-nc/3.0/80x15.png",
+    },
+    'CC-BY-NC-SA': {
+        'texto':  u"Esta obra está bajo una licencia Creative Commons " +
+                  u"Reconocimiento-NoComercial-CompartirIgual 3.0 España",
+        'url':    "http://creativecommons.org/licenses/by-nc-sa/3.0/es/",
+        'imagen': "http://i.creativecommons.org/l/by-nc-sa/3.0/80x15.png",
+    },
+    'CC-BY-NC-ND': {
+        'texto':  u"Esta obra está bajo una licencia Creative Commons " +
+                  u"Reconocimiento-NoComercial-SinObraDerivada 3.0 España",
+        'url':    "http://creativecommons.org/licenses/by-nc-nd/3.0/es/",
+        'imagen': "http://i.creativecommons.org/l/by-nc-nd/3.0/80x15.png",
+    },
+    'COPYRIGHT': {
+        'texto':  u"Esta obra está protegida por derechos de autor. " +
+                  u"Todos los derechos reservados",
+        'url':    "http://es.wikipedia.org/wiki/Derecho_de_autor",
+        'imagen': settings.STATIC_URL + "images/copyright.png",
+    },
 }
 
 
 CALIFICACION_SELECCION = (
-    ('suspenso', u'Suspenso'),
-    ('aprobado', u'Aprobado'),
-    ('notable', u'Notable'),
-    ('sobresaliente', u'Sobresaliente'),
-    ('matricula', u'Matrícula de honor'),
+    ('SS', u'Suspenso'),
+    ('AP', u'Aprobado'),
+    ('NT', u'Notable'),
+    ('SB', u'Sobresaliente'),
+    ('MH', u'Matrícula de honor'),
 )
 
 #Grupos de usuarios

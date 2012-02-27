@@ -7,7 +7,7 @@
 <blockTable style="normalTable" colWidths="3cm,12.25cm">
     <tr>
         <td>Centro:</td>
-        <td><para style="normal">{{ proyecto.titulacion.centro }}</para></td>
+        <td><para style="normal">{{ proyecto.centro }}</para></td>
     </tr>
     <tr>
         <td>Titulación:</td>
