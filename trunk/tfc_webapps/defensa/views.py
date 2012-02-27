@@ -28,7 +28,7 @@ from django.contrib.auth.models import Permission, User, Group
 from django.db.models import Q, F
 from django.forms.models import inlineformset_factory, formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import redirect, render_to_response, get_object_or_404
 from django.template import RequestContext, Context, loader
 from django.template.loader import get_template
