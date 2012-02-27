@@ -29,7 +29,7 @@ from django.db.models import Q, F
 from django.forms.models import inlineformset_factory, formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden, HttpResponseNotFound
-from django.shortcuts import redirect, render_to_response, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template import RequestContext, Context, loader
 from django.template.loader import get_template
 from django.utils.simplejson import dumps
@@ -66,8 +66,7 @@ def filter(request, model_class, field_name):
 
 @login_required
 def index(request):
-    return render_to_response('index.html',
-                              context_instance=RequestContext(request))
+    return render(request, 'index.html')
 
 
 @login_required
@@ -129,12 +128,11 @@ def solicitar_defensa(request):
         anexo_formset = AnexoFormSet()
 	if request.user.niu() is not None:
 	    proyecto_form.fields['niu'].widget.attrs['disabled'] = True
-    return render_to_response('solicitar_defensa.html', {
+    return render(request, 'solicitar_defensa.html', {
                         'f': proyecto_form,
                         'a': anexo_formset,
                         'dominio_correo_tutor': settings.DOMINIO_CORREO_TUTOR,
-                        },
-                        context_instance=RequestContext(request))
+                    })
 
 
 #
@@ -199,12 +197,11 @@ def solicitud_mostrar(request, id):
     
     anexos = proyecto.anexo_set.all()
     vocales = proyecto.tribunalvocal_set.all()
-    return render_to_response('solicitud_mostrar.html', {
+    return render(request, 'solicitud_mostrar.html', {
                                 'proyecto': proyecto,
                                 'anexos': anexos,
                                 'vocales': vocales,
-                                },
-                                context_instance=RequestContext(request))
+                            })
 
 
 @login_required
@@ -283,12 +280,11 @@ def autorizar_defensa(request, id):
     else:
         proyecto_form = FormularioAutorizar(instance=proyecto)
 
-    return render_to_response('autorizar_defensa.html', {
+    return render(request, 'autorizar_defensa.html', {
                                 'form': proyecto_form,
                                 'proyecto': proyecto,
                                 'anexos': anexos,
-                                },
-                                context_instance=RequestContext(request))
+                            })
 
 
 @login_required  
@@ -346,13 +342,12 @@ def calificar_proyecto(request, id):
         proyecto_form = FormularioProyectoCalificado(instance = p) 
         vocales_formset = VocalesFormSet()
 
-    return render_to_response('calificar_proyecto.html', {
+    return render(request, 'calificar_proyecto.html', {
                                 'f': proyecto_form,
                                 'v': vocales_formset,
                                 'proyecto': p,
                                 'anexos': anexos
-                                }, 
-                                context_instance=RequestContext(request))
+                            })
 
 
 
@@ -378,14 +373,13 @@ def archivar_proyecto(request, id):
     else:
 	proyecto_form = FormularioProyectoArchivado(instance=p)
 	anexo_formset = AnexoModelFormset (queryset = anexos)
-    return render_to_response('archivar_proyecto.html', {
+    return render(request, 'archivar_proyecto.html', {
                                 'f': proyecto_form,
                                 'a' : anexo_formset,
                                 'proyecto': p,
                                 'anexos' : anexos,
                                 'vocales' : vocales,
-                                },
-                                context_instance=RequestContext(request))
+                            })
 
 
 
@@ -449,13 +443,11 @@ def lista_autorizar(request):
     if request.is_ajax():
         if 'json' in request.GET and request.GET['json']:
             return HttpResponse(content=dumps(results), mimetype='application/json')
-        return render_to_response('lista_proyecto_partial.html', template_dict,
-            context_instance= RequestContext(request))
+        return render(request, 'lista_proyecto_partial.html', template_dict)
 
     if 'q' in request.GET and request.GET['q']:
         template_dict['q'] = request.GET['q']
-    return render_to_response('lista.html', template_dict,
-        context_instance= RequestContext(request))
+    return render(request, 'lista.html', template_dict)
 
 
 @login_required
@@ -484,13 +476,11 @@ def lista_calificar(request):
     if request.is_ajax():
         if 'json' in request.GET and request.GET['json']:
             return HttpResponse(content=dumps(results), mimetype='application/json')
-        return render_to_response('lista_proyecto_partial.html', template_dict,
-            context_instance= RequestContext(request))
+        return render(request, 'lista_proyecto_partial.html', template_dict)
 
     if 'q' in request.GET and request.GET['q']:
         template_dict['q'] = request.GET['q']
-    return render_to_response('lista.html', template_dict,
-        context_instance= RequestContext(request))
+    return render(request, 'lista.html', template_dict)
 
 
 @permission_required('defensa.puede_archivar')
@@ -517,11 +507,9 @@ def lista_archivar(request):
     if request.is_ajax():
         if 'json' in request.GET and request.GET['json']:
             return HttpResponse(content=dumps(results), mimetype='application/json')
-        return render_to_response('lista_proyecto_partial.html', template_dict,
-            context_instance= RequestContext(request))
+        return render(request, 'lista_proyecto_partial.html', template_dict)
 
     if 'q' in request.GET and request.GET['q']:
         template_dict['q'] = request.GET['q']
-    return render_to_response('lista.html', template_dict,
-        context_instance= RequestContext(request))
+    return render(request, 'lista.html', template_dict)
 
