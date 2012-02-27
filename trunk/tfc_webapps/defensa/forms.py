@@ -128,6 +128,7 @@ class FormularioAnexoFormset(BaseInlineFormSet):
 
     def add_fields(self, form, index):
 	super(FormularioAnexoFormset, self).add_fields(form, index)
+	form.fields["file"] = forms.FileField()
         form.fields['title'].widget = forms.Textarea(attrs={'cols': 40, 'rows': 3})
 
     def clean(self):

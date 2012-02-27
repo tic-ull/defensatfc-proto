@@ -35,7 +35,7 @@
     {% csrf_token %}
     <div id="tabs">
         <ul>
-            <li><a href="#tabs-trabajo">Trabajo</a></li>
+            <li><a href="#tabs-trabajo">Memoria</a></li>
 	    {% for form in a %}
 	    <li><a href="#tabs-{{ a.prefix }}-{{ forloop.counter0 }}">Anexo {{ forloop.counter }}</a> <span class='ui-icon ui-icon-close'>Eliminar anexo</span></li>
 	    {% endfor %}
@@ -44,6 +44,9 @@
         <div id="tabs-trabajo">
             {{ f.non_field_errors }}
             <table>
+                <tr>
+                    <td colspan="2">{{ f.file.errors }}{{ f.file }}</td>
+                </tr>
                 <tr>
                     <th><label for="id_title">Título (*):</label><br/>
                         <small>(máx. 200 caracteres)</small></th>
@@ -57,10 +60,6 @@
                 <tr>
                     <th><label for="id_language">Idioma (*):</label></th>
                     <td>{{ f.language.errors }}{{ f.language }}</td>
-                </tr>
-                <tr>
-                    <th><label for="id_file">Documento de la memoria (*):</label></th>
-                    <td>{{ f.file.errors }}{{ f.file }}</td>
                 </tr>
             </table>
             <div class="line"></div>
@@ -133,6 +132,9 @@
             {{ form.non_field_errors }}
 	    <table>
                 <tr>
+                    <td colspan="2">{{ form.file.errors }}{{ form.file }}</td>
+                </tr>
+                <tr>
                     <th><label for="id_anexo_set-{{ forloop.counter0 }}-title">Título (*):</label><br/>
                         (máx. 200 caracteres)</th>
                     <td>{{ form.title.errors }}{{ form.title }}</td>
@@ -150,10 +152,6 @@
                     <th><label for="id_anexo_set-{{ forloop.counter0 }}-type">Tipo (*):</label></th>
                     <td>{{ form.type.errors }}{{ form.type }}</td>
                 </tr>
-                <tr>
-                    <th><label for="id_anexo_set-{{ forloop.counter0 }}-file">Documento del anexo (*):</label></th>
-                    <td>{{ form.file.errors }}{{ form.file }}</td>
-                </tr>
 	    </table>
             <label for="id_anexo_set-{{ forloop.counter0 }}-DELETE">Eliminar:</label>
             {{ form.DELETE }}
@@ -165,6 +163,9 @@
     <div id="anexo-empty-form">
         {{ form.non_field_errors }}
         <table>
+            <tr>
+                <td colspan="2">{{ form.file.errors }}{{ form.file }}</td>
+            </tr>
             <tr>
                 <th><label for="id_anexo_set-__prefix__-title">Título (*):</label><br/>
                     <small>(máx. 200 caracteres)</small></th>
@@ -182,10 +183,6 @@
             <tr>
                 <th><label for="id_anexo_set-__prefix__-type">Tipo (*):</label></th>
                 <td>{{ form.type.errors }}{{ form.type }}</td>
-            </tr>
-            <tr>
-                <th><label for="id_anexo_set-__prefix__-file">Documento del anexo (*):</label></th>
-                <td>{{ form.file.errors }}{{ form.file }}</td>
             </tr>
         </table>
         <label for="id_anexo_set-__prefix__-DELETE">Eliminar:</label>
