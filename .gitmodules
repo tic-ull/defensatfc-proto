@@ -1,0 +1,3 @@
+[submodule "trunk/tfc_webapps/django403"]
+	path = trunk/tfc_webapps/django403
+	url = https://github.com/wtanaka/django403.git
