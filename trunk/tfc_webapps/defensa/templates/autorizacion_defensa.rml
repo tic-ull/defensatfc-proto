@@ -1,7 +1,35 @@
 {% extends "base.rml" %}
 
+{% block title %}{{ proyecto.title }}{% endblock %}
+{% block author %}{{ proyecto.creator_nombre_completo }}{% endblock %}
+
 {% block content %}
-<para style="normal">
-Hola
-</para>
+<blockTable style="normalTable" colWidths="3cm,12.25cm">
+    <tr>
+        <td>Centro:</td>
+        <td><para style="normal">{{ proyecto.titulacion.centro }}</para></td>
+    </tr>
+    <tr>
+        <td>Titulación:</td>
+        <td><para style="normal">{{ proyecto.titulacion }}</para></td>
+    </tr>
+    <tr>
+        <td>Titulo:</td>
+        <td><para style="normal">{{ proyecto.title }}</para></td>
+    </tr>
+    <tr>
+        <td>Autor:</td>
+        <td><para style="normal">{{ proyecto.creator_nombre_completo }} ({{ proyecto.niu }})</para></td>
+    </tr>
+    <tr>
+        <td>Tutor:</td>
+        <td><para style="normal">{{ proyecto.tutor_nombre_completo }}</para></td>
+    </tr>
+    <tr>
+        <td>Director:</td>
+        <td><para style="normal">{{ proyecto.director_nombre_completo|default_if_none:"-" }}</para></td>
+    </tr>
+</blockTable>
+<para style="emph">Descripción:</para>
+<para style="normal">{{ proyecto.description }}</para>
 {% endblock %}

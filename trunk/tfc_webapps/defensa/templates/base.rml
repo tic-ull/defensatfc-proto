@@ -2,8 +2,8 @@
 <!DOCTYPE document SYSTEM "rml.dtd">
 <document>
 
-    <template showBoundary="1"
-              title="{{ title }}" author="{{ author }}"
+    <template title="{% block title %}{% endblock %}"
+              author="{% block author %}{% endblock %}"
               topMargin="4.5cm" rightMargin="1.5cm" bottomMargin="3cm"
               leftMargin="4cm">
         <pageTemplate id="main">
@@ -22,7 +22,16 @@
     </template>
 
     <stylesheet>
-        <paraStyle name="normal" fontName="Helvetica" fontSize="12" alignment="justify"/>
+        <paraStyle name="normal" fontName="Helvetica" fontSize="12"
+            alignment="justify" spaceBefore="6"/>
+        <paraStyle name="emph" fontName="Helvetica-Bold" fontSize="12"
+            alignment="justify" spaceBefore="6" />
+        <blockTableStyle id="normalTable">
+            <blockFont name="Helvetica" size="12"/>
+            <blockFont name="Helvetica-Bold" size="12" start="0,0" stop="0,-1"/>
+            <blockAligment value="left"/>
+            <blockValign value="top"/>
+        </blockTableStyle>
     </stylesheet>
 
     <story>

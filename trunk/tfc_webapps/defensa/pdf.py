@@ -32,12 +32,13 @@ def render_to_pdf(template_name, dictionary=None, context_instance=None):
     # Sobreescribir la ruta de los archivos estáticos para que la ruta sea local
     STATIC_URL = getattr(settings, 'PDF_STATIC_URL', None)
     if STATIC_URL:
-        dictionary = {}
+        if dictionary is None:
+            dictionary = {}
         dictionary['STATIC_URL'] = STATIC_URL
     
     # Renderizar la plantilla RML y convertir el contenido a PDF
-    rml = loader.render_to_string(template_name, dictionary, context_instance)
-    print rml
+    rml = loader.render_to_string(template_name, dictionary=dictionary,
+        context_instance=context_instance)
     return rml2pdf.parseString(rml)
 
  
