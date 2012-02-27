@@ -101,7 +101,7 @@
     {% endblock %}
 
     {% if user.is_authenticated %}
-    <h2>Proyectos:</h2>
+    <h2>Proyectos</h2>
     <ul>
         <li><a href="/defensa/solicitar/">Solicitar defensa</a></li>
         {%if user.is_tutor %}
@@ -119,7 +119,7 @@
     </ul>
     {% endif %}
 
-    <h2>{% trans 'Mapa del sitio' %}: </h2>
+    <h2>{% trans 'Mapa del sitio' %} </h2>
     <ul>
       <li><a href="/defensa/">{% trans 'Inicio' %}</a></li>
     </ul>
