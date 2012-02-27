@@ -1,4 +1,4 @@
-//  Gestión de Proyectos Fin de Carrera de la Universidad de La Laguna
+//  Gestión de Trabajos Fin de Carrera de la Universidad de La Laguna
 //
 //    Copyright (C) 2011-2012 Pedro Cabrera <pdrcabrod@gmail.com>
 //                            Jesús Torres  <jmtorres@ull.es>

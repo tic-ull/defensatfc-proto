@@ -2,7 +2,7 @@ Hola,
 
 El tutor ha calificado la defensa del trabajo fin de carrera titulado:
 
-"{{ proyecto }}"
+"{{ trabajo }}"
 
 que ahora está pendiente de ser archivado.
 

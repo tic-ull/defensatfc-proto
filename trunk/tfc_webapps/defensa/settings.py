@@ -21,7 +21,7 @@ LENGUAJE_DEFECTO = 'es'
 PUBLISHER_DEFECTO = u"Universidad de La Laguna"
 
 
-TIPO_DOCUMENTO_PROYECTO_SELECCION = (
+TIPO_DOCUMENTO_TRABAJO_SELECCION = (
     ('memoria_tfc',     u'Memoria de trabajo fin de carrera'),
 )
 MEMORIA_TFC_TIPO_DOCUMENTO = 'memoria_tfc'
@@ -178,11 +178,11 @@ else:
 
 # Correos de notificación
 FROM_EMAIL = "noreply@ull.es"
-ASUNTO_PROYECTO_SOLICITADO = u"Solicitud de defensa de trabajo fin de carrera"
-ASUNTO_PROYECTO_AUTORIZADO_ALUMNO = u"La defensa de su trabajo fin de carrera ha sido autorizada"
-ASUNTO_PROYECTO_RECHAZADO_ALUMNO = u"La defensa de su trabajo fin de carrera ha sido rechazada"
-ASUNTO_PROYECTO_AUTORIZADO_TUTOR = u"Éxito autorizando la defensa de un trabajo de fin de carrera"
-ASUNTO_PROYECTO_CALIFICADO = u"Trabajo fin de carrera calificado pendiente de archivo"
+ASUNTO_TRABAJO_SOLICITADO = u"Solicitud de defensa de trabajo fin de carrera"
+ASUNTO_TRABAJO_AUTORIZADO_ALUMNO = u"La defensa de su trabajo fin de carrera ha sido autorizada"
+ASUNTO_TRABAJO_RECHAZADO_ALUMNO = u"La defensa de su trabajo fin de carrera ha sido rechazada"
+ASUNTO_TRABAJO_AUTORIZADO_TUTOR = u"Éxito autorizando la defensa de un trabajo de fin de carrera"
+ASUNTO_TRABAJO_CALIFICADO = u"Trabajo fin de carrera calificado pendiente de archivo"
 
 
 # Configuración de alfresco

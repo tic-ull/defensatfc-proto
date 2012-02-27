@@ -2,7 +2,7 @@ Hola,
 
 El tutor ha autorizado la defensa de su trabajo fin de carrera titulado:
 
-"{{ proyecto }}"
+"{{ trabajo }}"
 {%if comentario %}
 
 y ha creido conveniente añadir el siguiente comentario:

@@ -7,7 +7,7 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/smoothness/jquery-ui-1.8.16.custom.css" />
 <script type="text/javascript">
     $(function() {
-        $('#proyecto_vocales tbody tr').formset({
+        $('#trabajo_vocales tbody tr').formset({
              prefix: '{{ v.prefix }}',
              addText: 'añadir',
              deleteText: 'eliminar',
@@ -30,13 +30,13 @@
 <div class="item">
     <form action="." enctype="multipart/form-data" method="POST"> 
     {% csrf_token %}
-    <table id="proyecto">
+    <table id="trabajo">
     {{ f.as_table }}
     </table>
     <div id="accordion">
       <h3><a href="#">Vocales del tribunal</a></h3>
       <div>
-        <table id="proyecto_vocales">
+        <table id="trabajo_vocales">
           <thead>
             <tr>
               <th scope="col">Nombre vocal</th>

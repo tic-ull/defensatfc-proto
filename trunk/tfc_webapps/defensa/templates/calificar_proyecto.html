@@ -31,7 +31,7 @@
     Por favor, rellene el formulario al final de la página con los  datos referentes
     a la defensa del trabajo fin de carrera y haga <em>clic</em> en el botón
     <em>Calificar</em> para remitir dicha información. Tenga en cuenta que este
-    procedimiento debe ser realizado una vez haya tenido lugar la defensa del proyecto
+    procedimiento debe ser realizado una vez haya tenido lugar la defensa del trabajo
     frente al tribunal.</p>
 </div>
 {% endblock %}
@@ -58,7 +58,7 @@
     </table>
 
     <h3>Presidente del tribunal</h3>
-    <p><small>Presidente del tribunal encargado de la evaluación del proyecto.</small></p>
+    <p><small>Presidente del tribunal encargado de la evaluación del trabajo.</small></p>
     <table>
         <tr>
            <th><label for="id_tribunal_presidente_nombre">Nombre (*):</label></th>
@@ -71,7 +71,7 @@
     </table>
 
     <h3>Secretario del tribunal</h3>
-    <p><small>Secretario del tribunal encargado de la evaluación del proyecto.</small></p>
+    <p><small>Secretario del tribunal encargado de la evaluación del trabajo.</small></p>
     <table>
         <tr>
            <th><label for="id_tribunal_secretario_nombre">Nombre (*):</label></th>
@@ -86,10 +86,10 @@
     {% for form in v.forms %}
     {% if v.forms|length == 1 %}
     <h3>Vocal del tribunal</h3>
-    <p><small>Vocal del tribunal encargado de la evaluación del proyecto.</small></p>
+    <p><small>Vocal del tribunal encargado de la evaluación del trabajo.</small></p>
     {% else %}
     <h3>Vocal {{ forloop.counter }} del tribunal</h3>
-    <p><small>Vocal {{ forloop.counter }} del tribunal encargado de la evaluación del proyecto.</small></p>
+    <p><small>Vocal {{ forloop.counter }} del tribunal encargado de la evaluación del trabajo.</small></p>
     {% endif %}
     {{ v.management_form }}
     {{ form.non_field_errors }}

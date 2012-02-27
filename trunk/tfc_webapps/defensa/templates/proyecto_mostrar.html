@@ -1,11 +1,11 @@
 {% load defensatags %}
 
-<h3>{{ proyecto.title }}</h3>
+<h3>{{ trabajo.title }}</h3>
 <div class="item">
-<p>{{ proyecto.description }}</p><br/>
+<p>{{ trabajo.description }}</p><br/>
 <p style="text-align: right;">
-    {% if proyecto.estado == 'archivado' %}{{ proyecto.rights|licencia }}  &#8211;{% endif %}
-    <a href="{{ proyecto.get_absolute_url }}contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
-        en {{ proyecto.pretty_language }} &#8211;
+    {% if trabajo.estado == 'archivado' %}{{ trabajo.rights|licencia }}  &#8211;{% endif %}
+    <a href="{{ trabajo.get_absolute_url }}contenido/"><span class="icon-download-small" style=""></span>Descargar</a> &#8211;
+        en {{ trabajo.pretty_language }} &#8211;
 </p>
 </div>

@@ -2,7 +2,7 @@ Hola,
 
 Ha autorizado la defensa del trabajo fin de carrera titulado:
 
-"{{ proyecto }}"
+"{{ trabajo }}"
 
 Puede seguir consultando los datos del trabajo en la dirección:
 

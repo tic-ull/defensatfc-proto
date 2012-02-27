@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#  Gestión de Proyectos Fin de Carrera de la Universidad de La Laguna
+#  Gestión de Trabajos Fin de Carrera de la Universidad de La Laguna
 #
 #    Copyright (C) 2011-2012 Pedro Cabrera <pdrcabrod@gmail.com>
 #                            Jesús Torres  <jmtorres@ull.es>
@@ -36,15 +36,15 @@ def licencia(value):
     })
 
 @register.filter
-def can_autorizar_proyecto(user, proyecto):
-    return user.can_autorizar_proyecto(proyecto)
+def can_autorizar_trabajo(user, trabajo):
+    return user.can_autorizar_trabajo(trabajo)
 
     
 @register.filter
-def can_calificar_proyecto(user, proyecto):
-    return user.can_calificar_proyecto(proyecto)
+def can_calificar_trabajo(user, trabajo):
+    return user.can_calificar_trabajo(trabajo)
 
 
 @register.filter
-def can_archivar_proyecto(user, proyecto):
-    return user.can_archivar_proyecto(proyecto)
+def can_archivar_trabajo(user, trabajo):
+    return user.can_archivar_trabajo(trabajo)

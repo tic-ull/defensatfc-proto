@@ -3,91 +3,91 @@
 
 {% block content_title %}Trabajo Fin de Carrera{% endblock %}
 {% block content %}
-{% include "proyecto_mostrar.html" with proyecto=proyecto %}
+{% include "trabajo_mostrar.html" with trabajo=trabajo %}
 
 <div class="item">
 <table>
     <tr>
         <th>Estado:</th>
         <td class="estado">
-            <span class="{{ proyecto.estado }}">
-                {{ proyecto.pretty_estado }}
+            <span class="{{ trabajo.estado }}">
+                {{ trabajo.pretty_estado }}
             </span>
             {% block estado_proxima_accion %}
-            {%if user|can_autorizar_proyecto:proyecto and proyecto.estado == 'solicitado' %}
-            (<a href="{{ proyecto.get_absolute_url }}autorizar/">Autorizar defensa</a>)
+            {%if user|can_autorizar_trabajo:trabajo and trabajo.estado == 'solicitado' %}
+            (<a href="{{ trabajo.get_absolute_url }}autorizar/">Autorizar defensa</a>)
             {% endif %}
-            {%if user|can_calificar_proyecto:proyecto and proyecto.estado == 'autorizado' %}
-            (<a href="{{ proyecto.get_absolute_url }}calificar/">Calificar proyecto</a>)
+            {%if user|can_calificar_trabajo:trabajo and trabajo.estado == 'autorizado' %}
+            (<a href="{{ trabajo.get_absolute_url }}calificar/">Calificar trabajo</a>)
             {% endif %}
-            {%if user|can_archivar_proyecto:proyecto and proyecto.estado == 'calificado' %}
-            (<a href="{{ proyecto.get_absolute_url }}archivar/">Archivar proyecto</a>)
+            {%if user|can_archivar_trabajo:trabajo and trabajo.estado == 'calificado' %}
+            (<a href="{{ trabajo.get_absolute_url }}archivar/">Archivar trabajo</a>)
             {% endif %}
             {% endblock %}
         </td>
     </tr>
     <tr>
         <th>Centro:</th>
-        <td>{{ proyecto.centro }}</td>
+        <td>{{ trabajo.centro }}</td>
     </tr>
     <tr>
         <th>Titulación:</th>
-        <td>{{ proyecto.titulacion }}</td>
+        <td>{{ trabajo.titulacion }}</td>
     </tr>
 
-{% if proyecto.estado == 'archivado' %}
+{% if trabajo.estado == 'archivado' %}
     <tr>
         <th>Tema:</th>
-        <td>{{ proyecto.subject }}</td>
+        <td>{{ trabajo.subject }}</td>
     </tr>
     <tr>
         <th>Cobertura:</th>
-        <td>{{ proyecto.coverage }}</td>
+        <td>{{ trabajo.coverage }}</td>
     </tr>
 {% endif %}
 
     <tr>
         <th>Autor:</th>
-        <td>{{ proyecto.creator_nombre_completo }}
-            <a href="mailto:{{ proyecto.creator_email }}"><span class="ui-icon ui-icon-mail-closed" style="float: left; margin-right: .3em;"></span></a>
-            ({{ proyecto.niu }})
+        <td>{{ trabajo.creator_nombre_completo }}
+            <a href="mailto:{{ trabajo.creator_email }}"><span class="ui-icon ui-icon-mail-closed" style="float: left; margin-right: .3em;"></span></a>
+            ({{ trabajo.niu }})
         </td>
     </tr>
     <tr>
         <th>Tutor:</th>
-        <td>{{ proyecto.tutor_nombre_completo }}
-            <a href="mailto:{{ proyecto.tutor_email }}"><span class="ui-icon ui-icon-mail-closed" style="float: left; margin-right: .3em;"></span></a>
+        <td>{{ trabajo.tutor_nombre_completo }}
+            <a href="mailto:{{ trabajo.tutor_email }}"><span class="ui-icon ui-icon-mail-closed" style="float: left; margin-right: .3em;"></span></a>
         </td>
     </tr>
 
-{% if proyecto.director_nombre_completo %}
+{% if trabajo.director_nombre_completo %}
     <tr>
         <th>Director:</th>
-        <td>{{ proyecto.director_nombre_completo }}</td>
+        <td>{{ trabajo.director_nombre_completo }}</td>
     </tr>
 {% endif %}
 </table>
 </div>
 
-{%if proyecto.estado == 'calificado' or proyecto.estado == 'archivado' %}
+{%if trabajo.estado == 'calificado' or trabajo.estado == 'archivado' %}
 <div class="item">
     <h3>Calificación</h3>
     <table>
         <tr>
             <th>Calificacion:</th>
-            <td>{{ proyecto.pretty_calificacion_numerica }} ({{ proyecto.pretty_calificacion|upper }})</td>
+            <td>{{ trabajo.pretty_calificacion_numerica }} ({{ trabajo.pretty_calificacion|upper }})</td>
         </tr>
         <tr>
             <th>Fecha de la defensa:</th>
-            <td>{{ proyecto.fecha_defensa }}</td>
+            <td>{{ trabajo.fecha_defensa }}</td>
         </tr>
         <tr>
             <th>Presidente del tribunal:</th>
-            <td>{{ proyecto.tribunal_presidente_nombre_completo }}</td>
+            <td>{{ trabajo.tribunal_presidente_nombre_completo }}</td>
         </tr>
         <tr>
             <th>Secretario del tribunal:</th>
-            <td>{{ proyecto.tribunal_secretario_nombre_completo }}</td>
+            <td>{{ trabajo.tribunal_secretario_nombre_completo }}</td>
         </tr>
         {% for vocal in vocales %}
 	<tr>

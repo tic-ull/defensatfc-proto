@@ -9,10 +9,10 @@
 <div class="info">
     <h3>Revisión</h3>
     <p>
-    Por favor, revise detenidamente toda la información referente a este proyecto, incluidos
+    Por favor, revise detenidamente toda la información referente a este trabajo, incluidos
     los documentos adjuntos. Si lo desea puede utilizar el formulario al final de la página
     para modificar tanto la información referente a usted (tutor académico) como al director
-    del proyecto, en el momento de autorizar la defensa del proyecto.</p>
+    del trabajo, en el momento de autorizar la defensa del trabajo.</p>
 </div>
 {% endblock %}
 
@@ -21,7 +21,7 @@
 {% csrf_token %}
 <div class="item">
     <h3>Tutor académico</h3>
-    <p><small>Tutor académico del proyecto vinculado a la Universidad.</small></p>
+    <p><small>Tutor académico del trabajo vinculado a la Universidad.</small></p>
     {{ form.non_field_errors }}
     <table>
         <tr>
@@ -35,7 +35,7 @@
     </table>
 
     <h3>Director (opcional)</h3>
-    <p><small>Director no académico del proyecto, generalmente externo a la Universidad
+    <p><small>Director no académico del trabajo, generalmente externo a la Universidad
     y vinculado a una empresa.</small></P>
     <table>
         <tr>
@@ -51,9 +51,9 @@
     <div class="messages">
         <div class="warning">
             <h3>Autorización</h3>
-            <p>Si está de acuerdo en autorizar la defensa de esta proyecto, por favor haga <em>clic</em> en el botón <em>Autorizar</em>
+            <p>Si está de acuerdo en autorizar la defensa de esta trabajo, por favor haga <em>clic</em> en el botón <em>Autorizar</em>
             para que se pueda proceder con la misma. Si por el contrario no está de acuerdo, haga <em>clic</em> en el botón <em>Rechazar</em>.
-            Tenga en cuenta que una vez autorizado no se podrá cambiar ningún dato relativo al proyecto, por lo que le recomendamos
+            Tenga en cuenta que una vez autorizado no se podrá cambiar ningún dato relativo al trabajo, por lo que le recomendamos
             que lo revise todo detenidamente.</p>
         </div>
     </div>

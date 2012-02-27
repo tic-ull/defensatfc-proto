@@ -5,10 +5,10 @@
 <script language="javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
 <script language="javascript" src="{{ STATIC_URL }}js/jquery.chainedSelect.min.js"></script>
 <script language="javascript" src="{{ STATIC_URL }}js/tabbed_formset.min.js"></script>
-<script language="javascript" src="{{ STATIC_URL }}js/proyecto.js"></script>
+<script language="javascript" src="{{ STATIC_URL }}js/solicitud.js"></script>
 <script type="text/javascript">
     $(function() {
-        proyecto.initForm("#tabs", {
+        solicitud.initForm("#tabs", {
             anexoFormsetPrefix: "{{ a.prefix }}",
             anexoNo: {{ a|length }},
             anexoFormTemplate: "#anexo-empty-form",
@@ -35,13 +35,13 @@
     {% csrf_token %}
     <div id="tabs">
         <ul>
-            <li><a href="#tabs-proyecto">Proyecto</a></li>
+            <li><a href="#tabs-trabajo">Trabajo</a></li>
 	    {% for form in a %}
 	    <li><a href="#tabs-{{ a.prefix }}-{{ forloop.counter0 }}">Anexo {{ forloop.counter }}</a> <span class='ui-icon ui-icon-close'>Eliminar anexo</span></li>
 	    {% endfor %}
         </ul>
 
-        <div id="tabs-proyecto">
+        <div id="tabs-trabajo">
             {{ f.non_field_errors }}
             <table>
                 <tr>
@@ -92,7 +92,7 @@
             <div class="line"></div>
 
             <h3>Tutor académico</h3>
-            <p><small>Tutor académico del proyecto vinculado a la Universidad.</small></p>
+            <p><small>Tutor académico del trabajo vinculado a la Universidad.</small></p>
             <table>
                 <tr>
                     <th><label for="id_tutor_nombre">Nombre (*):</label></th>
@@ -114,7 +114,7 @@
             <div class="line"></div>
 
             <h3>Director (opcional)</h3>
-            <p><small>Director no académico del proyecto, generalmente externo a la
+            <p><small>Director no académico del trabajo, generalmente externo a la
             Universidad y vinculado a una empresa.</small></P>
             <table>
                 <tr>

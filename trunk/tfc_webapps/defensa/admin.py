@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#  Gestión de Proyectos Fin de Carrera de la Universidad de La Laguna
+#  Gestión de Trabajos Fin de Carrera de la Universidad de La Laguna
 #
 #    Copyright (C) 2011-2012 Pedro Cabrera <pdrcabrod@gmail.com>
 #                            Jesús Torres  <jmtorres@ull.es>
@@ -26,12 +26,12 @@ from defensa import forms
 from defensa.forms import validar_calificacion
 
 
-class ProyectoAdminForm(forms.FormularioProyectoBase):
+class TrabajoAdminForm(forms.FormularioTrabajoBase):
     class Meta:
-        model = models.Proyecto
+        model = models.Trabajo
 
     def clean(self):
-	data = super(ProyectoAdminForm, self).clean()
+	data = super(TrabajoAdminForm, self).clean()
 	
 	# campos requeridos según el estado
 	if 'estado' in data:
@@ -66,11 +66,11 @@ class TribunalVocalInline(admin.TabularInline):
     verbose_name_plural = "Vocales tribunal"
 
 
-class ProyectoAdmin(admin.ModelAdmin):
-    form = ProyectoAdminForm
+class TrabajoAdmin(admin.ModelAdmin):
+    form = TrabajoAdminForm
     inlines = [TribunalVocalInline,]
 
-admin.site.register(models.Proyecto, ProyectoAdmin)
+admin.site.register(models.Trabajo, TrabajoAdmin)
 
 admin.site.register(models.Anexo)
 admin.site.register(models.Centro)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#  Gestión de Proyectos Fin de Carrera de la Universidad de La Laguna
+#  Gestión de Trabajos Fin de Carrera de la Universidad de La Laguna
 #
 #    Copyright (C) 2011-2012 Pedro Cabrera <pdrcabrod@gmail.com>
 #                            Jesús Torres  <jmtorres@ull.es>
@@ -38,7 +38,7 @@ from defensa import settings
 from defensa import pdf
 from defensa.alfresco import Alfresco
 from defensa.forms import *
-from defensa.models import Proyecto, Anexo
+from defensa.models import Trabajo, Anexo
 from defensa.models import AdscripcionUsuarioCentro
 from defensa.models import save_proyect_to_alfresco
 
@@ -78,42 +78,42 @@ def solicitar_defensa(request):
     
     if request.method == 'POST':
         request.POST['niu'] = request.user.niu()
-        proyecto_form = FormularioSolicitud(request.POST, request.FILES)
+        trabajo_form = FormularioSolicitud(request.POST, request.FILES)
 	anexo_formset = AnexoFormSet (request.POST, request.FILES)
 
-	if proyecto_form.is_valid():
-	    proyecto = proyecto_form.save(commit=True)
-	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = proyecto)
+	if trabajo_form.is_valid():
+	    trabajo = trabajo_form.save(commit=True)
+	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = trabajo)
 
 	    if anexo_formset.is_valid():
 		anexos = anexo_formset.save(commit=False)
 
-	if proyecto_form.is_valid() and anexo_formset.is_valid():
-	    proyecto.estado = 'solicitado'
-	    proyecto.type = settings.MEMORIA_TFC_TIPO_DOCUMENTO
-            proyecto.creator_email = request.user.email
-	    proyecto.format = mimetypes.guess_type(request.FILES['file'].name)[0]
+	if trabajo_form.is_valid() and anexo_formset.is_valid():
+	    trabajo.estado = 'solicitado'
+	    trabajo.type = settings.MEMORIA_TFC_TIPO_DOCUMENTO
+            trabajo.creator_email = request.user.email
+	    trabajo.format = mimetypes.guess_type(request.FILES['file'].name)[0]
 
 	    anexos_files = []
             for anexo, form in zip(anexos, anexo_formset.forms):
 	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)
 		anexos_files.append (form.cleaned_data['file'])
-	    save_proyect_to_alfresco(proyecto, anexos,
+	    save_proyect_to_alfresco(trabajo, anexos,
 				     update_db=True,
-                                     proyecto_contenido = request.FILES['file'],
+                                     trabajo_contenido = request.FILES['file'],
 				     anexos_contenidos = anexos_files)
 
             # enviar correo al alumno
             plaintext = get_template('solicitar_defensa_email.txt')
-            subject = settings.ASUNTO_PROYECTO_SOLICITADO
+            subject = settings.ASUNTO_TRABAJO_SOLICITADO
             from_email = settings.FROM_EMAIL
-            to_email = [proyecto.tutor_email]
+            to_email = [trabajo.tutor_email]
             c = Context({
-                'proyecto': proyecto.title,
-                'id': proyecto.id,
-                'creator_nombre': proyecto.creator_nombre_completo(),
-                'creator_email' : proyecto.creator_email,
-                'niu': proyecto.niu,
+                'trabajo': trabajo.title,
+                'id': trabajo.id,
+                'creator_nombre': trabajo.creator_nombre_completo(),
+                'creator_email' : trabajo.creator_email,
+                'niu': trabajo.niu,
             })
 	    message_content = plaintext.render(c)
 	    email = EmailMessage(subject, message_content, from_email, to_email)
@@ -123,18 +123,18 @@ def solicitar_defensa(request):
                 <strong>Su solicitud se ha registrado con éxito.</strong> En
                 breves instantes se le notificará al tutor que puede revisar
                 la solicitud. Recibirá un correo electrónico con más detalles
-                en cuanto el tutor autorice la defensa del proyecto.
+                en cuanto el tutor autorice la defensa del trabajo.
             """)
-	    return redirect(solicitud_mostrar, id=proyecto.id)
+	    return redirect(solicitud_mostrar, id=trabajo.id)
 
     else:
         initial = { 'niu': request.user.niu() }
-        proyecto_form = FormularioSolicitud(initial=initial)
+        trabajo_form = FormularioSolicitud(initial=initial)
         anexo_formset = AnexoFormSet()
 	if request.user.niu() is not None:
-	    proyecto_form.fields['niu'].widget.attrs['disabled'] = True
+	    trabajo_form.fields['niu'].widget.attrs['disabled'] = True
     return render(request, 'solicitar_defensa.html', {
-                        'f': proyecto_form,
+                        'f': trabajo_form,
                         'a': anexo_formset,
                         'dominio_correo_tutor': settings.DOMINIO_CORREO_TUTOR,
                     })
@@ -145,77 +145,77 @@ def solicitar_defensa(request):
 #
 
 @login_required
-def descargar_proyecto(request, id):
-    """Vista para descarga la memoria del proyecto."""
+def descargar_trabajo(request, id):
+    """Vista para descarga la memoria del trabajo."""
     
-    proyecto = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_view_proyecto(proyecto):
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not request.user.can_view_trabajo(trabajo):
         return HttpResponseForbidden()
 
-    content = Alfresco().download_content(proyecto.alfresco_uuid)
+    content = Alfresco().download_content(trabajo.alfresco_uuid)
     file_wrapper = FileWrapper(content)
-    response = HttpResponse(file_wrapper, content_type=proyecto.format)
+    response = HttpResponse(file_wrapper, content_type=trabajo.format)
     response['Content-Length'] = content.headers.get('Content-Length')
     response['Content-Disposition'] = ('attachment; filename=' +
-        (settings.DESCARGAR_CONTENIDO_FILENAME % proyecto.niu))
+        (settings.DESCARGAR_CONTENIDO_FILENAME % trabajo.niu))
     return response
 
 
 @login_required
 def descargar_anexo(request, id, anexo_id):
-    """Vista para descarga un anexo de un proyecto."""
+    """Vista para descarga un anexo de un trabajo."""
     
-    proyecto = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_view_proyecto(proyecto):
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not request.user.can_view_trabajo(trabajo):
         return HttpResponseForbidden()
 
-    anexo = get_object_or_404(proyecto.anexo_set, id=anexo_id)
+    anexo = get_object_or_404(trabajo.anexo_set, id=anexo_id)
     content = Alfresco().download_content(anexo.alfresco_uuid)
     file_wrapper = FileWrapper(content)
-    response = HttpResponse(file_wrapper, content_type=proyecto.format)
+    response = HttpResponse(file_wrapper, content_type=trabajo.format)
     response['Content-Length'] = content.headers.get('Content-Length')
     response['Content-Disposition'] = ('attachment; filename=' +
-        (settings.DESCARGAR_ANEXO_FILENAME % (anexo.id, proyecto.niu)))
+        (settings.DESCARGAR_ANEXO_FILENAME % (anexo.id, trabajo.niu)))
     return response
 
 
 @login_required
 def descargar_autorizacion(request, id):
-    """Vista para descarga el documento de autorización de la defensa del proyecto."""
+    """Vista para descarga el documento de autorización de la defensa del trabajo."""
     
-    proyecto = get_object_or_404(Proyecto, id=id)
-    if not (request.user.can_view_proyecto(proyecto) or
-            proyecto.estado == 'autorizado'):
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not (request.user.can_view_trabajo(trabajo) or
+            trabajo.estado == 'autorizado'):
         return HttpResponseForbidden()
 
-    anexos = proyecto.anexo_set.all()
+    anexos = trabajo.anexo_set.all()
     content = pdf.render_to_pdf('autorizacion_defensa.rml', {
-            'proyecto': proyecto,
+            'trabajo': trabajo,
             'anexos': anexos,
         },
         context_instance=RequestContext(request))
     response = HttpResponse(content,  content_type='application/pdf')
     response['Content-Disposition'] = ('attachment; filename=' +
-        (settings.DESCARGAR_AUTORIZACION_FILENAME % proyecto.niu))
+        (settings.DESCARGAR_AUTORIZACION_FILENAME % trabajo.niu))
     return response
 
     
 #
-# Vistas para las acciones sobre cada proyecto
+# Vistas para las acciones sobre cada trabajo
 #
 
 @login_required  
 def solicitud_mostrar(request, id):
-    """Mostrar toda la información acerca del proyecto cuya defensa se ha solicitado."""
+    """Mostrar toda la información acerca del trabajo cuya defensa se ha solicitado."""
     
-    proyecto = get_object_or_404(Proyecto, id=id)
-    if not request.user.can_view_proyecto(proyecto):
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not request.user.can_view_trabajo(trabajo):
         return HttpResponseForbidden()
     
-    anexos = proyecto.anexo_set.all()
-    vocales = proyecto.tribunalvocal_set.all()
+    anexos = trabajo.anexo_set.all()
+    vocales = trabajo.tribunalvocal_set.all()
     return render(request, 'solicitud_mostrar.html', {
-                                'proyecto': proyecto,
+                                'trabajo': trabajo,
                                 'anexos': anexos,
                                 'vocales': vocales,
                             })
@@ -223,32 +223,32 @@ def solicitud_mostrar(request, id):
 
 @login_required
 def autorizar_defensa(request, id):
-    """Vista para autorizar la defensa de un proyecto solicitado."""
+    """Vista para autorizar la defensa de un trabajo solicitado."""
     
-    proyecto = get_object_or_404(Proyecto, id=id)
-    if not (request.user.can_autorizar_proyecto(proyecto) and
-            proyecto.estado == 'solicitado'):
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not (request.user.can_autorizar_trabajo(trabajo) and
+            trabajo.estado == 'solicitado'):
         return HttpResponseForbidden()
 
-    anexos = proyecto.anexo_set.all()
+    anexos = trabajo.anexo_set.all()
 
     if request.method == 'POST':
-        proyecto_form = FormularioAutorizar(request.POST, instance=proyecto)
+        trabajo_form = FormularioAutorizar(request.POST, instance=trabajo)
 
-        if proyecto_form.is_valid():
+        if trabajo_form.is_valid():
             if "Autorizar" in request.POST:
-                proyecto.estado = 'autorizado'
-                save_proyect_to_alfresco(proyecto, [], update_db=True)
+                trabajo.estado = 'autorizado'
+                save_proyect_to_alfresco(trabajo, [], update_db=True)
 
                 # enviar correo al alumno
                 plaintext = get_template('autorizar_defensa_email_alumno.txt')
-                subject = settings.ASUNTO_PROYECTO_AUTORIZADO_ALUMNO
+                subject = settings.ASUNTO_TRABAJO_AUTORIZADO_ALUMNO
                 from_email = settings.FROM_EMAIL
-                to_email = [proyecto.creator_email]
+                to_email = [trabajo.creator_email]
 		c = Context({
-                    'proyecto': proyecto.title,
-		    'comentario' : proyecto_form.cleaned_data['comentario'],
-		    'url' : proyecto.get_absolute_url()
+                    'trabajo': trabajo.title,
+		    'comentario' : trabajo_form.cleaned_data['comentario'],
+		    'url' : trabajo.get_absolute_url()
                 })
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
@@ -256,87 +256,88 @@ def autorizar_defensa(request, id):
 
                 # enviar correo al tutor
                 plaintext = get_template('autorizar_defensa_email_tutor.txt')
-                subject = settings.ASUNTO_PROYECTO_AUTORIZADO_TUTOR
+                subject = settings.ASUNTO_TRABAJO_AUTORIZADO_TUTOR
                 from_email = settings.FROM_EMAIL
-		to_email, [proyecto.tutor_email]
+		to_email, [trabajo.tutor_email]
 		c = Context({
-                    'proyecto': proyecto.title,
-                    'url' : proyecto.get_absolute_url()
+                    'trabajo': trabajo.title,
+                    'url' : trabajo.get_absolute_url()
                 })
 		message_content = plaintext.render(c)	    
 		email = EmailMessage(subject, message_content, from_email, to_email)
 		email.send()   		
 		
                 messages.add_message(request, messages.SUCCESS, """
-                    <strong>La defensa del proyecto se ha autorizado con éxito.</strong> En
+                    <strong>La defensa del trabajo se ha autorizado con éxito.</strong> En
                     breves instantes esta circunstancia le será notificada al alumno. Recuerde
                     que una vez haya tenido lugar la defensa, deberá volver a la aplicación
-                    para calificar el proyecto. Se le enviará más información acerca de este
+                    para calificar el trabajo. Se le enviará más información acerca de este
                     procedimiento a través de su cuenta de correo electrónico.
                     """)
             elif "Rechazar" in request.POST:
-                proyecto.estado = 'rechazado'
-                save_proyect_to_alfresco(proyecto, [], update_db=True)
+                trabajo.estado = 'rechazado'
+                save_proyect_to_alfresco(trabajo, [], update_db=True)
 
 		# enviar correo al alumno
                 plaintext = get_template('rechazar_defensa_email_alumno.txt')
-                subject = settings.ASUNTO_PROYECTO_RECHAZADO_ALUMNO
+                subject = settings.ASUNTO_TRABAJO_RECHAZADO_ALUMNO
                 from_email = settings.FROM_EMAIL
-		to_email = [proyecto.creator_email]
+		to_email = [trabajo.creator_email]
 		c = Context({
-                    'proyecto': proyecto.title,
-		    'comentario' : proyecto_form.cleaned_data['comentario']
+                    'trabajo': trabajo.title,
+		    'comentario' : trabajo_form.cleaned_data['comentario']
                 })
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
 		email.send()
 
                 messages.add_message(request, messages.SUCCESS, """
-                    <strong>La defensa del proyecto se ha rechazado con éxito.</strong> En
+                    <strong>La defensa del trabajo se ha rechazado con éxito.</strong> En
                     breves instantes esta circunstancia le será notificada al alumno.
                     """)
 
             return redirect(lista_autorizar)
     else:
-        proyecto_form = FormularioAutorizar(instance=proyecto)
+        trabajo_form = FormularioAutorizar(instance=trabajo)
 
     return render(request, 'autorizar_defensa.html', {
-                                'form': proyecto_form,
-                                'proyecto': proyecto,
+                                'form': trabajo_form,
+                                'trabajo': trabajo,
                                 'anexos': anexos,
                             })
 
 
 @login_required  
-def calificar_proyecto(request, id):
-    """Vista para calificar un proyecto defendido."""
+def calificar_trabajo(request, id):
+    """Vista para calificar un trabajo defendido."""
     
-    p = get_object_or_404(Proyecto, id=id)
-    if not (request.user.can_calificar_proyecto(p) and
-            p.estado == 'autorizado'):
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not (request.user.can_calificar_trabajo(p) and
+            trabajo.estado == 'autorizado'):
         return HttpResponseForbidden()
 
-    anexos = p.anexo_set.all()
-    if request.method == 'POST':
-        proyecto_form = FormularioCalificar(request.POST, instance=p)
+    anexos = trabajo.anexo_set.all()
 
-        if proyecto_form.is_valid(): 
+    if request.method == 'POST':
+        trabajo_form = FormularioCalificar(request.POST, instance=p)
+
+        if trabajo_form.is_valid(): 
 	    vocales_formset = VocalesFormSet (request.POST, instance=p)
 
 	    if vocales_formset.is_valid():
-		p.estado = 'calificado'
+		trabajo.estado = 'calificado'
 		# hacemos update
 		vocales = vocales_formset.save(commit=False) 
-		save_proyect_to_alfresco(p, [], vocales=vocales, update_db=True)
+		save_proyect_to_alfresco(trabajo, [], vocales=vocales, update_db=True)
 
                 # enviar correo al alumno
-                plaintext = get_template('calificar_proyecto_email_alumno.txt')
-                subject = settings.ASUNTO_PROYECTO_CALIFICADO
+                plaintext = get_template('calificar_trabajo_email_alumno.txt')
+                subject = settings.ASUNTO_TRABAJO_CALIFICADO
                 from_email = settings.FROM_EMAIL
-                to_email = [p.creator_email]
+                to_email = [trabajo.creator_email]
                 c = Context({
-                    'proyecto': p.title,           
-                    'url' : p.get_absolute_url()   
+                    'trabajo': trabajo.title,           
+                    'url' : trabajo.get_absolute_url()   
                 })
                 message_content = plaintext.render(c)
                 email = EmailMessage(subject, message_content, from_email, to_email)
@@ -344,20 +345,20 @@ def calificar_proyecto(request, id):
 
                 # enviar correo a los bibliotecarios
                 plaintext = get_template('calificar_proyecto_email_biblioteca.txt') 
-		users = AdscripcionUsuarioCentro.objects.filter(centro=p.titulacion.centro, user__groups__name = settings.PUEDEN_ARCHIVAR)
+		users = AdscripcionUsuarioCentro.objects.filter(centro=trabajo.titulacion.centro, user__groups__name = settings.PUEDEN_ARCHIVAR)
 		to_email = [user.user.email for user in users]                
 		c = Context({
-                    'proyecto': p.title,
-                    'calificacion': p.pretty_calificacion(),
-                    'calificacion_numerica': p.pretty_calificacion_numerica(),
-                    'url' : p.get_absolute_url()   
+                    'trabajo': trabajo.title,
+                    'calificacion': trabajo.pretty_calificacion(),
+                    'calificacion_numerica': trabajo.pretty_calificacion_numerica(),
+                    'url' : trabajo.get_absolute_url()   
                 }) 
 		message_content = plaintext.render(c)
 		email = EmailMessage(subject, message_content, from_email, to_email)
 		email.send()    
 
                 messages.add_message(request, messages.SUCCESS, """
-                    <strong>El proyecto se ha calificado con éxito.</strong> En
+                    <strong>El trabajo se ha calificado con éxito.</strong> En
                     breves instantes esto le será notificado al alumno.
                     """)
 		return redirect(lista_calificar)
@@ -365,68 +366,64 @@ def calificar_proyecto(request, id):
         vocales_formset = VocalesFormSet(request.POST)
 
     else:
-        proyecto_form = FormularioCalificar()
+        trabajo_form = FormularioCalificar()
         vocales_formset = VocalesFormSet()
 
-    return render(request, 'calificar_proyecto.html', {
-                                'f': proyecto_form,
+    return render(request, 'calificar_trabajo.html', {
+                                'f': trabajo_form,
                                 'v': vocales_formset,
-                                'proyecto': p,
+                                'trabajo': trabajo,
                                 'anexos': anexos
                             })
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Cambios, muchos cambios, relacionados con la interfaz y con peticiones a cerca de los metadatos
 @permission_required('defensa.puede_archivar')
-def archivar_proyecto(request, id):
-    """Vista para archivar un proyecto calificado."""
+def archivar_trabajo(request, id):
+    """Vista para archivar un trabajo calificado."""
 
-    p = get_object_or_404(Proyecto, id=id)
-    if not (request.user.can_archivar_proyecto(p) and
-            p.estado == 'calificado'):
+    trabajo = get_object_or_404(Trabajo, id=id)
+    if not (request.user.can_archivar_trabajo(p) and
+            trabajo.estado == 'calificado'):
         return HttpResponseForbidden()
 
-    anexos = p.anexo_set.all() 
-    vocales = p.tribunalvocal_set.all()
+    anexos = trabajo.anexo_set.all() 
+    vocales = trabajo.tribunalvocal_set.all()
 
     if request.method == 'POST':
-	proyecto_form = FormularioArchivar(request.POST, instance = p)
+	trabajo_form = FormularioArchivar(request.POST, instance = p)
 
-	if proyecto_form.is_valid():
-            p.estado = 'archivado'
-            save_proyect_to_alfresco(p, anexos, update_db=True)
+	if trabajo_form.is_valid():
+            trabajo.estado = 'archivado'
+            save_proyect_to_alfresco(trabajo, anexos, update_db=True)
             
             messages.add_message(request, messages.SUCCESS, """
-                <strong>El proyecto se ha archivado con éxito.</strong> 
+                <strong>El trabajo se ha archivado con éxito.</strong> 
 		""")
             return redirect(lista_archivar)
     else:
-	proyecto_form = FormularioArchivar(instance=p)
+	trabajo_form = FormularioArchivar(instance=p)
 
-    return render(request, 'archivar_proyecto.html', {
-                                'f': proyecto_form,
-                                'proyecto': p,
+    return render(request, 'archivar_trabajo.html', {
+                                'f': trabajo_form,
+                                'trabajo': trabajo,
                                 'anexos' : anexos,
                                 'vocales' : vocales,
                             })
 
 
 #
-# Vistas para listar los proyectos en sus diferentes estados.
+# Vistas para listar los trabajos en sus diferentes estados.
 #
 
-def buscar_proyectos(request, proyectos):
+def buscar_trabajos(request, trabajos):
     if 'q' in request.GET and request.GET['q']:
         words = request.GET['q'].split()
         conditions = []
         for field in BUSQUEDA_CAMPOS:
             kwargs = dict([(field+'__icontains', word) for word in words])
             conditions.append(Q(**kwargs))
-        proyectos = proyectos.filter(reduce(operator.or_, conditions))
-    proyectos = proyectos.order_by('creator_apellidos', 'creator_nombre')
+        trabajos = trabajos.filter(reduce(operator.or_, conditions))
+    trabajos = trabajos.order_by('creator_apellidos', 'creator_nombre')
 
     # Paginar los resultados de la búsqueda
     if 'per_page' in request.GET and request.GET['per_page']:
@@ -436,9 +433,9 @@ def buscar_proyectos(request, proyectos):
             per_page = BUSQUEDA_RESULTADOS_POR_PAGINA
         else:
             per_page = min(per_page, BUSQUEDA_RESULTADOS_POR_PAGINA)
-        paginator = Paginator(proyectos, per_page)
+        paginator = Paginator(trabajos, per_page)
     else:
-        paginator = Paginator(proyectos, BUSQUEDA_RESULTADOS_POR_PAGINA)
+        paginator = Paginator(trabajos, BUSQUEDA_RESULTADOS_POR_PAGINA)
 
     try:
         if 'page' in request.GET and request.GET['page']:
@@ -456,28 +453,28 @@ def lista_autorizar(request):
     if not request.user.is_tutor():
         return HttpResponseForbidden()
 
-    proyectos = Proyecto.objects.filter(estado='solicitado',
+    trabajos = Trabajo.objects.filter(estado='solicitado',
         tutor_email=request.user.email)
-    page = buscar_proyectos(request, proyectos)
+    page = buscar_trabajos(request, trabajos)
     results = [{
-        'title': proyecto.title,
-        'niu': proyecto.niu,
-        'creator': proyecto.creator_nombre_completo(),
-        'creator_email' : proyecto.creator_email,
-        'url': proyecto.get_absolute_url(),
-    } for proyecto in page.object_list]
+        'title': trabajo.title,
+        'niu': trabajo.niu,
+        'creator': trabajo.creator_nombre_completo(),
+        'creator_email' : trabajo.creator_email,
+        'url': trabajo.get_absolute_url(),
+    } for trabajo in page.object_list]
 
     template_dict = {
         'estado': 'solicitado',
-        'proyectos': results,
+        'trabajos': results,
         'total_paginas': page.paginator.num_pages,
-        'total_proyectos': page.paginator.count,
+        'total_trabajos': page.paginator.count,
     }
 
     if request.is_ajax():
         if 'json' in request.GET and request.GET['json']:
             return HttpResponse(content=dumps(results), mimetype='application/json')
-        return render(request, 'lista_proyecto_partial.html', template_dict)
+        return render(request, 'lista_trabajo_partial.html', template_dict)
 
     if 'q' in request.GET and request.GET['q']:
         template_dict['q'] = request.GET['q']
@@ -489,28 +486,28 @@ def lista_calificar(request):
     if not request.user.is_tutor():
         return HttpResponseForbidden()  
 
-    proyectos = Proyecto.objects.filter(estado='autorizado',
+    trabajos = Trabajo.objects.filter(estado='autorizado',
         tutor_email=request.user.email)
-    page = buscar_proyectos(request, proyectos)
+    page = buscar_trabajos(request, trabajos)
     results = [{
-        'title': proyecto.title,
-        'niu': proyecto.niu,
-        'creator': proyecto.creator_nombre_completo(),
-        'creator_email' : proyecto.creator_email,
-        'url': proyecto.get_absolute_url(),
-    } for proyecto in page.object_list]
+        'title': trabajo.title,
+        'niu': trabajo.niu,
+        'creator': trabajo.creator_nombre_completo(),
+        'creator_email' : trabajo.creator_email,
+        'url': trabajo.get_absolute_url(),
+    } for trabajo in page.object_list]
 
     template_dict = {
         'estado': 'autorizado',
-        'proyectos': results,
+        'trabajos': results,
         'total_paginas': page.paginator.num_pages,
-        'total_proyectos': page.paginator.count,
+        'total_trabajos': page.paginator.count,
     }
 
     if request.is_ajax():
         if 'json' in request.GET and request.GET['json']:
             return HttpResponse(content=dumps(results), mimetype='application/json')
-        return render(request, 'lista_proyecto_partial.html', template_dict)
+        return render(request, 'lista_trabajo_partial.html', template_dict)
 
     if 'q' in request.GET and request.GET['q']:
         template_dict['q'] = request.GET['q']
@@ -519,28 +516,28 @@ def lista_calificar(request):
 
 @permission_required('defensa.puede_archivar')
 def lista_archivar(request):
-    proyectos = Proyecto.objects.filter(estado='calificado',
+    trabajos = Trabajo.objects.filter(estado='calificado',
         titulacion__centro__in=request.user.centros())
-    page = buscar_proyectos(request, proyectos)
+    page = buscar_trabajos(request, trabajos)
     results = [{
-        'title': proyecto.title,
-        'niu': proyecto.niu,
-        'creator': proyecto.creator_nombre_completo(),
-        'creator_email' : proyecto.creator_email,
-        'url': proyecto.get_absolute_url(),
-    } for proyecto in page.object_list]
+        'title': trabajo.title,
+        'niu': trabajo.niu,
+        'creator': trabajo.creator_nombre_completo(),
+        'creator_email' : trabajo.creator_email,
+        'url': trabajo.get_absolute_url(),
+    } for trabajo in page.object_list]
 
     template_dict = {
         'estado': 'calificado',
-        'proyectos': results,
+        'trabajos': results,
         'total_paginas': page.paginator.num_pages,
-        'total_proyectos': page.paginator.count,
+        'total_trabajos': page.paginator.count,
     }
 
     if request.is_ajax():
         if 'json' in request.GET and request.GET['json']:
             return HttpResponse(content=dumps(results), mimetype='application/json')
-        return render(request, 'lista_proyecto_partial.html', template_dict)
+        return render(request, 'lista_trabajo_partial.html', template_dict)
 
     if 'q' in request.GET and request.GET['q']:
         template_dict['q'] = request.GET['q']

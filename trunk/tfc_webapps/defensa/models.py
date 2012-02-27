@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#  Gestión de Proyectos Fin de Carrera de la Universidad de La Laguna
+#  Gestión de Trabajos Fin de Carrera de la Universidad de La Laguna
 #
 #    Copyright (C) 2011-2012 Pedro Cabrera <pdrcabrod@gmail.com>
 #                            Jesús Torres  <jmtorres@ull.es>
@@ -145,8 +145,8 @@ class Contenido(AlfrescoPFCModel):
         }
 
 
-class Proyecto(Contenido):
-    """Modelo principal de un proyecto."""
+class Trabajo(Contenido):
+    """Modelo principal de un trabajo."""
     
     ESTADO_SELECCION = (
         ('solicitado', u'Solicitada la defensa'),
@@ -157,7 +157,7 @@ class Proyecto(Contenido):
     )
 
     # dublin core
-    type = models.CharField(max_length=30, choices=settings.TIPO_DOCUMENTO_PROYECTO_SELECCION)
+    type = models.CharField(max_length=30, choices=settings.TIPO_DOCUMENTO_TRABAJO_SELECCION)
     creator_nombre = models.CharField(max_length=50, verbose_name= u'nombre del autor')
     creator_apellidos = models.CharField(max_length=50, verbose_name= u'apellidos del autor')
     creator_email = models.EmailField(max_length=50,
@@ -240,10 +240,10 @@ class Proyecto(Contenido):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('proyecto_view', (), {'id': self.id})
+        return ('trabajo_view', (), {'id': self.id})
 
     def _get_alfresco_properties(self):
-        properties = super(Proyecto, self)._get_alfresco_properties()
+        properties = super(Trabajo, self)._get_alfresco_properties()
         properties['cm:creator'] = self.creator_nombre_completo()
         properties['pfc:niu'] = self.niu
         properties['pfc:centro'] = self.centro().nombre
@@ -265,9 +265,9 @@ class Proyecto(Contenido):
 
 
 class TribunalVocal(models.Model):
-    """Modelo para almacenar los vocales del tribunal de defensa de un proyecto."""
+    """Modelo para almacenar los vocales del tribunal de defensa de un trabajo."""
     
-    proyecto_calificado = models.ForeignKey(Proyecto)
+    trabajo = models.ForeignKey(Trabajo)
     nombre = models.CharField(max_length=50, verbose_name=u"nombre vocal (*)")
     apellidos = models.CharField(max_length=50, verbose_name=u"apellidos vocal (*)")
 
@@ -282,32 +282,32 @@ class TribunalVocal(models.Model):
 
 
 class Anexo(Contenido):
-    """Modelo de los documentos anexos a la memoria del proyecto."""
+    """Modelo de los documentos anexos a la memoria del trabajo."""
     
     type = models.CharField(max_length=30, choices=settings.TIPO_DOCUMENTO_ANEXO_SELECCION)
-    proyecto = models.ForeignKey(Proyecto)
+    trabajo = models.ForeignKey(Trabajo)
 
     @models.permalink
     def get_absolute_url(self):
         return ('anexo_view', (), {
-            'id': self.proyecto.id,
+            'id': self.trabajo.id,
             'anexo_id': self.id,
         })
 
     def pretty_type(self):
         return [value for key, value in settings.TIPO_DOCUMENTO_ANEXO_SELECCION if key == self.type][0]
         
-    # Muchas de las propiedades de los anexos se heredan de las del proyecto
+    # Muchas de las propiedades de los anexos se heredan de las del trabajo
     def _get_alfresco_properties(self):
-        properties = self.proyecto._get_alfresco_properties()
+        properties = self.trabajo._get_alfresco_properties()
         properties.update(super(Anexo, self)._get_alfresco_properties())
         return properties
 
 
-def save_proyect_to_alfresco(proyecto, anexos, vocales = [],
+def save_proyect_to_alfresco(trabajo, anexos, vocales = [],
                              update_relationship=True, update_db=False,
-                             proyecto_contenido=None, anexos_contenidos=()):
-    """ Salvar toda la información relacionada con un proyecto en el gestor documental."""
+                             trabajo_contenido=None, anexos_contenidos=()):
+    """ Salvar toda la información relacionada con un trabajo en el gestor documental."""
 
     if update_db:
         proyecto.save()
@@ -319,13 +319,13 @@ def save_proyect_to_alfresco(proyecto, anexos, vocales = [],
     if settings.ALFRESCO_ENABLED:
         cml = Alfresco().cml()
 
-        proyecto.save_to_alfresco(proyecto.titulacion.alfresco_uuid, cml)
+        trabajo.save_to_alfresco(trabajo.titulacion.alfresco_uuid, cml)
         for anexo in anexos:
-            anexo.save_to_alfresco(anexo.proyecto.titulacion.alfresco_uuid, cml)
+            anexo.save_to_alfresco(anexo.trabajo.titulacion.alfresco_uuid, cml)
         cml.do()
 
-        if proyecto_contenido is not None:
-            Alfresco().upload_content(proyecto.alfresco_uuid, proyecto_contenido)
+        if trabajo_contenido is not None:
+            Alfresco().upload_content(trabajo.alfresco_uuid, trabajo_contenido)
         for anexo, contenido in zip(anexos, anexos_contenidos):
             Alfresco().upload_content(anexo.alfresco_uuid, contenido)
 
@@ -333,16 +333,24 @@ def save_proyect_to_alfresco(proyecto, anexos, vocales = [],
             # Si es necesario, hay que salvar la relacion entre los documentos
             cml = Alfresco().cml()
             relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
-            proyecto_relaciones = ['hasPart %s' % anexo.alfreso_uuid for anexo in anexos]
-            cml.update(proyecto.alfresco_uuid, {
-                relation_propname: proyecto_relaciones
+            trabajo_relaciones = ['hasPart %s' % anexo.alfreso_uuid for anexo in anexos]
+            cml.update(trabajo.alfresco_uuid, {
+                relation_propname: trabajo_relaciones
             })
             for anexo in anexos:
                 cml.update(anexo.alfresco_uuid, {
-                    property_relation: 'isPartOf %s' % proyecto.alfresco_uuid
+                    property_relation: 'isPartOf %s' % trabajo.alfresco_uuid
                 })
             cml.do()
 
+<<<<<<< HEAD
+=======
+    if update_db:
+        trabajo.save()
+        for anexo in anexos:
+            anexo.save()
+
+>>>>>>> ya no hablamos de proyectos, ahora hablamos de trabajos para facilitar la integración con otros documentos de proyectos
 
 #
 # Extendemos auth.models.User con nuevos métodos
@@ -356,39 +364,39 @@ def user_niu(self):
         return m.group('niu')
 
 def user_is_tutor(self):
-    return Proyecto.objects.filter(tutor_email=self.email).exists()
+    return Trabajo.objects.filter(tutor_email=self.email).exists()
 
 def user_centros(self):
     return AdscripcionUsuarioCentro.objects.filter(user=self).values('centro')
 
-def user_can_view_proyecto(self, proyecto):
-    es_creador = proyecto.creator_email == self.email
-    es_tutor = proyecto.tutor_email == self.email
+def user_can_view_trabajo(self, trabajo):
+    es_creador = trabajo.creator_email == self.email
+    es_tutor = trabajo.tutor_email == self.email
     puede_archivar = self.has_perm("defensa.puede_archivar")
     return es_creador or es_tutor or (
-        proyecto.estado in ('calificado', 'archivado') and puede_archivar)
+        trabajo.estado in ('calificado', 'archivado') and puede_archivar)
 
-def user_can_autorizar_proyecto(self, proyecto):
-    return (proyecto.tutor_email == self.email)
+def user_can_autorizar_trabajo(self, trabajo):
+    return (trabajo.tutor_email == self.email)
 
-def user_can_calificar_proyecto(self, proyecto):
-    return (proyecto.tutor_email == self.email)
+def user_can_calificar_trabajo(self, trabajo):
+    return (trabajo.tutor_email == self.email)
 
-def user_can_archivar_proyecto(self, proyecto):
+def user_can_archivar_trabajo(self, trabajo):
     return (self.has_perm("defensa.puede_archivar") and
         AdscripcionUsuarioCentro.objects.filter(
             user=self,
-            centro=proyecto.centro()
+            centro=trabajo.centro()
         ).exists()
     )
 
 auth.models.User.add_to_class('niu', user_niu)
 auth.models.User.add_to_class('is_tutor', user_is_tutor)
 auth.models.User.add_to_class('centros', user_centros)
-auth.models.User.add_to_class('can_view_proyecto', user_can_view_proyecto)
-auth.models.User.add_to_class('can_autorizar_proyecto', user_can_autorizar_proyecto)
-auth.models.User.add_to_class('can_calificar_proyecto', user_can_calificar_proyecto)
-auth.models.User.add_to_class('can_archivar_proyecto', user_can_archivar_proyecto)
+auth.models.User.add_to_class('can_view_trabajo', user_can_view_trabajo)
+auth.models.User.add_to_class('can_autorizar_trabajo', user_can_autorizar_trabajo)
+auth.models.User.add_to_class('can_calificar_trabajo', user_can_calificar_trabajo)
+auth.models.User.add_to_class('can_archivar_trabajo', user_can_archivar_trabajo)
 
 
 class AdscripcionUsuarioCentro(models.Model):

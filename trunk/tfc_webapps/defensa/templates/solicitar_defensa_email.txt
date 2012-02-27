@@ -2,7 +2,7 @@ Hola,
 
 El alumno "{{ creator_nombre }}" ({{ niu }}) ha solicitado la defensa del trabajo fin de carrera titulado:
 
-"{{ proyecto }}".
+"{{ trabajo }}".
 
 Debe revisar el contenido del trabajo y autorizar o rechazar su defensa a través del siguiente enlace:
 

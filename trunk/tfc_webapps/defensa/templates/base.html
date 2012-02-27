@@ -102,21 +102,26 @@
     {% endblock %}
 
     {% if user.is_authenticated %}
-    <h2>Proyectos</h2>
+    <h2>Fin de carrera</h2>
     <ul>
         <li><a href="/defensa/solicitar/">Solicitar defensa</a></li>
         {%if user.is_tutor %}
             <li><a href="/defensa/autorizar/">Autorizaciones</a></li>
-            <li><a href="/defensa/calificar/">Calificar proyectos</a></li>
+            <li><a href="/defensa/calificar/">Calificar trabajos</a></li>
         {% else %}
             <li>Autorizaciones</li>
-            <li>Calificar proyectos</li>
+            <li>Calificar trabajos</li>
         {%endif%}
         {%if perms.defensa.puede_archivar %}
-            <li><a href="/defensa/archivar/">Archivar proyectos</a></li>
+            <li><a href="/defensa/archivar/">Archivar trabajos</a></li>
         {% else %}
-            <li>Archivar proyectos</a></li>
+            <li>Archivar trabajos</a></li>
         {%endif%}
+    </ul>
+    {% else %}
+    <h2>Fin de carrera</h2>
+    <ul>
+        <li><a href="/defensa/solicitar/">Solicitar defensa</a></li>
     </ul>
     {% endif %}
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#  Gestión de Proyectos Fin de Carrera de la Universidad de La Laguna
+#  Gestión de Trabajos Fin de Carrera de la Universidad de La Laguna
 #
 #    Copyright (C) 2011-2012 Pedro Cabrera <pdrcabrod@gmail.com>
 #                            Jesús Torres  <jmtorres@ull.es>
@@ -50,17 +50,17 @@ def validar_calificacion(calificacion_numerica, calificacion):
     return True
 
 
-class FormularioProyectoBase(forms.ModelForm):
+class FormularioTrabajoBase(forms.ModelForm):
     """Clase base para los formularios de solicitud de defensa de TFC.
 
     Esta clase base incluye elementos compartidos tanto por el
     FormularioSolicitud utilizado en la vista de las solicitudes de TFC
-    como en el formulario ProyectoAdminForm, vinculado al modelo Proyecto,
+    como en el formulario TrabajoAdminForm, vinculado al modelo Trabajo,
     de la interfaz administrativa .
     """
     
     class Meta:
-        model = models.Proyecto
+        model = models.Trabajo
 
     def append_field_error(self, field, error):
         if field not in self._errors:
@@ -86,7 +86,7 @@ class FormularioProyectoBase(forms.ModelForm):
         return data
 
 
-class FormularioSolicitud(FormularioProyectoBase):
+class FormularioSolicitud(FormularioTrabajoBase):
     """Formulario de solicitud de defensa de TFC."""
     
     DOMINIO_CORREO_TUTOR = '@' + settings.DOMINIO_CORREO_TUTOR
@@ -103,7 +103,7 @@ class FormularioSolicitud(FormularioProyectoBase):
                                   label=u'Correo electrónico del tutor')
 
     class Meta:
-        model = models.Proyecto
+        model = models.Trabajo
 	fields = ('title', 'description', 'language', 'file', 'creator_nombre',
             'creator_apellidos', 'niu', 'centro', 'titulacion', 'tutor_nombre',
             'tutor_apellidos', 'tutor_email', 'director_nombre', 'director_apellidos')
@@ -138,7 +138,7 @@ class FormularioAnexoFormset(BaseInlineFormSet):
         
         return data
 
-AnexoFormSet = inlineformset_factory(models.Proyecto, models.Anexo,
+AnexoFormSet = inlineformset_factory(models.Trabajo, models.Anexo,
 	formset = FormularioAnexoFormset,
         fields = ('title', 'description', 'language', 'type' ),
 	extra = 0)
@@ -151,7 +151,7 @@ class FormularioAutorizar(forms.ModelForm):
         widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
 
     class Meta:
-        model = models.Proyecto
+        model = models.Trabajo
         fields = ('tutor_nombre', 'tutor_apellidos', 'director_nombre',
             'director_apellidos')
 
@@ -170,7 +170,7 @@ class FormularioCalificar(forms.ModelForm):
         self.fields['tribunal_secretario_apellidos'].required = True
 
     class Meta:
-	model = models.Proyecto
+	model = models.Trabajo
 	fields = ('fecha_defensa', 'calificacion_numerica', 'calificacion',
             'tribunal_presidente_nombre', 'tribunal_presidente_apellidos',
             'tribunal_secretario_nombre', 'tribunal_secretario_apellidos')
@@ -184,7 +184,7 @@ class FormularioCalificar(forms.ModelForm):
 
         return data
 
-VocalesFormSet = inlineformset_factory(models.Proyecto, models.TribunalVocal, extra=1)    
+VocalesFormSet = inlineformset_factory(models.Trabajo, models.TribunalVocal, extra=1)    
 
 
 class FormularioArchivar(forms.ModelForm):
@@ -197,7 +197,7 @@ class FormularioArchivar(forms.ModelForm):
         self.fields['subject'].required = True               
 
     class Meta:
-	model = models.Proyecto
+	model = models.Trabajo
 	fields = ('subject',  'rights', 'coverage')
 
 #class FormularioAnexo(forms.ModelForm):

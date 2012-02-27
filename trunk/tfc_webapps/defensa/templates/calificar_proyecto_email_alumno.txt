@@ -2,7 +2,7 @@ Hola,
 
 El tutor ha calificado con nota de {{ calificacion_numerica }} ({{ calificacion }}) la defensa de su trabajo fin de carrera titulado:
 
-"{{ proyecto }}"
+"{{ trabajo }}"
 
 que ahora está pendiente de ser archivado por el personal de biblioteca.
 
