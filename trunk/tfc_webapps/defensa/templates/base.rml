@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document>
+
+    <template showBoundary="1"
+              title="{{ title }}" author="{{ author }}"
+              topMargin="4.5cm" rightMargin="1.5cm" bottomMargin="3cm"
+              leftMargin="4cm">
+        <pageTemplate id="main">
+            <pageGraphics>
+                <image file="{{ STATIC_URL }}images/ull-header.jpg"
+                       x="2.5cm" y="27.2cm" width="8cm" height="1.5cm"/>
+                <image file="{{ STATIC_URL }}images/ull-watermark.png"
+                       x="10cm" y="3.5cm" width="8.8cm" height="14.8cm"/>
+                <setFont name="Helvetica" size="8"/>
+                <drawString x="5.1cm" y="1.1cm">
+                    Pabellón de Gobierno, C/ Molinos de Agua S/N. 38200 La Laguna. España. Tlf: (+34) 922 319000/01
+                </drawString>
+            </pageGraphics>
+            <frame id="first" x1="4cm" y1="3cm" width="15.25cm" height="21cm"/>
+        </pageTemplate>
+    </template>
+
+    <stylesheet>
+        <paraStyle name="normal" fontName="Helvetica" fontSize="12" alignment="justify"/>
+    </stylesheet>
+
+    <story>
+        {% block content %}
+        {% endblock %}
+    </story>
+
+</document>

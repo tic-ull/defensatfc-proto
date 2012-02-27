@@ -18,29 +18,30 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from django.core.template import loader
+from django.http import HttpResponse
+from django.template import RequestContext, loader
 
-import wkhtmltox
-import tempfile
+from defensa import settings
+
+from cStringIO import StringIO
+from z3c.rml import rml2pdf
 
 
-def render_to_pdf(template_name, *args, **kwargs):
+def render_to_pdf(template_name, dictionary=None, context_instance=None):
 
-    # renderizar la plantilla y guardar el resultado en el directorio temporal
-    html_content = tempfile.NamedTemporaryFile(mode='w', prefix='django-html-')
-    html_content.write(loader.render_to_string(template_name, *args, **kwargs))
-    html_content.close()
-
-    # convertir el contenio en HTML a PDF
-    pdf_content = tempfile.NamedTemporaryFile(mode='r', prefix='django-html-')
-    pdf = wkhtmltox.Pdf()
-    pdf.set_global_setting('out', pdf_content.name)
-    pdf.add_page({'page': html_content.name})
-    pdf.convert()
-
-    return pdf_content
-
+    # Sobreescribir la ruta de los archivos estáticos para que la ruta sea local
+    STATIC_URL = getattr(settings, 'PDF_STATIC_URL', None)
+    if STATIC_URL:
+        dictionary = {}
+        dictionary['STATIC_URL'] = STATIC_URL
     
+    # Renderizar la plantilla RML y convertir el contenido a PDF
+    rml = loader.render_to_string(template_name, dictionary, context_instance)
+    print rml
+    return rml2pdf.parseString(rml)
+
+ 
 def render_to_response(*args, **kwargs):
     return HttpResponse(render_to_pdf(*args, **kwargs),
-                        mimetype='application/pdf')
+        content_type='application/pdf')
+

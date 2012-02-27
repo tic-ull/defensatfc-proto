@@ -35,6 +35,7 @@ from django.template.loader import get_template
 from django.utils.simplejson import dumps
 
 from defensa import settings
+from defensa import pdf
 from defensa.alfresco import Alfresco
 from defensa.forms import *
 from defensa.models import Proyecto, Anexo
@@ -174,6 +175,20 @@ def descargar_anexo(request, id, anexo_id):
 @login_required
 def descargar_autorizacion(request, id):
     proyecto = get_object_or_404(Proyecto, id=id)
+    if not (request.user.can_view_proyecto(proyecto) or
+            proyecto.estado == 'autorizado'):
+        return HttpResponseForbidden()
+
+    anexos = proyecto.anexo_set.all()
+    content = pdf.render_to_pdf('autorizacion_defensa.rml', {
+            'proyecto': proyecto,
+            'anexos': anexos,
+        },
+        context_instance=RequestContext(request))
+    response = HttpResponse(content,  content_type='application/pdf')
+    response['Content-Disposition'] = ('attachment; filename=' +
+        (settings.DESCARGAR_AUTORIZACION_FILENAME % proyecto.niu))
+    return response
 
 
 @login_required  

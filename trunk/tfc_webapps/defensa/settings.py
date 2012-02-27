@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
+
 from iso639 import ISO639_1
+
+import os
 
 
 PLANTILLA_NOMBRE_COMPLETO = '%(apellidos)s, %(nombre)s'
@@ -81,6 +85,15 @@ PUEDEN_ARCHIVAR = 'Bibliotecarios'
 
 DESCARGAR_CONTENIDO_FILENAME = 'memoria-%s.pdf'
 DESCARGAR_ANEXO_FILENAME = 'anexo_%2d-%s.pdf'
+DESCARGAR_AUTORIZACION_FILENAME = 'autorizacion_defensa-%s.pdf'
+
+
+# Conversión a PDF
+if settings.DEBUG:
+    PDF_STATIC_URL = ("file://%s/" %
+        os.path.join(os.path.normpath(os.path.dirname(__file__)), 'static'))
+else:
+    PDF_STATIC_URL = "file://" + settings.STATIC_ROOT
 
 
 # Correos de notificación

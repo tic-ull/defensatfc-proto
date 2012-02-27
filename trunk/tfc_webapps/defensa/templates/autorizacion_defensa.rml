@@ -1,0 +1,7 @@
+{% extends "base.rml" %}
+
+{% block content %}
+<para style="normal">
+Hola
+</para>
+{% endblock %}
