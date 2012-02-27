@@ -61,7 +61,13 @@
         };
 
         $('#busqueda').scrollToFixed({
-                marginTop: -10
+            marginTop: -10,
+            preFixed: function() {
+                $(this).toggleClass('floating');
+            },
+            preUnfixed: function() {
+                $(this).toggleClass('floating');
+            },
         });
         $(window).scroll(function () {
             $('#q').autocomplete("close");

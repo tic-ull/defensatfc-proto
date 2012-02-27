@@ -267,6 +267,13 @@ background-color: #ffffff;
 color: #ff0000;
 }
 
+.item.floating {
+border: 1px solid #969;
+padding : 5px 5px 5px 5px;
+margin: 10px auto 0 auto;
+background-color: #969;
+}
+
 .line {
 border-top: 1px solid #EBE8DB;
 padding : 5px 5px 0px 5px;
