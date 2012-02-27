@@ -137,7 +137,8 @@ class Contenido(AlfrescoPFCModel):
             'cm:title': self.title,
             'cm:format': self.format,
             'cm:description': self.description,
-            'cm:type': settings.TIPO_DOCUMENTO_TO_DUBLIN_CORE[self.type],
+            # TODO; Modificar el modelo en Alfresco para que type pueda ser multivaluado
+            'cm:type': settings.TIPO_DOCUMENTO_TO_DUBLIN_CORE[self.type][-1],
             'cm:language': self.language,
             'cm:publisher': settings.PUBLISHER_DEFECTO
         }
