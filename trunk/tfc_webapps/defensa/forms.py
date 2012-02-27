@@ -232,14 +232,3 @@ class FormularioArchivar(forms.ModelForm):
     class Meta:
 	model = models.Trabajo
 	fields = ('subject',  'rights', 'coverage')
-
-#class FormularioAnexo(forms.ModelForm):
-    #model = models.Anexo
-    #fields = ('title', 'languaje', 'description')
-
-#AnexoModelFormset = modelformset_factory(
-#    models.Anexo,
-#    extra=0,
-#    fields=('title', 'language', 'description')
-#)
-
