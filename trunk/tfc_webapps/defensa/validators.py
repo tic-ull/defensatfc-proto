@@ -27,12 +27,26 @@ from django.core.exceptions import ValidationError
 from defensa import settings
 
  
-def FileFormatValidator(value, choices):
-    (format, encoding) = mimetypes.guess_type(value.name)
-    if format not in choices:
-        raise ValidationError(u'Formato de fichero no admitido para el tipo de documento.')
+def FileFormatValidator(fileobj, formats):
+    if isinstance(fileobj, basestring):
+        format = fileobj
+    else:
+        (format, encoding) = mimetypes.guess_type(fileobj.name)
 
-      
+    if format not in formats:
+        names = [
+            name for mimetype, name in settings.FORMATO_SELECCION if mimetype in formats]
+        if len(names) > 1:
+            formats_str = '%s o %s' % (', '.join(names[:-1]), names[-1])
+            raise ValidationError(u"""Formato de fichero no admitido para el tipo
+                de documento especificado. Se esperaba un documento en alguno de
+                los siguientes formatos: %s.""" % formats_str)
+        else:
+            raise ValidationError(u"""Formato de fichero no admitido para el
+                tipo de documento especificado. Se esperaba un documento en
+                formato %s.""" % names[0] )
+
+
 NIUValidator = RegexValidator(regex ='^\d{10}$', message='Ej: 0100353303')
 
 UUIDValidator = RegexValidator(regex ='^\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$',

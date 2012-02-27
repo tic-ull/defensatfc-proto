@@ -83,10 +83,10 @@ TIPO_DOCUMENTO_TO_FORMATO = {
     'video':           (),
 }
 
-FORMATO_SELECCION = [
-    (k, k) for k, g in groupby(
-        sorted(chain(TIPO_DOCUMENTO_TO_FORMATO.itervalues()))
-    ) if k]
+FORMATO_SELECCION = (
+    ('application/pdf', 'PDF'),
+    ('application/x-zip-compressed', 'ZIP'),
+)
 
 
 MODALIDAD_SELECCION = (

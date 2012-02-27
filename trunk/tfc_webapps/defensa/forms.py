@@ -145,9 +145,8 @@ class FormularioAnexo(forms.ModelForm):
         data = self.cleaned_data
 
         formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[data['type']]
-        if self.instance.format not in formatos:
-            raise ValidationError(u'Formato de fichero no admitido para el tipo de documento.')
-            
+        FileFormatValidator(self.instance.format, formatos)
+
         return data
 
 
