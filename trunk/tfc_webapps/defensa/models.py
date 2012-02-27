@@ -342,14 +342,6 @@ def save_proyect_to_alfresco(trabajo, anexos, vocales = [],
                 })
             cml.do()
 
-<<<<<<< HEAD
-=======
-    if update_db:
-        trabajo.save()
-        for anexo in anexos:
-            anexo.save()
-
->>>>>>> ya no hablamos de proyectos, ahora hablamos de trabajos para facilitar la integración con otros documentos de proyectos
 
 #
 # Extendemos auth.models.User con nuevos métodos

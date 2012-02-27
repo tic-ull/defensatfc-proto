@@ -25,7 +25,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Permission, User, Group
-from django.db.models import Q, F
+from django.db.models import Q
 from django.forms.models import inlineformset_factory, formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden, HttpResponseNotFound
@@ -415,8 +415,8 @@ def calificar_trabajo(request, id):
                 email.send()
 
                 # enviar correo a los bibliotecarios
-                plaintext = get_template('calificar_proyecto_email_biblioteca.txt') 
-		users = AdscripcionUsuarioCentro.objects.filter(centro=trabajo.titulacion.centro, user__groups__name = settings.PUEDEN_ARCHIVAR)
+                plaintext = get_template('calificar_trabajo_email_biblioteca.txt') 
+		users = AdscripcionUsuarioCentro.objects.filter(centro=trabajo.titulacion.centro, user__groups__name = settings.GRUPO_BIBLIOTECARIOS)
 		to_email = [user.user.email for user in users]                
 		c = Context({
                     'trabajo': trabajo.title,

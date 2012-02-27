@@ -159,8 +159,9 @@ CALIFICACION_SELECCION = (
     ('MH', u'Matrícula de honor'),
 )
 
+
 #Grupos de usuarios
-PUEDEN_ARCHIVAR = 'Bibliotecarios'
+GRUPO_BIBLIOTECARIOS = 'Bibliotecarios'
 
 
 DESCARGAR_CONTENIDO_FILENAME = 'memoria-%s.pdf'
