@@ -38,12 +38,16 @@ class ProyectoAdminForm(forms.FormularioProyectoBase):
             error = u"Este campo es obligatorio."
             required_fields = []
             if  data['estado'] in ('calificado', 'archivado') :
-                required_fields += ("fecha_defensa", "calificacion_numerica",
-                    "calificacion", "modalidad", "tribunal_presidente_nombre",
+                required_fields += ("fecha_defensa", "modalidad",
+                    "tribunal_presidente_nombre",
                     "tribunal_presidente_apellidos", "tribunal_secretario_nombre",
                     "tribunal_secretario_apellidos")
 
-                if not validar_calificacion(data['calificacion_numerica'], data['calificacion']):
+                if not data['calificacion_numerica']:
+                    self.append_field_error('calificacion_numerica', error)
+                elif not data['calificacion']:
+                    self.append_field_error('calificacion', error)
+                elif not validar_calificacion(data['calificacion_numerica'], data['calificacion']):
                     self.append_field_error('calificacion',
                         u"La calificación y la nota numérica no coinciden")
 
