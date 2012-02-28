@@ -17,7 +17,7 @@
 </script>
 {% endblock %}
 
-{% block content_title %}Trabajos que esperan ser {{ estado }}s{% endblock %}
+{% block content_title %}Trabajos que esperan ser {{ estado|siguiente }}s{% endblock %}
 
 {% block content %}
 {% if trabajos %}

@@ -34,13 +34,10 @@ from django.template import RequestContext, Context, loader
 from django.template.loader import get_template
 from django.utils.simplejson import dumps
 
-from defensa import settings
-from defensa import pdf
+from defensa import settings, pdf
 from defensa.alfresco import Alfresco
 from defensa.forms import *
-from defensa.models import Trabajo, Anexo
-from defensa.models import AdscripcionUsuarioCentro
-from defensa.models import save_proyect_to_alfresco
+from defensa.models import Trabajo, Anexo, AdscripcionUsuarioCentro
 
 from datetime import date
 
@@ -105,7 +102,7 @@ def solicitar_defensa(request):
 		anexos_files.append (form.cleaned_data['file'])
 	    trabajo.save_to_alfresco(anexos=anexos,
                                      trabajo_contenido = request.FILES['file'],
-				     anexos_contenidos = anexos_files
+				     anexos_contenidos = anexos_files,
 				     update_relationship=True)
 
             # enviar correo al alumno
