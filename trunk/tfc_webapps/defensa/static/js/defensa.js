@@ -36,6 +36,26 @@ var solicitud = {
             formTemplate = options['anexoFormTemplate'];
         }
 
+        // Soporte para evitar que se tengan que reenviar los archivos
+        $(selector).find("input:file").each(function() {
+            var w = $(this);
+            var idRegex = new RegExp("file$");
+            idFileId = w.attr('id').replace(idRegex, 'fileid');
+            idFilename = w.attr('id').replace(idRegex, 'filename');
+            var fileid = $('#' + idFileId);
+            if(fileid.val() != "") {
+                w.hide();
+                var file = $('<div></div>').insertBefore(w);
+                file.append($('#' + idFilename).val());
+                var change = '<input style="margin-left: 2em;" type="button" value="Cambiar"/>';
+                $(change).appendTo(file).click(function() {
+                    fileid.val('');
+                    file.hide();
+                    w.show(); w.focus(); w.click(); w.blur();
+                });
+            }
+        });
+
         var $tabs = $(selector).tabbed_formset({
             prefix: prefix,
             formTemplate: formTemplate,
@@ -84,7 +104,7 @@ var solicitud = {
                 dialog += $(this).prev("a").text();
                 dialog += " y toda la información guardada en el formulario? ";
                 dialog += "Tenga en cuenta que una vez borrada no será posible recuperarla.</p></div>"
-                
+
                 var div = $(dialog);
                 div.attr("title","Confirmar").appendTo("body").dialog({
                     modal: true,

@@ -18,6 +18,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from django.core.files.uploadedfile import UploadedFile
 from django.core.validators import MaxLengthValidator
 from django.db import models, transaction
 from django.contrib import auth
@@ -28,6 +29,7 @@ from defensa.alfresco import Alfresco
 
 import os
 import re
+import tempfile
 
 
 class AlfrescoPFCModel(models.Model):
@@ -447,3 +449,28 @@ class AdscripcionUsuarioCentro(models.Model):
     user = models.ForeignKey(auth.models.User, db_index=True)
     centro = models.ForeignKey(Centro, db_index=True)
     notificar_correo = models.BooleanField(default=False)
+
+
+class SubmittedFile(models.Model):
+    """Modelo para almacenar los archivos subidos durante las solicitudes de defensa."""
+
+    name = models.CharField(max_length=255)
+    local_path = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add = True)
+
+    def open(self, mode='rb'):
+        return open(self.local_path, mode)
+
+
+def submittedfile_factory(fileobj, *args, **kwargs):
+    if not isinstance(fileobj, UploadedFile):
+        ValueError("El argumento fileobj debe ser una instancia de UploadedFile.")
+
+    stored_file = tempfile.NamedTemporaryFile(delete=False)
+    for chunk in fileobj.chunks():
+        stored_file.write(chunk)
+
+    submitted = SubmittedFile()
+    submitted.name = fileobj.name
+    submitted.local_path = stored_file.name
+    return submitted

@@ -68,19 +68,20 @@ class FormularioTrabajoBase(forms.ModelForm):
         self.set_error(forms.NON_FIELD_ERRORS, error)
 
     def clean(self):
-        data = self.cleaned_data
+        director_apellidos = self.cleaned_data.get('director_apellidos')
+        director_nombre = self.cleaned_data.get('director_director')
 
         # comprobar nombre y apellidos del director
-        if data['director_apellidos'] and not data['director_nombre']:
+        if director_apellidos and not director_nombre:
             self.append_field_error('director_nombre', u"""
                 Si desea indicar un director debe proporcionar tanto el
                 nombre como los apellidos.""")
-        if data['director_nombre'] and not data['director_apellidos']:
+        if director_nombre and not director_apellidos:
             self.append_field_error('director_apellidos', u"""
                 Si desea indicar un director debe proporcionar tanto el
                 nombre como los apellidos.""")
 
-        return data
+        return self.cleaned_data
 
 
 class FormularioSolicitud(FormularioTrabajoBase):
@@ -90,7 +91,10 @@ class FormularioSolicitud(FormularioTrabajoBase):
 
     centro = forms.ModelChoiceField(label=u"Centro", queryset=models.Centro.objects)
     titulacion = forms.ModelChoiceField(label=u"Titulación", queryset=models.Titulacion.objects)
-    file = forms.FileField(label=u"Documento de la memoria")
+
+    file = forms.FileField(label=u"Documento de la memoria", required=False)
+    filename = forms.CharField(widget=forms.HiddenInput, required=False)
+    fileid = forms.IntegerField(widget=forms.HiddenInput, required=False)
 
     # Sobreescribimos el campo 'tutor_email' para que la comprobación de
     # correo electrónico valido no se haga en el campo del formulario (antes
@@ -101,9 +105,11 @@ class FormularioSolicitud(FormularioTrabajoBase):
 
     class Meta:
         model = models.Trabajo
-        fields = ('title', 'description', 'language', 'file', 'creator_nombre',
+        # El orden es importante
+        fields = ('title', 'description', 'language', 'creator_nombre',
             'creator_apellidos', 'niu', 'centro', 'titulacion', 'tutor_nombre',
-            'tutor_apellidos', 'tutor_email', 'director_nombre', 'director_apellidos')
+            'tutor_apellidos', 'tutor_email', 'director_nombre', 'director_apellidos',
+            'filename', 'fileid', 'file') 
         widgets = {
             'title': forms.Textarea(attrs={'cols': 40, 'rows': 3}),
         }
@@ -112,12 +118,28 @@ class FormularioSolicitud(FormularioTrabajoBase):
         return self.cleaned_data['tutor_email'] + self.DOMINIO_CORREO_TUTOR
 
     def clean_file(self):
-        data = self.cleaned_data['file']
-        
-        tipo = settings.MEMORIA_TFC_TIPO_DOCUMENTO
-        FileFormatValidator(data, settings.TIPO_DOCUMENTO_TO_FORMATO[tipo])
+        fileobj = self.cleaned_data.get('file')
+        fileid = self.cleaned_data.get('fileid')
 
-        return data
+        tipo = settings.MEMORIA_TFC_TIPO_DOCUMENTO
+        if fileid:
+            try:
+                submitted = models.SubmittedFile.objects.get(id=fileid)
+            except models.SubmittedFile.DoesNotExist:
+                raise ValidationError(u"Este campo es obligatorio.")
+            else:
+                FileFormatValidator(submitted, settings.TIPO_DOCUMENTO_TO_FORMATO[tipo])
+        elif fileobj:
+            FileFormatValidator(fileobj, settings.TIPO_DOCUMENTO_TO_FORMATO[tipo])
+            submitted = models.submittedfile_factory(fileobj)
+            submitted.save()
+
+            self.data['filename'] = submitted.name
+            self.data['fileid'] = submitted.id
+        else:
+            raise ValidationError(u"Este campo es obligatorio.")
+
+        return submitted
 
 
 class FormularioTrabajo(forms.ModelForm):
@@ -141,8 +163,8 @@ class FormularioAnexo(forms.ModelForm):
         model = models.Anexo
         fields = ('title', 'description', 'language', 'type')
 
-    def clean(self):
-        data = self.cleaned_data
+    def clean_type(self):
+        data = self.cleaned_data.get('type')
 
         formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[data['type']]
         FileFormatValidator(self.instance.format, formatos)
@@ -150,25 +172,49 @@ class FormularioAnexo(forms.ModelForm):
         return data
 
 
-class FormularioSolicitudAnexo(FormularioAnexo):
+class FormularioSolicitudAnexo(forms.ModelForm):
     """Formulario de anexo adjunto durante la solicitud de defensa del TFC."""
 
-    file  = forms.FileField(label=u"Documento del anexo")
     title = forms.CharField(label=u"Título",
         widget=forms.Textarea(attrs={'cols': 40, 'rows': 3}))
 
+    file = forms.FileField(label=u"Documento del anexo", required=False)
+    filename = forms.CharField(widget=forms.HiddenInput, required=False)
+    fileid = forms.IntegerField(widget=forms.HiddenInput, required=False)
+
     class Meta:
         model = models.Anexo
-        fields = ('title', 'description', 'language', 'type')
+        # El orden es importante
+        fields = ('title', 'description', 'language', 'type', 'filename', 'fileid', 'file')
 
-    def clean(self):
-        data = self.cleaned_data
+    def clean_file(self):
+        fileobj = self.cleaned_data.get('file')
+        fileid = self.cleaned_data.get('fileid')
+        tipo = self.cleaned_data.get('type')
 
-        if 'type' in data and 'file' in data:
-            formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[data['type']]
-            FileFormatValidator(data['file'], formatos)
+        if fileid:
+            try:
+                submitted = models.SubmittedFile.objects.get(id=fileid)
+            except models.SubmittedFile.DoesNotExist:
+                raise ValidationError(u"Este campo es obligatorio.")
+            else:
+                if tipo:
+                    formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[tipo]
+                    FileFormatValidator(submitted, formatos)
+        elif fileobj:
+            if tipo:
+                formatos = settings.TIPO_DOCUMENTO_TO_FORMATO[tipo]
+                FileFormatValidator(fileobj, formatos)
 
-        return data
+            submitted = models.submittedfile_factory(fileobj)
+            submitted.save()
+
+            self.data[self.prefix + '-filename'] = submitted.name
+            self.data[self.prefix + '-fileid'] = submitted.id
+        else:
+            raise ValidationError(u"Este campo es obligatorio.")
+
+        return submitted
 
 
 AnexoFormSet = inlineformset_factory(models.Trabajo, models.Anexo,
@@ -208,7 +254,7 @@ class FormularioCalificar(forms.ModelForm):
             'tribunal_secretario_nombre', 'tribunal_secretario_apellidos')
 
     def clean(self):
-        data = self.cleaned_data
+        data = super(FormularioCalificar, self).clean()
 
         if not validar_calificacion(data['calificacion_numerica'], data['calificacion']):
             self.append_field_error('calificacion',

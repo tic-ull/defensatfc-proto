@@ -25,6 +25,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Permission, User, Group
+from django.db import transaction
 from django.db.models import Q
 from django.forms.models import inlineformset_factory, formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
@@ -75,6 +76,7 @@ def index(request):
 
 
 @login_required
+@transaction.commit_on_success
 def solicitar_defensa(request):
     """Formulario de solicitud de defensa de un trabajo fin de carrera."""
     
@@ -82,11 +84,11 @@ def solicitar_defensa(request):
         if request.user.niu() is not None:
             request.POST['niu'] = request.user.niu()
         trabajo_form = FormularioSolicitud(request.POST, request.FILES)
-	anexo_formset = AnexoFormSet (request.POST, request.FILES)
+	anexo_formset = AnexoFormSet(request.POST, request.FILES)
 
 	if trabajo_form.is_valid():
 	    trabajo = trabajo_form.save(commit=False)
-	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = trabajo)
+	    anexo_formset = AnexoFormSet(request.POST, request.FILES, instance = trabajo)
 
         if anexo_formset.is_valid():
             anexos = anexo_formset.save(commit=False)
@@ -95,14 +97,14 @@ def solicitar_defensa(request):
 	    trabajo.estado = 'solicitado'
 	    trabajo.type = settings.MEMORIA_TFC_TIPO_DOCUMENTO
             trabajo.creator_email = request.user.email
-	    trabajo.format = mimetypes.guess_type(request.FILES['file'].name)[0]
+	    trabajo.format = mimetypes.guess_type(trabajo_form.cleaned_data['file'].name)[0]
 
 	    anexos_files = []
             for anexo, form in zip(anexos, anexo_formset.forms):
 	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)[0]
-		anexos_files.append (form.cleaned_data['file'])
+		anexos_files.append(form.cleaned_data['file'].open("rb"))
 	    trabajo.save_to_alfresco(anexos=anexos,
-                                     trabajo_contenido = request.FILES['file'],
+                                     trabajo_contenido = trabajo_form.cleaned_data['file'].open("rb"),
 				     anexos_contenidos = anexos_files,
 				     update_relationship=True)
 

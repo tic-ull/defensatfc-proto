@@ -29,7 +29,7 @@ from defensa import settings
  
 def FileFormatValidator(fileobj, formats):
     if isinstance(fileobj, basestring):
-        format = fileobj
+        (format, encoding) = mimetypes.guess_type(fileobj)
     else:
         (format, encoding) = mimetypes.guess_type(fileobj.name)
 
@@ -44,7 +44,7 @@ def FileFormatValidator(fileobj, formats):
         else:
             raise ValidationError(u"""Formato de fichero no admitido para el
                 tipo de documento especificado. Se esperaba un documento en
-                formato %s.""" % names[0] )
+                formato %s.""" % names[0])
 
 
 NIUValidator = RegexValidator(regex ='^\d{10}$', message='Ej: 0100353303')

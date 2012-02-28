@@ -29,7 +29,11 @@
 {% block content_title %}Solicitud de defensa de Trabajo Fin de Carrera{% endblock %}
 {% block content %}
 <div class=item>
-
+<p>Va a solicitar la defensa de su proyecto fin de carrera. Por favor, selecciones el archivo
+que contiene el documento de la memoria y rellene los campos del formulario. Si lo desea,
+puede utilizar el botón <em>Añadir anexo</em> para adjuntar documentación o recursos
+adicionales. Cuando haya terminado, haga <em>clic</em> en el botón <em>Enviar</em>.</p>
+<br/>
 <button id="add_tab">Añadir anexo</button>
 <form id="form" action="." enctype="multipart/form-data" method="POST">
     {% csrf_token %}
@@ -45,7 +49,8 @@
             {{ f.non_field_errors }}
             <table>
                 <tr>
-                    <td colspan="2">{{ f.file.errors }}{{ f.file }}</td>
+                    <th><label for="id_file">Documento de la memoria (*):</label></th>
+                    <td>{{ f.file.errors }}{{ f.file }}{{ f.filename }}{{ f.fileid }}</td>
                 </tr>
                 <tr>
                     <th><label for="id_title">Título (*):</label><br/>
@@ -132,7 +137,8 @@
             {{ form.non_field_errors }}
 	    <table>
                 <tr>
-                    <td colspan="2">{{ form.file.errors }}{{ form.file }}</td>
+                    <th><label for="id_file">Documento del anexo (*):</label></th>
+                    <td>{{ form.file.errors }}{{ form.file }}{{ form.filename }}{{ form.fileid }}</td>
                 </tr>
                 <tr>
                     <th><label for="id_anexo_set-{{ forloop.counter0 }}-title">Título (*):</label><br/>
@@ -164,7 +170,8 @@
         {{ form.non_field_errors }}
         <table>
             <tr>
-                <td colspan="2">{{ form.file.errors }}{{ form.file }}</td>
+                <th><label for="id_file">Documento del anexo (*):</label></th>
+                <td>{{ form.file.errors }}{{ form.file }}</td>
             </tr>
             <tr>
                 <th><label for="id_anexo_set-__prefix__-title">Título (*):</label><br/>
