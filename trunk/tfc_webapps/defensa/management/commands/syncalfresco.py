@@ -39,6 +39,7 @@ class Command(NoArgsCommand):
                 centro.save()
                 num_centros = num_centros + 1
 	    properties_centro = centro.get_alfresco_properties()
+	    properties_centro = models.Centro.resolve_alfresco_prefixes(properties_centro)
 	    cml.create (settings.ALFRESCO_PFC_FOLDER_UUID,
                         settings.ALFRESCO_PFC_MODEL_NAMESPACE % "centro",
                         properties_centro, create_callback)
@@ -53,6 +54,7 @@ class Command(NoArgsCommand):
                 titulacion.save()
                 num_titulaciones = num_titulaciones + 1
 	    properties_titulacion = titulacion.get_alfresco_properties()
+	    properties_titulacion = models.Titulacion.resolve_alfresco_prefixes(properties_titulacion)
 	    cml.create (titulacion.centro.alfresco_uuid,
                         ALFRESCO_PFC_MODEL_NAMESPACE % "titulacion",
                         properties_titulacion, create_callback)

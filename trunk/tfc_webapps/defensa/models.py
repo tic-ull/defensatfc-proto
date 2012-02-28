@@ -19,7 +19,7 @@
 #
 
 from django.core.validators import MaxLengthValidator
-from django.db import models
+from django.db import models, transaction
 from django.contrib import auth
 from django.utils import formats
 
@@ -32,21 +32,25 @@ import re
 
 class AlfrescoPFCModel(models.Model):
     """Modelo abstracto base de todos los modelos cuyos datos se exportal a Alfresco."""
-    
+
     NAMESPACES = Alfresco.NAMESPACES
     NAMESPACES['pfc'] = settings.ALFRESCO_PFC_MODEL_NAMESPACE 
 
     class Meta:
         abstract = True
 
-    def get_alfresco_properties(self):
-        properties = self._get_alfresco_properties()
+    @classmethod
+    def resolve_alfresco_prefixes(cls, properties):
         items = list(properties.items())
         for i, item in enumerate(items):
             (namespace, sep, name) = item[0].partition(':')
-            if sep and namespace in self.NAMESPACES:
-                items[i] = (self.NAMESPACES[namespace] % name, item[1])
+            if sep and namespace in cls.NAMESPACES:
+                items[i] = (cls.NAMESPACES[namespace] % name, item[1])
         return dict(items)
+
+    def get_alfresco_properties(self):
+        self.alfresco_properties = self._get_alfresco_properties()
+        return self.alfresco_properties
 
     def _get_alfresco_properties(self):
         return {}
@@ -61,12 +65,12 @@ class Centro(AlfrescoPFCModel):
 
     def __unicode__(self):
         return self.nombre
-    
+
     def _get_alfresco_properties(self):
         return {
             'cm:name': self.nombre,
 	    'pfc:codigoCentro' : self.codigo_centro,
-    }    
+        }
 
 
 class Titulacion(AlfrescoPFCModel):
@@ -117,19 +121,25 @@ class Contenido(AlfrescoPFCModel):
     def pretty_language(self):
         return [value for key, value in settings.LENGUAJE_SELECCION if key == self.language][0]
 
-    def save_to_alfresco(self, parent_uuid, cml, force_insert=False, force_update=False):
+    def save_to_alfresco(self, cml, parent_uuid, force_insert=False, force_update=False):
         if force_insert and force_update:
             raise ValueError("Cannot force both insert and updating in model saving.")
 
+        if not self.alfresco_properties:
+            self.get_alfresco_properties()
+
+        properties = Contenido.resolve_alfresco_prefixes(self.alfresco_properties)
+
 	if force_update or not force_insert and self.alfresco_uuid:
-            return cml.update(self.alfresco_uuid,
-                self.get_alfresco_properties())
+            return cml.update(self.alfresco_uuid, properties)
         else:
+            if parent_uuid is None:
+                raise TypeError("No se puede pasar None como UUID del padre si el contenido debe ser creado.")
             def create_callback(result):
                 self.alfresco_uuid = result.destination.uuid
             return cml.create(parent_uuid,
-                settings.ALFRESCO_PFC_MODEL_NAMESPACE % 'contenido',
-                self.get_alfresco_properties(), create_callback)
+                settings.ALFRESCO_PFC_MODEL_NAMESPACE % 'contenido', properties,
+                create_callback)
 
     def _get_alfresco_properties(self):
         return {
@@ -241,6 +251,93 @@ class Trabajo(Contenido):
     def get_absolute_url(self):
         return ('trabajo_view', (), {'id': self.id})
 
+    @transaction.commit_on_success
+    def save_to_alfresco(anexos=None, vocales=None, update_db=True,
+                         update_relationship=False, trabajo_contenido=None,
+                         anexos_contenidos=None):
+        """ Salvar toda la información relacionada con un trabajo en el gestor documental."""
+
+    if settings.ALFRESCO_ENABLED:
+
+        incoming = []
+        cml = Alfresco().cml()
+        
+        # Guardar el trabajo en Alfresco
+        self.get_alfresco_properties()
+        if vocales is None:
+            self.alfresco_properties['pfc:vocalesTribunal'] = [
+                v.nombre_completo() for v in self.tribunalvocal_set.all()]
+        else:
+            self.alfresco_properties['pfc:vocalesTribunal'] = [
+                v.nombre_completo() for v in vocales]
+
+        if self.alfresco_uuid:
+            super(Trabajo, self).save_to_alfresco(cml)
+        else:
+            incoming.append(self)
+            super(Trabajo, self).save_to_alfresco(cml,
+                settings.ALFRESCO_PFC_INCOMING_FOLDER_UUID)
+
+        # Guardar los anexos en Alfresco
+        if anexos is None:
+            anexo_set = self.anexo_set.all()
+        else:
+            anexo_set = anexos
+
+        for anexo in anexo_set:
+            anexo.get_alfresco_properties()
+            anexo.alfresco_properties['cm:creator'] = self.alfresco_properties['cm:creator']
+            anexo.alfresco_properties['cm:subject'] = self.alfresco_properties['cm:subject']
+            anexo.alfresco_properties['cm:rights'] = self.alfresco_properties['cm:rights']
+            anexo.alfresco_properties['cm:coverage'] = self.alfresco_properties['cm:coverage']
+
+            if anexo.alfresco_uuid:
+                anexo.save_to_alfresco(cml)
+            else:
+                incoming.append(anexo)
+                anexo.save_to_alfresco(cml, settings.ALFRESCO_PFC_INCOMING_FOLDER_UUID)
+
+        # Ejecutar las acciones sobre alfresco anteriores
+        cml.do()
+
+        # Cargar los contenidos
+        if trabajo_contenido is not None:
+            Alfresco().upload_content(trabajo.alfresco_uuid, trabajo_contenido)
+        if anexos_contenidos is not None:
+            for anexo, contenido in zip(anexo_set, anexos_contenidos):
+                Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+
+        # Actualizar la base de datos si fuera necesario
+        if update_db:
+            self.save()
+            if anexos is not None:
+                for anexo in anexos:
+                    anexo.save()
+            if vocales is not None:
+                for vocal in vocales:
+                    vocal.save()
+
+        # Si es necesario, actualizar el campo relation que vincula los contenidos
+        if update_relationship:
+            cml = Alfresco().cml()
+            relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
+            trabajo_relaciones = ['hasPart %s' % anexo.alfreso_uuid for anexo in anexo_set]
+            cml.update(trabajo.alfresco_uuid, {
+                relation_propname: trabajo_relaciones
+            })
+            for anexo in anexo_set:
+                cml.update(anexo.alfresco_uuid, {
+                    property_relation: 'isPartOf %s' % trabajo.alfresco_uuid
+                })
+
+        # Si es necesario, mover los documentos a su destino final.
+        for content in incoming:
+            cml.move(content.alfresco_uuid, content.titulacion.alfresco_uuid)
+
+        # Ejecutar las acciones sobre alfresco anteriores
+        cml.do()
+
+
     def _get_alfresco_properties(self):
         properties = super(Trabajo, self)._get_alfresco_properties()
         properties['cm:creator'] = self.creator_nombre_completo()
@@ -255,8 +352,6 @@ class Trabajo(Contenido):
         properties['pfc:modalidad'] = self.modalidad
         properties['pfc:presidenteTribunal'] = self.tutor_nombre_completo()
         properties['pfc:secretarioTribunal'] = self.director_nombre_completo()
-        properties['pfc:vocalesTribunal'] = [
-            vocal.nombre_completo() for vocal in self.tribunalvocal_set.all()]
         properties['cm:subject'] = self.subject
         properties['cm:rights'] = self.pretty_rights()
         properties['cm:coverage'] = self.coverage        
@@ -295,52 +390,6 @@ class Anexo(Contenido):
 
     def pretty_type(self):
         return [value for key, value in settings.TIPO_DOCUMENTO_ANEXO_SELECCION if key == self.type][0]
-        
-    # Muchas de las propiedades de los anexos se heredan de las del trabajo
-    def _get_alfresco_properties(self):
-        properties = self.trabajo._get_alfresco_properties()
-        properties.update(super(Anexo, self)._get_alfresco_properties())
-        return properties
-
-
-def save_proyect_to_alfresco(trabajo, anexos, vocales = [],
-                             update_relationship=True, update_db=False,
-                             trabajo_contenido=None, anexos_contenidos=()):
-    """ Salvar toda la información relacionada con un trabajo en el gestor documental."""
-
-    if update_db:
-        proyecto.save()
-        for anexo in anexos:
-            anexo.save()
-        for vocal in vocales:    
-	  vocal.save()    
-
-    if settings.ALFRESCO_ENABLED:
-        cml = Alfresco().cml()
-
-        trabajo.save_to_alfresco(trabajo.titulacion.alfresco_uuid, cml)
-        for anexo in anexos:
-            anexo.save_to_alfresco(anexo.trabajo.titulacion.alfresco_uuid, cml)
-        cml.do()
-
-        if trabajo_contenido is not None:
-            Alfresco().upload_content(trabajo.alfresco_uuid, trabajo_contenido)
-        for anexo, contenido in zip(anexos, anexos_contenidos):
-            Alfresco().upload_content(anexo.alfresco_uuid, contenido)
-
-        if update_relationship and anexos:
-            # Si es necesario, hay que salvar la relacion entre los documentos
-            cml = Alfresco().cml()
-            relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
-            trabajo_relaciones = ['hasPart %s' % anexo.alfreso_uuid for anexo in anexos]
-            cml.update(trabajo.alfresco_uuid, {
-                relation_propname: trabajo_relaciones
-            })
-            for anexo in anexos:
-                cml.update(anexo.alfresco_uuid, {
-                    property_relation: 'isPartOf %s' % trabajo.alfresco_uuid
-                })
-            cml.do()
 
 
 #

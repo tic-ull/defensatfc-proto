@@ -103,10 +103,10 @@ def solicitar_defensa(request):
             for anexo, form in zip(anexos, anexo_formset.forms):
 	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)[0]
 		anexos_files.append (form.cleaned_data['file'])
-	    save_proyect_to_alfresco(trabajo, anexos,
-				     update_db=True,
+	    trabajo.save_to_alfresco(anexos=anexos,
                                      trabajo_contenido = request.FILES['file'],
-				     anexos_contenidos = anexos_files)
+				     anexos_contenidos = anexos_files
+				     update_relationship=True)
 
             # enviar correo al alumno
             plaintext = get_template('solicitar_defensa_email.txt')
@@ -308,7 +308,7 @@ def autorizar_defensa(request, id):
         if trabajo_form.is_valid():
             if "Autorizar" in request.POST:
                 trabajo.estado = 'autorizado'
-                save_proyect_to_alfresco(trabajo, anexos, update_db=True)
+                trabajo.save_to_alfresco()
 
                 # enviar correo al alumno
                 plaintext = get_template('autorizar_defensa_email_alumno.txt')
@@ -398,8 +398,8 @@ def calificar_trabajo(request, id):
 	    if vocales_formset.is_valid():
 		trabajo.estado = 'calificado'
 		# hacemos update
-		vocales = vocales_formset.save(commit=False) 
-		save_proyect_to_alfresco(trabajo, [], vocales=vocales, update_db=True)
+		vocales = vocales_formset.save(commit=False)
+		trabajo.save_to_alfresco(anexos=[], vocales=vocales)
 
                 # enviar correo al alumno
                 plaintext = get_template('calificar_trabajo_email_alumno.txt')
@@ -467,7 +467,7 @@ def archivar_trabajo(request, id):
 
 	if trabajo_form.is_valid():
             trabajo.estado = 'archivado'
-            save_proyect_to_alfresco(trabajo, anexos, update_db=True)
+            trabajo.save_to_alfresco()
             
             messages.add_message(request, messages.SUCCESS, """
                 <strong>El trabajo se ha archivado con éxito.</strong> 

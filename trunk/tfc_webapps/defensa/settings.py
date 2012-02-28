@@ -196,6 +196,7 @@ ALFRESCO_PASSWORD = 'M4cvB73'
 
 ALFRESCO_PFC_MODEL_NAMESPACE = '{http://www.ull.es/2011/10/04/pfc.xsd}%s'
 ALFRESCO_PFC_FOLDER_UUID = '66fdb019-1500-4fdf-9e76-94d15ef04b55'
+ALFRESCO_PFC_INCOMING_FOLDER_UUID = '8eb2f6a8-a7b4-4669-8e37-74edefd9b093'
 
 ALFRESCO_URL_AUTH_SERVICE = 'http://localhost:1080/alfresco/wsdl/authentication-service.wsdl'
 #ALFRESCO_URL_AUTH_SERVICE = 'http://gestdoc.ccti.ull.es:8080/alfresco/wsdl/authentication-service.wsdl'
