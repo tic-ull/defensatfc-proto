@@ -33,7 +33,7 @@ def FileFormatValidator(fileobj, formats):
     else:
         (format, encoding) = mimetypes.guess_type(fileobj.name)
 
-    if format not in formats:
+    if format is None or format not in formats:
         names = [
             name for mimetype, name in settings.FORMATO_SELECCION if mimetype in formats]
         if len(names) > 1:
