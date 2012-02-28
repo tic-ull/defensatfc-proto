@@ -383,17 +383,17 @@ def calificar_trabajo(request, id):
     """Vista para calificar un trabajo defendido."""
     
     trabajo = get_object_or_404(Trabajo, id=id)
-    if not (request.user.can_calificar_trabajo(p) and
+    if not (request.user.can_calificar_trabajo(trabajo) and
             trabajo.estado == 'autorizado'):
         return HttpResponseForbidden()
 
     anexos = trabajo.anexo_set.all()
 
     if request.method == 'POST':
-        trabajo_form = FormularioCalificar(request.POST, instance=p)
+        trabajo_form = FormularioCalificar(request.POST, instance=trabajo)
 
         if trabajo_form.is_valid(): 
-	    vocales_formset = VocalesFormSet (request.POST, instance=p)
+	    vocales_formset = VocalesFormSet (request.POST, instance=trabajo)
 
 	    if vocales_formset.is_valid():
 		trabajo.estado = 'calificado'
@@ -416,8 +416,9 @@ def calificar_trabajo(request, id):
 
                 # enviar correo a los bibliotecarios
                 plaintext = get_template('calificar_trabajo_email_biblioteca.txt') 
-		users = AdscripcionUsuarioCentro.objects.filter(centro=trabajo.titulacion.centro, user__groups__name = settings.GRUPO_BIBLIOTECARIOS)
-		to_email = [user.user.email for user in users]                
+		users = AdscripcionUsuarioCentro.objects.filter(centro=trabajo.titulacion.centro,
+                    user__groups__name = settings.GRUPO_BIBLIOTECARIOS)
+		to_email = [user.user.email for user in users]
 		c = Context({
                     'trabajo': trabajo.title,
                     'calificacion': trabajo.pretty_calificacion(),
@@ -454,7 +455,7 @@ def archivar_trabajo(request, id):
     """Vista para archivar un trabajo calificado."""
 
     trabajo = get_object_or_404(Trabajo, id=id)
-    if not (request.user.can_archivar_trabajo(p) and
+    if not (request.user.can_archivar_trabajo(trabajo) and
             trabajo.estado == 'calificado'):
         return HttpResponseForbidden()
 
@@ -462,7 +463,7 @@ def archivar_trabajo(request, id):
     vocales = trabajo.tribunalvocal_set.all()
 
     if request.method == 'POST':
-	trabajo_form = FormularioArchivar(request.POST, instance = p)
+	trabajo_form = FormularioArchivar(request.POST, instance=trabajo)
 
 	if trabajo_form.is_valid():
             trabajo.estado = 'archivado'
@@ -473,7 +474,7 @@ def archivar_trabajo(request, id):
 		""")
             return redirect(lista_archivar)
     else:
-	trabajo_form = FormularioArchivar(instance=p)
+	trabajo_form = FormularioArchivar(instance=trabajo)
 
     return render(request, 'archivar_trabajo.html', {
                                 'f': trabajo_form,
