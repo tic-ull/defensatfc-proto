@@ -79,16 +79,17 @@ def solicitar_defensa(request):
     """Formulario de solicitud de defensa de un trabajo fin de carrera."""
     
     if request.method == 'POST':
-        request.POST['niu'] = request.user.niu()
+        if request.user.niu() is not None:
+            request.POST['niu'] = request.user.niu()
         trabajo_form = FormularioSolicitud(request.POST, request.FILES)
 	anexo_formset = AnexoFormSet (request.POST, request.FILES)
 
 	if trabajo_form.is_valid():
-	    trabajo = trabajo_form.save(commit=True)
+	    trabajo = trabajo_form.save(commit=False)
 	    anexo_formset = AnexoFormSet (request.POST, request.FILES, instance = trabajo)
 
-	    if anexo_formset.is_valid():
-		anexos = anexo_formset.save(commit=False)
+        if anexo_formset.is_valid():
+            anexos = anexo_formset.save(commit=False)
 
 	if trabajo_form.is_valid() and anexo_formset.is_valid():
 	    trabajo.estado = 'solicitado'
@@ -133,8 +134,8 @@ def solicitar_defensa(request):
         initial = { 'niu': request.user.niu() }
         trabajo_form = FormularioSolicitud(initial=initial)
         anexo_formset = AnexoFormSet()
-	if request.user.niu() is not None:
-	    trabajo_form.fields['niu'].widget.attrs['disabled'] = True
+    if request.user.niu() is not None:
+        trabajo_form.fields['niu'].widget.attrs['disabled'] = True
     return render(request, 'solicitar_defensa.html', {
                         'f': trabajo_form,
                         'a': anexo_formset,
