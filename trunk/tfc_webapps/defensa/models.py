@@ -217,10 +217,13 @@ class Trabajo(Contenido):
             if campo_nombre in self.__dict__ and campo_apellidos in self.__dict__:
                 if self.__dict__[campo_nombre] and self.__dict__[campo_apellidos]:
                     def nombre_completo():
-                        return settings.NOMBRE_COMPLETO_PLANTILLA % {
-                            'nombre': self.__dict__[campo_nombre],
-                            'apellidos': self.__dict__[campo_apellidos],
-                        }
+		        if (self.__dict__[campo_nombre] == None or self.__dict__[campo_apellidos] == None):
+			  return none
+			else:
+			  return settings.NOMBRE_COMPLETO_PLANTILLA % {
+			      'nombre': self.__dict__[campo_nombre],
+			      'apellidos': self.__dict__[campo_apellidos],
+			  }
                 else:
                     def nombre_completo():
                         return None
@@ -233,15 +236,23 @@ class Trabajo(Contenido):
         return self.titulacion.centro
 
     def pretty_estado(self):
+	if self.estado == None:
+	    return None
         return [value for key, value in self.ESTADO_SELECCION if key == self.estado][0]
 
     def pretty_calificacion(self):
+	if self.calificacion == None:
+	    return None      
         return [value for key, value in settings.CALIFICACION_SELECCION if key == self.calificacion][0]
 
     def pretty_calificacion_numerica(self):
+	if self.calificacion_numerica == None:
+	    return None      
         return formats.number_format(self.calificacion_numerica, 1)
 
     def pretty_rights(self):
+	if self.rights == None:
+	    return None      
         license = settings.DERECHOS[self.rights]
         print license
         if license.get('url', ''):
@@ -304,7 +315,7 @@ class Trabajo(Contenido):
 
             # Cargar los contenidos
             if trabajo_contenido is not None:
-                Alfresco().upload_content(trabajo.alfresco_uuid, trabajo_contenido)
+                Alfresco().upload_content(self.alfresco_uuid, trabajo_contenido)
             if anexos_contenidos is not None:
                 for anexo, contenido in zip(anexo_set, anexos_contenidos):
                     Alfresco().upload_content(anexo.alfresco_uuid, contenido)
@@ -314,6 +325,7 @@ class Trabajo(Contenido):
             self.save()
             if anexos is not None:
                 for anexo in anexos:
+		    anexo.trabajo = self
                     anexo.save()
             if vocales is not None:
                 for vocal in vocales:
@@ -347,10 +359,10 @@ class Trabajo(Contenido):
         properties['cm:creator'] = self.creator_nombre_completo()
         properties['pfc:niu'] = self.niu
         properties['pfc:centro'] = self.centro().nombre
-        properties['pfc:titulacion'] = str(self.titulacion)
+        properties['pfc:titulacion'] = self.titulacion
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()
-        properties['pfc:fechaDefensa'] = self.fecha_defensa.isoformat()
+        properties['pfc:fechaDefensa'] = self.fecha_defensa.isoformat() if self.fecha_defensa != None else None
         properties['pfc:calificacion'] = self.pretty_calificacion()
         properties['pfc:calificacionNumerica'] = self.pretty_calificacion_numerica()
         properties['pfc:modalidad'] = self.modalidad
@@ -358,10 +370,10 @@ class Trabajo(Contenido):
         properties['pfc:secretarioTribunal'] = self.director_nombre_completo()
         properties['cm:subject'] = self.subject
         properties['cm:rights'] = self.pretty_rights()
-        properties['cm:coverage'] = self.coverage        
+        properties['cm:coverage'] = self.coverage
         return properties
 
-
+#str(self.titulacion)
 class TribunalVocal(models.Model):
     """Modelo para almacenar los vocales del tribunal de defensa de un trabajo."""
     

@@ -44,7 +44,7 @@ def FileFormatValidator(fileobj, formats):
         else:
             raise ValidationError(u"""Formato de fichero no admitido para el
                 tipo de documento especificado. Se esperaba un documento en
-                formato %s.""" % names[0])
+                formato %s.""" % names)
 
 
 NIUValidator = RegexValidator(regex ='^\d{10}$', message='Ej: 0100353303')
