@@ -363,6 +363,7 @@ class Trabajo(Contenido):
         properties['pfc:titulacion'] = self.titulacion
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()
+        #TODO Django no da soporte para timezones y alfresco exite la fechas en el formato 2005-09-16T17:01:03.456+01:00. 
         properties['pfc:fechaDefensa'] = (self.fecha_defensa.isoformat() + 'T00:00:00.000+01:00') if self.fecha_defensa != None else None
         properties['pfc:calificacion'] = self.pretty_calificacion()
         properties['pfc:calificacionNumerica'] = self.pretty_calificacion_numerica()
