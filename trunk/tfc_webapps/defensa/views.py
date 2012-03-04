@@ -102,9 +102,9 @@ def solicitar_defensa(request):
 	    anexos_files = []
             for anexo, form in zip(anexos, anexo_formset.forms):
 	        anexo.format = mimetypes.guess_type(form.cleaned_data['file'].name)[0]
-		anexos_files.append(form.cleaned_data['file'].open("rb"))
+		anexos_files.append(form.cleaned_data['file'])
 	    trabajo.save_to_alfresco(anexos=anexos,
-                                     trabajo_contenido = trabajo_form.cleaned_data['file'].open("rb"),
+                                     trabajo_contenido = trabajo_form.cleaned_data['file'],
 				     anexos_contenidos = anexos_files,
 				     update_relationship=True)
 
@@ -346,7 +346,7 @@ def autorizar_defensa(request, id):
                     """)
             elif "Rechazar" in request.POST:
                 trabajo.estado = 'rechazado'
-                save_proyect_to_alfresco(trabajo, [], update_db=True)
+                trabajo.save_to_alfresco()
 
 		# enviar correo al alumno
                 plaintext = get_template('rechazar_defensa_email_alumno.txt')

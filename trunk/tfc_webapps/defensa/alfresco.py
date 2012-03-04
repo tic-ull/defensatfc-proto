@@ -21,6 +21,7 @@
 import logging
 import put
 import urllib2
+import urllib
 
 from datetime import datetime, timedelta
 
@@ -77,12 +78,13 @@ class Alfresco(object):
                 name = 'file'
         else:
             name = file_name
-
+	
         url = settings.ALFRESCO_URL_PUT % {
             'uuid': uuid, 
             'filename': name,
             'ticket': self._ticket
         }
+
         return put.putfile(file_object, url)
 
     def get_download_url(self, uuid):
@@ -193,14 +195,14 @@ class CML(object):
         self._callbacks.append(callback)
         return self
 
-    def move(self, uuid, parent_uuid, callback=None):
+    def move(self, uuid, parent_uuid, name, callback=None):
         # Obtener la referencia al nuevo nodo padre
         store = self._repository.factory.create(self.NAMESPACES['content'] % 'Store')
         store.scheme = 'workspace'
         store.address = 'SpacesStore'
         parent_reference = self._repository.factory.create(self.NAMESPACES['content'] % 'ParentReference')
         parent_reference.associationType = self.NAMESPACES['cm'] % 'contains'
-        parent_reference.childName = self.NAMESPACES['cm'] % properties[self.NAME_PROPERTY]
+        parent_reference.childName = self.NAMESPACES['cm'] % name
         parent_reference.uuid = parent_uuid
         parent_reference.store = store
 
@@ -208,12 +210,12 @@ class CML(object):
         predicate.nodes = self._get_reference(uuid)
 
         # move
-        move = self._repository.factory.move(self.NAMESPACES['cml'] % 'move')
+        move = self._repository.factory.create(self.NAMESPACES['cml'] % 'move')
         move.where = predicate
         move.to = parent_reference
 
         # Añadir la operación
-        self.cml.create.append(move)
+        self.cml.move.append(move)
         self._callbacks.append(callback)
         return self
 

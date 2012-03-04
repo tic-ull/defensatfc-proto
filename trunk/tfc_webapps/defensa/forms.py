@@ -69,10 +69,12 @@ class FormularioTrabajoBase(forms.ModelForm):
 
     def clean(self):
         director_apellidos = self.cleaned_data.get('director_apellidos')
-        director_nombre = self.cleaned_data.get('director_director')
+        director_nombre = self.cleaned_data.get('director_nombre')
 
         # comprobar nombre y apellidos del director
         if director_apellidos and not director_nombre:
+	    print director_apellidos
+	    print director_nombre
             self.append_field_error('director_nombre', u"""
                 Si desea indicar un director debe proporcionar tanto el
                 nombre como los apellidos.""")

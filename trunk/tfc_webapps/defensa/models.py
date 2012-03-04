@@ -30,6 +30,7 @@ from defensa.alfresco import Alfresco
 import os
 import re
 import tempfile
+import urllib
 
 
 class AlfrescoPFCModel(models.Model):
@@ -123,7 +124,7 @@ class Contenido(AlfrescoPFCModel):
     def pretty_language(self):
         return [value for key, value in settings.LENGUAJE_SELECCION if key == self.language][0]
 
-    def save_to_alfresco(self, cml, parent_uuid, force_insert=False, force_update=False):
+    def save_to_alfresco(self, cml, parent_uuid = None, force_insert=False, force_update=False):
         if force_insert and force_update:
             raise ValueError("Cannot force both insert and updating in model saving.")
 
@@ -248,8 +249,9 @@ class Trabajo(Contenido):
     def pretty_calificacion_numerica(self):
 	if self.calificacion_numerica == None:
 	    return None      
-        return formats.number_format(self.calificacion_numerica, 1)
-
+        #return formats.number_format(self.calificacion_numerica, 1)
+	return self.calificacion_numerica
+	
     def pretty_rights(self):
 	if self.rights == None:
 	    return None      
@@ -312,13 +314,12 @@ class Trabajo(Contenido):
 
             # Ejecutar las acciones sobre alfresco anteriores
             cml.do()
-
             # Cargar los contenidos
             if trabajo_contenido is not None:
-                Alfresco().upload_content(self.alfresco_uuid, trabajo_contenido)
+                Alfresco().upload_content(self.alfresco_uuid, trabajo_contenido.open("rb"), self.title)
             if anexos_contenidos is not None:
                 for anexo, contenido in zip(anexo_set, anexos_contenidos):
-                    Alfresco().upload_content(anexo.alfresco_uuid, contenido)
+                    Alfresco().upload_content(anexo.alfresco_uuid, contenido.open("rb"), anexo.title)
 
         # Actualizar la base de datos si fuera necesario
         if update_db:
@@ -337,19 +338,19 @@ class Trabajo(Contenido):
             if update_relationship:
                 cml = Alfresco().cml()
                 relation_propname = Alfresco.NAMESPACES['cm'] % 'relation'
-                trabajo_relaciones = ['hasPart %s' % anexo.alfreso_uuid for anexo in anexo_set]
-                cml.update(trabajo.alfresco_uuid, {
+                print dir(anexo_set)
+                trabajo_relaciones = ['hasPart %s' % anexo.alfresco_uuid for anexo in anexo_set]
+                cml.update(self.alfresco_uuid, {
                     relation_propname: trabajo_relaciones
                 })
                 for anexo in anexo_set:
                     cml.update(anexo.alfresco_uuid, {
-                        property_relation: 'isPartOf %s' % trabajo.alfresco_uuid
+                        relation_propname: 'isPartOf %s' % self.alfresco_uuid
                     })
 
             # Si es necesario, mover los documentos a su destino final.
             for content in incoming:
-                cml.move(content.alfresco_uuid, content.titulacion.alfresco_uuid)
-
+                cml.move(content.alfresco_uuid, self.titulacion.alfresco_uuid, content.title)
             # Ejecutar las acciones sobre alfresco anteriores
             cml.do()
 
@@ -362,7 +363,7 @@ class Trabajo(Contenido):
         properties['pfc:titulacion'] = self.titulacion
         properties['pfc:tutor'] = self.tutor_nombre_completo()
         properties['pfc:director'] = self.director_nombre_completo()
-        properties['pfc:fechaDefensa'] = self.fecha_defensa.isoformat() if self.fecha_defensa != None else None
+        properties['pfc:fechaDefensa'] = (self.fecha_defensa.isoformat() + 'T00:00:00.000+01:00') if self.fecha_defensa != None else None
         properties['pfc:calificacion'] = self.pretty_calificacion()
         properties['pfc:calificacionNumerica'] = self.pretty_calificacion_numerica()
         properties['pfc:modalidad'] = self.modalidad
