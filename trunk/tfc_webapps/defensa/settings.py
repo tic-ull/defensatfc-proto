@@ -191,8 +191,8 @@ ALFRESCO_ENABLED = True
 ALFRESCO_PROXY_SERVER = {
     'http': 'localhost:1080'
 }
-ALFRESCO_USERNAME = 'alfrescoproyfincar'
-ALFRESCO_PASSWORD = 'M4cvB73'
+ALFRESCO_USERNAME = 'username'
+ALFRESCO_PASSWORD = 'password'
 
 ALFRESCO_PFC_MODEL_NAMESPACE = '{http://www.ull.es/2011/10/04/pfc.xsd}%s'
 ALFRESCO_PFC_FOLDER_UUID = '66fdb019-1500-4fdf-9e76-94d15ef04b55'
